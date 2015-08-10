@@ -1,0 +1,27 @@
+[package]
+name = "flowgger"
+version = "0.0.1"
+authors = ["Frank Denis <github@pureftpd.org>"]
+
+[dependencies]
+kafka = "*"
+chrono = "*"
+log = "*"
+serde = "*"
+serde_json = "*"
+serde_macros = "*"
+toml = "*"
+
+[dependencies.openssl]
+version = "*"
+features = ["tlsv1_2", "tlsv1_1"]
+
+[profile.dev]
+codegen-units = 8
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
