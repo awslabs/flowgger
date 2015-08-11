@@ -18,7 +18,6 @@ impl Config {
             Ok(config) => config,
             Err(_) => return Err(Error::new(ErrorKind::InvalidData, "Syntax error"))
         };
-        println!("{:#?}", config);
         Ok(Config {
             config: config
         })
