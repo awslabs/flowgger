@@ -37,6 +37,7 @@ The configuration file consists of two main sections: `[input]` and `[output]`.
 
 Input section
 -------------
+
 ```toml
 [input]
 type = "syslog-tls"
@@ -65,6 +66,7 @@ cannot keep up with the input rate.
 
 Output section
 --------------
+
 ```toml
 [output]
 type = "kafka"
@@ -81,7 +83,7 @@ x-header2 = "zik"
 ```
 
 After having been decoded, records are reencoded in `format`. Currently, only
-Greylog's [https://www.graylog.org/resources/gelf-2/](`gelf` format) is supported.
+Greylog's [`gelf` format](https://www.graylog.org/resources/gelf-2/) is supported.
 
 Structured data from RFC5424 records show up in Gelf data as additional fields.
 
@@ -101,3 +103,15 @@ If your traffic rate is fairly high, setting this to `10000` is a reasonable
 ballpark figure. However, Flowgger always waits for a full batch to be buffered
 before sending it to Kafka. So, if your incoming traffic rate is low, you
 should disable coalescing by setting `kafka_coalesce` to `1`.
+
+What the use cases for this?
+----------------------------
+
+Injecting massive amounts of non-critical syslog data to an
+ElasticSearch cluster, possibly via [Graylog](https://www.graylog.org/).
+
+How efficient is RFC5424?
+-------------------------
+
+It's absolutely terrible. If you can, opt for [LTSV](http://ltsv.org) or binary
+formats such as [Cap'n Proto](https://capnproto.org/) instead.
