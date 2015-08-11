@@ -1,18 +1,18 @@
-mod kafkapool;
-mod rfc5424;
-mod gelf;
 mod config;
+mod gelf;
+mod kafkapool;
 mod record;
+mod rfc5424;
 mod tcpinput;
 
+use self::config::Config;
+use self::gelf::Gelf;
+use self::kafkapool::KafkaPool;
+use self::record::Record;
+use self::rfc5424::RFC5424;
+use self::tcpinput::TcpInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
-use self::config::Config;
-use self::kafkapool::KafkaPool;
-use self::rfc5424::RFC5424;
-use self::gelf::Gelf;
-use self::record::Record;
-use self::tcpinput::TcpInput;
 
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";

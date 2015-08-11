@@ -1,16 +1,16 @@
 
 extern crate kafka;
 
-use std::sync::{Arc, Mutex};
-use std::sync::mpsc::Receiver;
-use std::thread;
-use flowgger::config::Config;
 use flowgger::Output;
+use flowgger::config::Config;
 use self::kafka::client::KafkaClient;
 use self::kafka::utils::ProduceMessage;
+use std::sync::mpsc::Receiver;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
-const KAFKA_DEFAULT_TIMEOUT: i32 = 60;
 const KAFKA_DEFAULT_THREADS: u32 = 1;
+const KAFKA_DEFAULT_TIMEOUT: i32 = 60;
 
 pub struct KafkaPool {
     config: KafkaConfig,
@@ -33,7 +33,7 @@ struct KafkaWorker {
 impl KafkaWorker {
     fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: KafkaConfig) -> KafkaWorker {
         let mut client = KafkaClient::new(config.brokers.clone());
-        client.load_metadata_all().unwrap();
+        let _ = client.load_metadata_all();
         KafkaWorker {
             arx: arx,
             client: client,
@@ -47,7 +47,7 @@ impl KafkaWorker {
                 Ok(line) => line,
                 Err(_) => return
             };
-            self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes).unwrap();
+            let _ = self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes);
         }
     }
 }

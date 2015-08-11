@@ -3,11 +3,11 @@
 extern crate serde;
 extern crate serde_json;
 
-use flowgger::config::Config;
 use flowgger::Encoder;
+use flowgger::config::Config;
 use flowgger::record::Record;
-use self::serde_json::value::Value;
 use self::serde_json::builder::ObjectBuilder;
+use self::serde_json::value::Value;
 
 #[derive(Clone)]
 pub struct Gelf {

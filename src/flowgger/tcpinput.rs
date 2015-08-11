@@ -1,6 +1,7 @@
+
 use flowgger::config::Config;
 use flowgger::{Decoder, Encoder, Input};
-use std::io::{BufRead, BufReader};
+use std::io::{stderr, Write, BufRead, BufReader};
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
 use std::thread;
@@ -36,26 +37,23 @@ impl Input for TcpInput {
     }
 }
 
+fn handle_line<TD, TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &TD, encoder: &TE) -> Result<(), &'static str> where TD: Decoder, TE: Encoder {
+    let decoded = try!(decoder.decode(&line));
+    let reencoded = try!(encoder.encode(decoded));
+    tx.send(reencoded).unwrap();
+    Ok(())
+}
+
 fn handle_client<TD, TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE) where TD: Decoder, TE: Encoder {
     let reader = BufReader::new(client);
-    let mut counter = 0;
     for line in reader.lines() {
         let line = match line {
             Err(_) => return,
             Ok(line) => line
         };
-        let decoded = match decoder.decode(&line) {
-            Err(e) => { debug!("{}", e) ; continue },
-            Ok(res) => res
-        };
-        let reencoded = match encoder.encode(decoded) {
-            Err(e) => { debug!("{}", e) ; continue },
-            Ok(reencoded) => reencoded
-        };
-        tx.send(reencoded).unwrap();
-        counter = counter + 1;
-        if counter % 250_000 == 0 {
-            println!("Counter={}", counter);
+        match handle_line(&line, &tx, &decoder, &encoder) {
+            Err(e) => { let _ = writeln!(stderr(), "{}: [{}]", e, line.trim()); }
+            _ => { }
         }
     }
 }
