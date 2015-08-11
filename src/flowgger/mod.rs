@@ -16,8 +16,10 @@ use self::tlsinput::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
-const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
+const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
+const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
+const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
 pub trait Input {
     fn new(config: &Config) -> Self;
@@ -50,7 +52,10 @@ pub fn main() {
     let line = "\u{feff}<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software=\"te\\st sc\\\"ript\" swVersion=\"0.0.1\"] test message";
     println!("{}", line);
 
-    let input = TlsInput::new(&config);
+    let input_format = config.lookup("input.format").
+        map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
+    assert!(input_format == DEFAULT_INPUT_FORMAT);
+
     let decoder = RFC5424::new(&config);
     let encoder = Gelf::new(&config);
     let output = KafkaPool::new(&config);
@@ -61,5 +66,12 @@ pub fn main() {
     let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(queue_size);
     let arx = Arc::new(Mutex::new(rx));
     output.start(arx);
-    input.accept(tx, decoder, encoder);
+
+    let input_type = config.lookup("input.type").
+        map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().unwrap());
+    match input_type {
+        "syslog" => TcpInput::new(&config).accept(tx, decoder, encoder),
+        "syslog-tls" => TlsInput::new(&config).accept(tx, decoder, encoder),
+        _ => panic!("Invalid input type")
+    }
 }

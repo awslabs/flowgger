@@ -1,8 +1,9 @@
 [input]
-type = "syslog"
+type = "syslog-tcp"
 listen = "0.0.0.0:6514"
-proto = "tcp"
 format = "rfc5424"
+tls_cert = "flowgger.pem"
+tls_key = "flowgger.pem"
 queuesize = 1000000
 
 [output]
