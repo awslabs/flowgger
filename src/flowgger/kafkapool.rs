@@ -33,7 +33,7 @@ struct KafkaWorker {
 impl KafkaWorker {
     fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: KafkaConfig) -> KafkaWorker {
         let mut client = KafkaClient::new(config.brokers.clone());
-        let _ = client.load_metadata_all();
+        client.load_metadata_all().unwrap();
         KafkaWorker {
             arx: arx,
             client: client,
@@ -47,7 +47,7 @@ impl KafkaWorker {
                 Ok(line) => line,
                 Err(_) => return
             };
-            let _ = self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes);
+            self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes).unwrap();
         }
     }
 }
