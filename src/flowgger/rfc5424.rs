@@ -1,6 +1,7 @@
 extern crate chrono;
 
-use flowgger::*;
+use flowgger::config::Config;
+use flowgger::Decoder;
 use flowgger::record::{Record, Pri, StructuredData};
 use self::chrono::DateTime;
 
@@ -8,6 +9,11 @@ use self::chrono::DateTime;
 pub struct RFC5424;
 
 impl Decoder for RFC5424 {
+    fn new(config: &Config) -> RFC5424 {
+        let _ = config;
+        RFC5424
+    }
+
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
         let (bom, line) = match BOM::parse(line, "<") {
             Ok(bom_line) => bom_line,
@@ -32,10 +38,6 @@ impl Decoder for RFC5424 {
             msg: msg
         };
         Ok(record)
-    }
-
-    fn new() -> RFC5424 {
-        RFC5424
     }
 }
 

@@ -12,13 +12,16 @@ use self::kafka::utils::ProduceMessage;
 const KAFKA_DEFAULT_TIMEOUT: i32 = 60;
 const KAFKA_DEFAULT_THREADS: u32 = 1;
 
-pub struct KafkaPool;
+pub struct KafkaPool {
+    config: KafkaConfig,
+    threads: u32
+}
 
 #[derive(Clone)]
 struct KafkaConfig {
-    pub brokers: Vec<String>,
-    pub topic: String,
-    pub timeout: i32
+    brokers: Vec<String>,
+    topic: String,
+    timeout: i32
 }
 
 struct KafkaWorker {
@@ -50,11 +53,7 @@ impl KafkaWorker {
 }
 
 impl Output for KafkaPool {
-    fn new() -> KafkaPool {
-        KafkaPool
-    }
-
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: &Config) {
+    fn new(config: &Config) -> KafkaPool {
         let brokers = config.lookup("output.kafka_brokers").unwrap().as_slice().unwrap().to_vec();
         let brokers = brokers.iter().map(|x| x.as_str().unwrap().to_string()).collect();
         let topic = config.lookup("output.kafka_topic").unwrap().as_str().unwrap().to_string();
@@ -62,16 +61,23 @@ impl Output for KafkaPool {
             map_or(KAFKA_DEFAULT_TIMEOUT, |x| x.as_integer().unwrap() as i32);
         let threads = config.lookup("output.kafka_threads").
             map_or(KAFKA_DEFAULT_THREADS, |x| x.as_integer().unwrap() as u32);
-        let config = KafkaConfig {
+        let kafka_config = KafkaConfig {
             brokers: brokers,
             topic: topic,
             timeout: timeout
         };
-        for i in 0..threads {
-            let arx0 = arx.clone();
-            let config0 = config.clone();
+        KafkaPool {
+            config: kafka_config,
+            threads: threads
+        }
+    }
+
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>) {
+        for i in 0..self.threads {
+            let arx = arx.clone();
+            let config = self.config.clone();
             thread::spawn(move || {
-                let mut worker = KafkaWorker::new(arx0, config0);
+                let mut worker = KafkaWorker::new(arx, config);
                 worker.run();
             });
         }
