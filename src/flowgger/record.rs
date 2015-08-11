@@ -13,7 +13,7 @@ pub struct StructuredData {
 impl StructuredData {
     pub fn new(sd_id: &str) -> StructuredData {
         StructuredData {
-            sd_id: sd_id.to_string(),
+            sd_id: sd_id.to_owned(),
             pairs: Vec::new()
         }
     }

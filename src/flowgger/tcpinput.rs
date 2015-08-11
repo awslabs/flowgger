@@ -14,7 +14,7 @@ pub struct TcpInput {
 
 impl Input for TcpInput {
     fn new(config: &Config) -> TcpInput {
-        let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().unwrap()).to_string();
+        let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x|x.as_str().unwrap()).to_owned();
         TcpInput {
             listen: listen
         }
@@ -51,9 +51,8 @@ fn handle_client<TD, TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: TD
             Err(_) => return,
             Ok(line) => line
         };
-        match handle_line(&line, &tx, &decoder, &encoder) {
-            Err(e) => { let _ = writeln!(stderr(), "{}: [{}]", e, line.trim()); }
-            _ => { }
+        if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
+            let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
         }
     }
 }

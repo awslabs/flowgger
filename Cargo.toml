@@ -11,6 +11,7 @@ serde = "*"
 serde_json = "*"
 serde_macros = "*"
 toml = "*"
+clippy = "*"
 
 [dependencies.openssl]
 version = "*"

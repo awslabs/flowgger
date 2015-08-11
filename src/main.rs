@@ -1,5 +1,6 @@
 #![allow(dead_code, unused_variables)]
 #![feature(custom_derive, plugin)]
+#![plugin(clippy)]
 
 #[macro_use]
 extern crate kafka;
@@ -12,6 +13,6 @@ mod flowgger;
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
 
 fn main() {
-    let config_file = std::env::args().skip(1).next().unwrap_or(DEFAULT_CONFIG_FILE.to_string());
+    let config_file = std::env::args().skip(1).next().unwrap_or(DEFAULT_CONFIG_FILE.to_owned());
     flowgger::start(&config_file);
 }

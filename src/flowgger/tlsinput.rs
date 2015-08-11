@@ -29,15 +29,15 @@ pub struct TlsInput {
 
 impl Input for TlsInput {
     fn new(config: &Config) -> TlsInput {
-        let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().unwrap()).to_string();
-        let cert = config.lookup("input.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().unwrap()).to_string();
-        let key = config.lookup("input.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_string();
-        let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_string();
+        let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().unwrap()).to_owned();
+        let cert = config.lookup("input.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().unwrap()).to_owned();
+        let key = config.lookup("input.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_owned();
+        let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_owned();
 
         let tls_config = TlsConfig {
-            cert: DEFAULT_CERT.to_string(),
-            key: DEFAULT_KEY.to_string(),
-            ciphers: DEFAULT_CIPHERS.to_string()
+            cert: DEFAULT_CERT.to_owned(),
+            key: DEFAULT_KEY.to_owned(),
+            ciphers: DEFAULT_CIPHERS.to_owned()
         };
         TlsInput {
             listen: listen,
@@ -77,9 +77,8 @@ fn handle_client<TD, TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: TD
             Err(_) => return,
             Ok(line) => line
         };
-        match handle_line(&line, &tx, &decoder, &encoder) {
-            Err(e) => { let _ = writeln!(stderr(), "{}: [{}]", e, line.trim()); }
-            _ => { }
+        if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
+            let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
         }
     }
 }

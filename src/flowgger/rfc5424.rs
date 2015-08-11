@@ -30,10 +30,10 @@ impl Decoder for RFC5424 {
         let record = Record {
             pri: Some(pri_version),
             ts: ts,
-            hostname: hostname.to_string(),
-            appname: Some(appname.to_string()),
-            procid: Some(procid.to_string()),
-            msgid: Some(msgid.to_string()),
+            hostname: hostname.to_owned(),
+            appname: Some(appname.to_owned()),
+            procid: Some(procid.to_owned()),
+            msgid: Some(msgid.to_owned()),
             sd: sd,
             msg: msg
         };
@@ -92,7 +92,7 @@ fn parse_ts(line: &str) -> Result<i64, &'static str> {
 }
 
 fn unescape_sd_value(value: &str) -> String {
-    let mut res = "".to_string();
+    let mut res = "".to_owned();
     let mut esc = false;
 
     for c in value.chars() {
@@ -119,7 +119,7 @@ fn parse_msg(line: &str, offset: usize) -> Option<String> {
     } else {
         match line[offset..].trim() {
             "" => None,
-            m @ _ => Some(m.to_string())
+            m @ _ => Some(m.to_owned())
         }
     }
 }
@@ -207,10 +207,10 @@ fn test_rfc5424() {
     assert!(pri.severity == 7);
     assert!(res.ts == 1438790025);
     assert!(res.hostname == "testhostname");
-    assert!(res.appname == Some("appname".to_string()));
-    assert!(res.procid == Some("69".to_string()));
-    assert!(res.msgid == Some("42".to_string()));
-    assert!(res.msg == Some("test message".to_string()));
+    assert!(res.appname == Some("appname".to_owned()));
+    assert!(res.procid == Some("69".to_owned()));
+    assert!(res.msgid == Some("42".to_owned()));
+    assert!(res.msg == Some("test message".to_owned()));
     let sd = res.sd.unwrap();
     assert!(sd.sd_id == "origin@123");
     let pairs = sd.pairs;

@@ -106,8 +106,8 @@ impl KafkaWorker {
 impl Output for KafkaPool {
     fn new(config: &Config) -> KafkaPool {
         let brokers = config.lookup("output.kafka_brokers").unwrap().as_slice().unwrap().to_vec();
-        let brokers = brokers.iter().map(|x| x.as_str().unwrap().to_string()).collect();
-        let topic = config.lookup("output.kafka_topic").unwrap().as_str().unwrap().to_string();
+        let brokers = brokers.iter().map(|x| x.as_str().unwrap().to_owned()).collect();
+        let topic = config.lookup("output.kafka_topic").unwrap().as_str().unwrap().to_owned();
         let timeout = config.lookup("output.kafka_timeout").
             map_or(KAFKA_DEFAULT_TIMEOUT, |x| x.as_integer().unwrap() as i32);
         let threads = config.lookup("output.kafka_threads").
