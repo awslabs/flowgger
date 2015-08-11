@@ -70,8 +70,8 @@ pub fn main() {
     let input_type = config.lookup("input.type").
         map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().unwrap());
     match input_type {
-        "syslog" => TcpInput::new(&config).accept(tx, decoder, encoder),
+        "syslog-tcp" => TcpInput::new(&config).accept(tx, decoder, encoder),
         "syslog-tls" => TlsInput::new(&config).accept(tx, decoder, encoder),
-        _ => panic!("Invalid input type")
+        _ => panic!("Invalid input type: {}", input_type)
     }
 }

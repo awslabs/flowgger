@@ -1,5 +1,5 @@
 [input]
-type = "syslog-tcp"
+type = "syslog-tls"
 listen = "0.0.0.0:6514"
 format = "rfc5424"
 tls_cert = "flowgger.pem"
