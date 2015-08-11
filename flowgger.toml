@@ -13,8 +13,8 @@ format = "gelf"
 kafka_brokers = [ "192.168.59.103:9092" ]
 kafka_topic = "test"
 kafka_threads = 1
-kafka_coalesce = 1
-kafka_timeout = 60
+kafka_coalesce = 1000
+kafka_timeout = 300
 
 [output.gelf_extra]
 x-header1 = "zok"
