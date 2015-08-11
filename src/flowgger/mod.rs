@@ -2,6 +2,7 @@ mod kafkapool;
 mod rfc5424;
 mod gelf;
 mod config;
+mod record;
 
 use std::io::{BufRead, BufReader};
 use std::net::{TcpListener, TcpStream};
@@ -12,42 +13,10 @@ use self::config::Config;
 use self::kafkapool::KafkaPool;
 use self::rfc5424::RFC5424;
 use self::gelf::Gelf;
+use self::record::Record;
 
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
-
-#[derive(Debug)]
-pub struct Pri {
-    facility: u8,
-    severity: u8
-}
-
-#[derive(Debug)]
-pub struct StructuredData {
-    sd_id: String,
-    pairs: Vec<(String, String)>
-}
-
-impl StructuredData {
-    fn new(sd_id: &str) -> StructuredData {
-        StructuredData {
-            sd_id: sd_id.to_string(),
-            pairs: Vec::new()
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Record {
-    pri: Option<Pri>,
-    ts: i64,
-    hostname: String,
-    appname: Option<String>,
-    procid: Option<String>,
-    msgid: Option<String>,
-    sd: Option<StructuredData>,
-    msg: Option<String>
-}
 
 pub trait Decoder {
     fn new() -> Self;

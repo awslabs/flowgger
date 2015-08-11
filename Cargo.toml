@@ -18,6 +18,7 @@ features = ["tlsv1_2", "tlsv1_1"]
 
 [profile.dev]
 codegen-units = 8
+debug = true
 
 [profile.release]
 opt-level = 3

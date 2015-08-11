@@ -1,6 +1,7 @@
 extern crate chrono;
 
 use flowgger::*;
+use flowgger::record::{Record, Pri, StructuredData};
 use self::chrono::DateTime;
 
 #[derive(Clone)]

@@ -4,7 +4,8 @@ extern crate serde;
 extern crate serde_json;
 
 use flowgger::config::Config;
-use flowgger::{Encoder, Record};
+use flowgger::Encoder;
+use flowgger::record::Record;
 use self::serde_json::value::Value;
 use self::serde_json::builder::ObjectBuilder;
 
