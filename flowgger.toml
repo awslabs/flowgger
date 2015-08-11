@@ -13,6 +13,7 @@ format = "gelf"
 kafka_brokers = [ "192.168.59.103:9092" ]
 kafka_topic = "test"
 kafka_threads = 1
+kafka_coalesce = 1
 kafka_timeout = 60
 
 [output.gelf_extra]
