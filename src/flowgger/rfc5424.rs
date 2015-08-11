@@ -45,7 +45,7 @@ impl Pri {
     fn new(encoded: u8) -> Pri {
         Pri {
             facility: encoded >> 3,
-            severity: encoded % 7
+            severity: encoded & 7
         }
     }
 }
@@ -185,4 +185,35 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
         None => Err("Missing ] after structured data"),
         Some(offset) => Ok((Some(sd_res), parse_msg(sd, offset)))
     }
+}
+/*
+pub struct Record {
+    pub pri: Option<Pri>,
+    pub ts: i64,
+    pub hostname: String,
+    pub appname: Option<String>,
+    pub procid: Option<String>,
+    pub msgid: Option<String>,
+    pub sd: Option<StructuredData>,
+    pub msg: Option<String>
+}
+*/
+#[test]
+fn test_rfc5424() {
+    let msg = r#"<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
+    let res = RFC5424.decode(msg).unwrap();
+    let pri = res.pri.unwrap();
+    assert!(pri.facility == 2);
+    assert!(pri.severity == 7);
+    assert!(res.ts == 1438790025);
+    assert!(res.hostname == "testhostname");
+    assert!(res.appname == Some("appname".to_string()));
+    assert!(res.procid == Some("69".to_string()));
+    assert!(res.msgid == Some("42".to_string()));
+    assert!(res.msg == Some("test message".to_string()));
+    let sd = res.sd.unwrap();
+    assert!(sd.sd_id == "origin@123");
+    let pairs = sd.pairs;
+    assert!(pairs.iter().cloned().any(|(k, v)| k == "_software" && v == "te\\st sc\"ript"));
+    assert!(pairs.iter().cloned().any(|(k, v)| k == "_swVersion" && v == "0.0.1"));
 }
