@@ -9,6 +9,9 @@ extern crate toml;
 
 mod flowgger;
 
+const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
+
 fn main() {
-    flowgger::main();
+    let config_file = std::env::args().skip(1).next().unwrap_or(DEFAULT_CONFIG_FILE.to_string());
+    flowgger::start(&config_file);
 }

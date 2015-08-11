@@ -16,7 +16,6 @@ use self::tlsinput::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
-const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
@@ -41,10 +40,10 @@ pub trait Output {
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>);
 }
 
-pub fn main() {
-    let config = match Config::from_path(DEFAULT_CONFIG_FILE) {
+pub fn start(config_file: &str) {
+    let config = match Config::from_path(config_file) {
         Ok(config) => config,
-        Err(e) => panic!("{}", e)
+        Err(_) => panic!("Unable to read the config file [{}]", config_file)
     };
     let input_format = config.lookup("input.format").
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
