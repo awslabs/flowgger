@@ -5,6 +5,7 @@ use flowgger::Output;
 use flowgger::config::Config;
 use self::kafka::client::KafkaClient;
 use self::kafka::utils::ProduceMessage;
+use std::process::exit;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -36,7 +37,13 @@ struct KafkaWorker {
 impl KafkaWorker {
     fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: KafkaConfig) -> KafkaWorker {
         let mut client = KafkaClient::new(config.brokers.clone());
-        client.load_metadata_all().unwrap();
+        match client.load_metadata_all() {
+            Ok(_) => {},
+            Err(e) => {
+                println!("Unable to connect to Kafka: [{}]", e);
+                exit(1);
+            }
+        }
         let queue = Vec::with_capacity(config.coalesce);
         KafkaWorker {
             arx: arx,
@@ -52,7 +59,13 @@ impl KafkaWorker {
                 Ok(line) => line,
                 Err(_) => return
             };
-            self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes).unwrap();
+            match self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes) {
+                Ok(_) => {},
+                Err(e) => {
+                    println!("Kafka not responsive: [{}]", e);
+                    exit(1);
+                }
+            }
         }
     }
 
@@ -69,7 +82,13 @@ impl KafkaWorker {
             let ref mut queue = self.queue;
             queue.push(message);
             if queue.len() >= self.config.coalesce {
-                self.client.send_messages(1, self.config.timeout, queue.clone()).unwrap();
+                match self.client.send_messages(1, self.config.timeout, queue.clone()) {
+                    Ok(_) => {},
+                    Err(e) => {
+                        println!("Kafka not responsive: [{}]", e);
+                        exit(1);
+                    }
+                }
                 queue.clear();
             }
         }
