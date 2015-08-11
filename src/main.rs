@@ -4,6 +4,7 @@
 #[macro_use]
 extern crate kafka;
 extern crate log;
+extern crate openssl;
 extern crate toml;
 
 mod flowgger;

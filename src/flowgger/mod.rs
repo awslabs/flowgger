@@ -4,6 +4,7 @@ mod kafkapool;
 mod record;
 mod rfc5424;
 mod tcpinput;
+mod tlsinput;
 
 use self::config::Config;
 use self::gelf::Gelf;
