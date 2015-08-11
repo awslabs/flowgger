@@ -1,3 +1,6 @@
+
+![Flowgger](https://raw.github.com/jedisct1/flowgger/master/flowgger.png)
+
 Flowgger
 ========
 
