@@ -16,7 +16,11 @@ pub struct Gelf {
 
 impl Encoder for Gelf {
     fn new(config: &Config) -> Gelf {
-        let extra = Vec::new();
+        let extra = match config.lookup("output.gelf_extra") {
+            None => Vec::new(),
+            Some(extra) => extra.as_table().unwrap().into_iter().
+                map(|(k, v)| (k.to_string(), v.as_str().unwrap().to_string())).collect()
+        };
         Gelf { extra: extra }
     }
 
@@ -38,6 +42,9 @@ impl Encoder for Gelf {
                     map = map.insert(name, Value::String(value));
                 }
             }
+        }
+        for (name, value) in self.extra.iter().cloned() {
+            map = map.insert(name, Value::String(value));
         }
         let json = serde_json::to_vec(&map.unwrap());
         Ok(json)

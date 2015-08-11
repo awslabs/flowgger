@@ -44,14 +44,8 @@ pub trait Output {
 pub fn main() {
     let config = match Config::from_path(DEFAULT_CONFIG_FILE) {
         Ok(config) => config,
-        Err(e) => {
-            println!("{}", e);
-            return
-        }
+        Err(e) => panic!("{}", e)
     };
-    let line = "\u{feff}<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software=\"te\\st sc\\\"ript\" swVersion=\"0.0.1\"] test message";
-    println!("{}", line);
-
     let input_format = config.lookup("input.format").
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
     assert!(input_format == DEFAULT_INPUT_FORMAT);
