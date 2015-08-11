@@ -5,15 +5,14 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
 use std::thread;
 use flowgger::config::Config;
+use flowgger::Output;
 use self::kafka::client::KafkaClient;
 use self::kafka::utils::ProduceMessage;
 
 const KAFKA_DEFAULT_TIMEOUT: i32 = 60;
 const KAFKA_DEFAULT_THREADS: u32 = 1;
 
-pub struct KafkaPool {
-    kafka_client: Vec<KafkaClient>
-}
+pub struct KafkaPool;
 
 #[derive(Clone)]
 struct KafkaConfig {
@@ -50,8 +49,12 @@ impl KafkaWorker {
     }
 }
 
-impl KafkaPool {
-    pub fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: &Config) {
+impl Output for KafkaPool {
+    fn new() -> KafkaPool {
+        KafkaPool
+    }
+
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: &Config) {
         let brokers = config.lookup("output.kafka_brokers").unwrap().as_slice().unwrap().to_vec();
         let brokers = brokers.iter().map(|x| x.as_str().unwrap().to_string()).collect();
         let topic = config.lookup("output.kafka_topic").unwrap().as_str().unwrap().to_string();
