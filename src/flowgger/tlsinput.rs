@@ -15,14 +15,14 @@ const DEFAULT_CIPHER_LIST: &'static str = "ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECD
 const DEFAULT_KEY_FILE: &'static str = "flowgger.pem";
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 
-pub struct TcpInput {
+pub struct TlsInput {
     listen: String
 }
 
-impl Input for TcpInput {
-    fn new(config: &Config) -> TcpInput {
+impl Input for TlsInput {
+    fn new(config: &Config) -> TlsInput {
         let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().unwrap()).to_string();
-        TcpInput {
+        TlsInput {
             listen: listen
         }
     }

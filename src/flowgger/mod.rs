@@ -12,6 +12,7 @@ use self::kafkapool::KafkaPool;
 use self::record::Record;
 use self::rfc5424::RFC5424;
 use self::tcpinput::TcpInput;
+use self::tlsinput::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
@@ -49,7 +50,7 @@ pub fn main() {
     let line = "\u{feff}<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software=\"te\\st sc\\\"ript\" swVersion=\"0.0.1\"] test message";
     println!("{}", line);
 
-    let input = TcpInput::new(&config);
+    let input = TlsInput::new(&config);
     let decoder = RFC5424::new(&config);
     let encoder = Gelf::new(&config);
     let output = KafkaPool::new(&config);
