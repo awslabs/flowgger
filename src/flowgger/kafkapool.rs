@@ -66,10 +66,11 @@ impl KafkaWorker {
                 topic: self.config.topic.clone(),
                 message: bytes
             };
-            self.queue.push(message);
-            if self.queue.len() >= self.config.coalesce {
-                self.client.send_messages(1, self.config.timeout, self.queue.clone()).unwrap();
-                self.queue.clear();
+            let ref mut queue = self.queue;
+            queue.push(message);
+            if queue.len() >= self.config.coalesce {
+                self.client.send_messages(1, self.config.timeout, queue.clone()).unwrap();
+                queue.clear();
             }
         }
     }
