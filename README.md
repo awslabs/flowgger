@@ -10,6 +10,10 @@ It reads log entries over a given protocol, decodes them using a given
 format, reencodes them into a different format, and asynchronously pushes the
 result into a remote data store.
 
+While not providing the same set of features and flexibility as tools such as
+[Fluentd](http://www.fluentd.org/) or Logstash, it is orders of
+magnitude faster and doesn't require a JVM.
+
 Compilation and installation
 ----------------------------
 
