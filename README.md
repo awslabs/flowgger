@@ -111,8 +111,10 @@ should disable coalescing by setting `kafka_coalesce` to `1`.
 What the use cases for this?
 ----------------------------
 
-Injecting massive amounts of non-critical syslog data to an
+Currently: injecting massive amounts of non-critical syslog data to an
 ElasticSearch cluster, possibly via [Graylog](https://www.graylog.org/).
+
+Other protocols and codecs will be implemented later on.
 
 How efficient is RFC5424?
 -------------------------
