@@ -10,7 +10,7 @@ queuesize = 1000000
 [output]
 type = "kafka"
 format = "gelf"
-kafka_brokers = [ "192.168.59.103:9092" ]
+kafka_brokers = [ "172.16.205.129:9092" ]
 kafka_topic = "test"
 kafka_threads = 1
 kafka_coalesce = 1000
