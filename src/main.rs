@@ -1,4 +1,4 @@
-#![allow(dead_code, unused_variables)]
+#![allow(dead_code, unused_variables, option_unwrap_used)]
 #![feature(custom_derive, plugin)]
 #![plugin(clippy)]
 
