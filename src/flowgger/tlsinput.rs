@@ -35,9 +35,9 @@ impl Input for TlsInput {
         let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_owned();
 
         let tls_config = TlsConfig {
-            cert: DEFAULT_CERT.to_owned(),
-            key: DEFAULT_KEY.to_owned(),
-            ciphers: DEFAULT_CIPHERS.to_owned()
+            cert: cert,
+            key: key,
+            ciphers: ciphers
         };
         TlsInput {
             listen: listen,
