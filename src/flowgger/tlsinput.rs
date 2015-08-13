@@ -32,7 +32,7 @@ impl Input for TlsInput {
         let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().unwrap()).to_owned();
         let cert = config.lookup("input.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().unwrap()).to_owned();
         let key = config.lookup("input.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_owned();
-        let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_owned();
+        let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_CIPHERS, |x| x.as_str().unwrap()).to_owned();
 
         let tls_config = TlsConfig {
             cert: cert,
