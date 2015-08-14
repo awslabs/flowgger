@@ -1,0 +1,21 @@
+[input]
+type = "syslog-tls"
+listen = "0.0.0.0:6514"
+format = "rfc5424"
+tls_cert = "/etc/ssl/private/flowgger.pem"
+tls_key = "/etc/ssl/private/flowgger.pem"
+queuesize = @QUEUE_SIZE@
+
+[output]
+type = "kafka"
+format = "gelf"
+kafka_brokers = @KAFKA_BROKERS@
+kafka_topic = "@KAFKA_TOPIC@"
+kafka_threads = @KAFKA_THREADS@
+kafka_coalesce = @KAFKA_COALESCE@
+kafka_timeout = @KAFKA_TIMEOUT@
+
+[output.gelf_extra]
+@GELF_EXTRA_1@
+@GELF_EXTRA_2@
+@GELF_EXTRA_3@
