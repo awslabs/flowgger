@@ -20,3 +20,5 @@ RUN set -x && \
 COPY flowgger.sh /etc/service/flowgger/run
 
 EXPOSE 6514
+
+ENTRYPOINT ["/sbin/my_init"]
