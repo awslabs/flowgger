@@ -13,6 +13,7 @@ use std::thread;
 const KAFKA_DEFAULT_COALESCE: usize = 1;
 const KAFKA_DEFAULT_THREADS: u32 = 1;
 const KAFKA_DEFAULT_TIMEOUT: i32 = 60;
+const KAFKA_DEFAULT_ACKS: i16 = 0;
 
 pub struct KafkaPool {
     config: KafkaConfig,
@@ -21,6 +22,7 @@ pub struct KafkaPool {
 
 #[derive(Clone)]
 struct KafkaConfig {
+    acks: i16,
     brokers: Vec<String>,
     topic: String,
     timeout: i32,
@@ -59,7 +61,7 @@ impl KafkaWorker {
                 Ok(line) => line,
                 Err(_) => return
             };
-            match self.client.send_message(1, self.config.timeout, self.config.topic.clone(), bytes) {
+            match self.client.send_message(self.config.acks, self.config.timeout, self.config.topic.clone(), bytes) {
                 Ok(_) => {},
                 Err(e) => {
                     println!("Kafka not responsive: [{}]", e);
@@ -82,7 +84,7 @@ impl KafkaWorker {
             let ref mut queue = self.queue;
             queue.push(message);
             if queue.len() >= self.config.coalesce {
-                match self.client.send_messages(1, self.config.timeout, queue.clone()) {
+                match self.client.send_messages(self.config.acks, self.config.timeout, queue.clone()) {
                     Ok(_) => {},
                     Err(e) => {
                         println!("Kafka not responsive: [{}]", e);
@@ -105,6 +107,8 @@ impl KafkaWorker {
 
 impl Output for KafkaPool {
     fn new(config: &Config) -> KafkaPool {
+        let acks = config.lookup("output.kafka_acks").
+            map_or(KAFKA_DEFAULT_ACKS, |x| x.as_integer().unwrap() as i16);
         let brokers = config.lookup("output.kafka_brokers").unwrap().as_slice().unwrap().to_vec();
         let brokers = brokers.iter().map(|x| x.as_str().unwrap().to_owned()).collect();
         let topic = config.lookup("output.kafka_topic").unwrap().as_str().unwrap().to_owned();
@@ -115,6 +119,7 @@ impl Output for KafkaPool {
         let coalesce = config.lookup("output.kafka_coalesce").
             map_or(KAFKA_DEFAULT_COALESCE, |x| x.as_integer().unwrap() as usize);
         let kafka_config = KafkaConfig {
+            acks: acks,
             brokers: brokers,
             topic: topic,
             timeout: timeout,

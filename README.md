@@ -80,6 +80,7 @@ kafka_topic = "test"
 kafka_threads = 1
 kafka_coalesce = 1000
 kafka_timeout = 300
+kafka_acks = 0
 
 [output.gelf_extra]
 x-header1 = "zok"
