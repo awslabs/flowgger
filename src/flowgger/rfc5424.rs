@@ -178,6 +178,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
                 name = None;
             }
             (_, _, _, _, _, true) => esc = false,
+            ('"', false, _, false, false, _)  => { /* tolerate bogus entries with extra " */ },
             _ => return Err("Format error in the structured data")
         }
     }
