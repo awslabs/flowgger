@@ -173,7 +173,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
             ('"', false, _, _, _, true) => {
                 in_value = false;
                 let value = unescape_sd_value(&sd[value_start .. i]);
-                let pair = (format!("_{}", name.unwrap()), value);
+                let pair = ("_".to_owned() + name.unwrap(), value);
                 sd_res.pairs.push(pair);
                 name = None;
             }
