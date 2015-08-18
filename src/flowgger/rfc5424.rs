@@ -144,7 +144,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
     let mut after_sd: Option<usize> = None;
     let mut sd_res = StructuredData::new(sd_id);
 
-    for (i, c) in sd.chars().enumerate() {
+    for (i, c) in sd.char_indices() {
         let is_sd_name = match c as u32 {
             32 | 34 | 61 | 93 => false,
             33 ... 126 => true,
