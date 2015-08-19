@@ -12,7 +12,7 @@ use std::thread;
 
 const KAFKA_DEFAULT_COALESCE: usize = 1;
 const KAFKA_DEFAULT_THREADS: u32 = 1;
-const KAFKA_DEFAULT_TIMEOUT: i32 = 60;
+const KAFKA_DEFAULT_TIMEOUT: i32 = 60000;
 const KAFKA_DEFAULT_ACKS: i16 = 0;
 
 pub struct KafkaPool {
