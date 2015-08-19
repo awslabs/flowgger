@@ -1,18 +1,18 @@
 mod config;
 mod gelf_encoder;
 mod kafkapool;
-mod ltsv;
+mod ltsv_decoder;
 mod record;
-mod rfc5424;
+mod rfc5424_decoder;
 mod tcpinput;
 mod tlsinput;
 
 use self::config::Config;
 use self::gelf_encoder::GelfEncoder;
 use self::kafkapool::KafkaPool;
-use self::ltsv::LTSV;
+use self::ltsv_decoder::LTSVDecoder;
 use self::record::Record;
-use self::rfc5424::RFC5424;
+use self::rfc5424_decoder::RFC5424Decoder;
 use self::tcpinput::TcpInput;
 use self::tlsinput::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
@@ -65,8 +65,8 @@ pub fn start(config_file: &str) {
     let input_format = config.lookup("input.format").
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
     let decoder = match input_format {
-        "rfc5424" => Box::new(RFC5424::new(&config)) as Box<Decoder + Send>,
-        "ltsv" => Box::new(LTSV::new(&config)) as Box<Decoder + Send>,
+        "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
+        "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format)
     };
     let encoder = GelfEncoder::new(&config);

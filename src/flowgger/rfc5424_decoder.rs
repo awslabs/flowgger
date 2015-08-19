@@ -6,16 +6,16 @@ use flowgger::record::{Record, Pri, StructuredData};
 use self::chrono::DateTime;
 
 #[derive(Clone)]
-pub struct RFC5424;
+pub struct RFC5424Decoder;
 
-impl RFC5424 {
-    pub fn new(config: &Config) -> RFC5424 {
+impl RFC5424Decoder {
+    pub fn new(config: &Config) -> RFC5424Decoder {
         let _ = config;
-        RFC5424
+        RFC5424Decoder
     }
 }
 
-impl Decoder for RFC5424 {
+impl Decoder for RFC5424Decoder {
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
         let (bom, line) = match BOM::parse(line, "<") {
             Ok(bom_line) => bom_line,
@@ -193,7 +193,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
 #[test]
 fn test_rfc5424() {
     let msg = r#"<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
-    let res = RFC5424.decode(msg).unwrap();
+    let res = RFC5424Decoder.decode(msg).unwrap();
     let pri = res.pri.unwrap();
     assert!(pri.facility == 2);
     assert!(pri.severity == 7);
@@ -204,7 +204,7 @@ fn test_rfc5424() {
     assert!(res.msgid == Some("42".to_owned()));
     assert!(res.msg == Some("test message".to_owned()));
     let sd = res.sd.unwrap();
-    assert!(sd.sd_id == "origin@123");
+    assert!(sd.sd_id == Some("origin@123".to_owned()));
     let pairs = sd.pairs;
     assert!(pairs.iter().cloned().any(|(k, v)| k == "_software" && v == "te\\st sc\"ript"));
     assert!(pairs.iter().cloned().any(|(k, v)| k == "_swVersion" && v == "0.0.1"));

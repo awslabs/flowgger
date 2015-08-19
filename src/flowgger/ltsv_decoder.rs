@@ -6,16 +6,16 @@ use flowgger::record::{Record, StructuredData};
 use self::chrono::DateTime;
 
 #[derive(Clone)]
-pub struct LTSV;
+pub struct LTSVDecoder;
 
-impl LTSV {
-    pub fn new(config: &Config) -> LTSV {
+impl LTSVDecoder {
+    pub fn new(config: &Config) -> LTSVDecoder {
         let _ = config;
-        LTSV
+        LTSVDecoder
     }
 }
 
-impl Decoder for LTSV {
+impl Decoder for LTSVDecoder {
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
         let mut sd = StructuredData::new(None);
         let mut ts = None;
@@ -80,11 +80,11 @@ fn parse_ts(line: &str) -> Result<i64, &'static str> {
 #[test]
 fn test_ltsv() {
     let msg = "time:[2015-08-05T15:53:45.637824Z]\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3";
-    let res = LTSV.decode(msg).unwrap();
+    let res = LTSVDecoder.decode(msg).unwrap();
     assert!(res.ts == 1438790025);
 
     let msg = "time:[10/Oct/2000:13:55:36 -0700]\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3";
-    let res = LTSV.decode(msg).unwrap();
+    let res = LTSVDecoder.decode(msg).unwrap();
     assert!(res.ts == 971211336);
 
     assert!(res.hostname == "testhostname");
