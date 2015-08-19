@@ -22,15 +22,15 @@ const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
 pub trait Input {
     fn new(config: &Config) -> Self;
-    fn accept<TD, TE>(&self, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE) where TD: Decoder + Clone + Send + 'static, TE: Encoder + Clone + Send + 'static;
+    fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static;
 }
 
 pub trait CloneBoxedDecoder {
-    fn clone_boxed<'a>(&self) -> Box<Decoder + 'a> where Self: 'a;
+    fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a> where Self: 'a;
 }
 
-impl<T: Decoder + Clone> CloneBoxedDecoder for T {
-    fn clone_boxed<'a>(&self) -> Box<Decoder+'a> where Self: 'a {
+impl<T: Decoder + Clone + Send> CloneBoxedDecoder for T {
+    fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a> where Self: 'a {
         Box::new(self.clone())
     }
 }
@@ -64,7 +64,7 @@ pub fn start(config_file: &str) {
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
     assert!(input_format == DEFAULT_INPUT_FORMAT);
 
-    let decoder = RFC5424::new(&config);
+    let decoder = Box::new(RFC5424::new(&config));
     let encoder = Gelf::new(&config);
     let output = KafkaPool::new(&config);
 

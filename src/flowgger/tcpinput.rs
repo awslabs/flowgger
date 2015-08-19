@@ -20,13 +20,13 @@ impl Input for TcpInput {
         }
     }
 
-    fn accept<TD, TE>(&self, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE) where TD: Decoder + Clone + Send + 'static, TE: Encoder + Clone + Send + 'static {
+    fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
                 Ok(client) => {
                     let tx = tx.clone();
-                    let (decoder, encoder) = (decoder.clone(), encoder.clone());
+                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone());
                     thread::spawn(move|| {
                         handle_client(client, tx, decoder, encoder);
                     });
@@ -37,14 +37,14 @@ impl Input for TcpInput {
     }
 }
 
-fn handle_line<TD, TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &TD, encoder: &TE) -> Result<(), &'static str> where TD: Decoder, TE: Encoder {
+fn handle_line<TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &TE) -> Result<(), &'static str> where TE: Encoder {
     let decoded = try!(decoder.decode(&line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
     Ok(())
 }
 
-fn handle_client<TD, TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE) where TD: Decoder, TE: Encoder {
+fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: TE) where TE: Encoder {
     let reader = BufReader::new(client);
     for line in reader.lines() {
         let line = match line {

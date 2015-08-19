@@ -45,13 +45,13 @@ impl Input for TlsInput {
         }
     }
 
-    fn accept<TD, TE>(&self, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE) where TD: Decoder + Clone + Send + 'static, TE: Encoder + Clone + Send + 'static {
+    fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
                 Ok(client) => {
                     let tx = tx.clone();
-                    let (decoder, encoder) = (decoder.clone(), encoder.clone());
+                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone());
                     let tls_config = self.tls_config.clone();
                     thread::spawn(move|| {
                         handle_client(client, tx, decoder, encoder, tls_config);
@@ -63,7 +63,7 @@ impl Input for TlsInput {
     }
 }
 
-fn handle_client<TD, TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE, tls_config: TlsConfig) where TD: Decoder, TE: Encoder {
+fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: TE, tls_config: TlsConfig) where TE: Encoder {
     let mut ctx = SslContext::new(Tlsv1_2).unwrap();
     ctx.set_verify(SSL_VERIFY_PEER, None); // Sigh
     ctx.set_options(SSL_OP_NO_COMPRESSION | SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
@@ -83,7 +83,7 @@ fn handle_client<TD, TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: TD
     }
 }
 
-fn handle_line<TD, TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &TD, encoder: &TE) -> Result<(), &'static str> where TD: Decoder, TE: Encoder {
+fn handle_line<TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &TE) -> Result<(), &'static str> where TE: Encoder {
     let decoded = try!(decoder.decode(&line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
