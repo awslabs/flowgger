@@ -36,7 +36,9 @@ impl Encoder for Gelf {
         match record.sd {
             None => { },
             Some(sd) => {
-                map = map.insert("sd_id".to_owned(), Value::String(sd.sd_id));
+                if let Some(sd_id) = sd.sd_id {
+                    map = map.insert("sd_id".to_owned(), Value::String(sd_id));
+                }
                 for (name, value) in sd.pairs {
                     map = map.insert(name, Value::String(value));
                 }

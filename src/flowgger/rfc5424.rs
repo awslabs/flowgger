@@ -144,7 +144,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
     let mut name: Option<&str> = None;
     let mut esc = false;
     let mut after_sd: Option<usize> = None;
-    let mut sd_res = StructuredData::new(sd_id);
+    let mut sd_res = StructuredData::new(Some(sd_id));
 
     for (i, c) in sd.char_indices() {
         let is_sd_name = match c as u32 {
@@ -189,18 +189,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
         Some(offset) => Ok((Some(sd_res), parse_msg(sd, offset)))
     }
 }
-/*
-pub struct Record {
-    pub pri: Option<Pri>,
-    pub ts: i64,
-    pub hostname: String,
-    pub appname: Option<String>,
-    pub procid: Option<String>,
-    pub msgid: Option<String>,
-    pub sd: Option<StructuredData>,
-    pub msg: Option<String>
-}
-*/
+
 #[test]
 fn test_rfc5424() {
     let msg = r#"<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;

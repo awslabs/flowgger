@@ -6,14 +6,17 @@ pub struct Pri {
 
 #[derive(Debug)]
 pub struct StructuredData {
-    pub sd_id: String,
+    pub sd_id: Option<String>,
     pub pairs: Vec<(String, String)>
 }
 
 impl StructuredData {
-    pub fn new(sd_id: &str) -> StructuredData {
+    pub fn new(sd_id: Option<&str>) -> StructuredData {
         StructuredData {
-            sd_id: sd_id.to_owned(),
+            sd_id: match sd_id {
+                Some(sd_id) => Some(sd_id.to_owned()),
+                None => None
+            },
             pairs: Vec::new()
         }
     }

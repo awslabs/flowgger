@@ -1,6 +1,7 @@
 mod config;
 mod gelf;
 mod kafkapool;
+mod ltsv;
 mod record;
 mod rfc5424;
 mod tcpinput;
@@ -9,6 +10,7 @@ mod tlsinput;
 use self::config::Config;
 use self::gelf::Gelf;
 use self::kafkapool::KafkaPool;
+use self::ltsv::LTSV;
 use self::record::Record;
 use self::rfc5424::RFC5424;
 use self::tcpinput::TcpInput;
@@ -62,9 +64,11 @@ pub fn start(config_file: &str) {
     };
     let input_format = config.lookup("input.format").
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
-    assert!(input_format == DEFAULT_INPUT_FORMAT);
-
-    let decoder = Box::new(RFC5424::new(&config));
+    let decoder = match input_format {
+        "rfc5424" => Box::new(RFC5424::new(&config)) as Box<Decoder + Send>,
+        "ltsv" => Box::new(LTSV::new(&config)) as Box<Decoder + Send>,
+        _ => panic!("Unknown input format: {}", input_format)
+    };
     let encoder = Gelf::new(&config);
     let output = KafkaPool::new(&config);
 

@@ -60,10 +60,15 @@ over TLS).
 When using TLS, `tls_ciphers` is optional and defaults to a safe suite, but
 `tls_cert` and `tls_key` are required.
 
-The only supported `format` for now is `rfc5424`. Flowgger supports the
-[RFC 5424](https://tools.ietf.org/html/rfc5424) format, which optionally
-includes structured data (key-value pairs). Messages are assumed to be on a
-single line and use the UTF8 encoding.
+The only supported `format` for now are `rfc5424` and `ltsv`.
+
+Flowgger supports the [RFC 5424](https://tools.ietf.org/html/rfc5424)
+format, which optionally includes structured data (key-value pairs).
+Messages are assumed to be on a single line and use the UTF8 encoding.
+
+[LTSV](http://ltsv.org) is especially designed for structured data,
+and is faster to parse than RFC 5424. Timestamps (the `time` property)
+can be in RFC 3339 format (preferred) or in English format.
 
 Up to `queuesize` messages can be buffered in memory if the final datastore
 cannot keep up with the input rate.
