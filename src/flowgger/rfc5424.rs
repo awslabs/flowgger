@@ -8,12 +8,14 @@ use self::chrono::DateTime;
 #[derive(Clone)]
 pub struct RFC5424;
 
-impl Decoder for RFC5424 {
-    fn new(config: &Config) -> RFC5424 {
+impl RFC5424 {
+    pub fn new(config: &Config) -> RFC5424 {
         let _ = config;
         RFC5424
     }
+}
 
+impl Decoder for RFC5424 {
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
         let (bom, line) = match BOM::parse(line, "<") {
             Ok(bom_line) => bom_line,

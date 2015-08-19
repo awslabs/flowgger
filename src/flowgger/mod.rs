@@ -25,8 +25,23 @@ pub trait Input {
     fn accept<TD, TE>(&self, tx: SyncSender<Vec<u8>>, decoder: TD, encoder: TE) where TD: Decoder + Clone + Send + 'static, TE: Encoder + Clone + Send + 'static;
 }
 
-pub trait Decoder {
-    fn new(config: &Config) -> Self;
+pub trait CloneBoxedDecoder {
+    fn clone_boxed<'a>(&self) -> Box<Decoder + 'a> where Self: 'a;
+}
+
+impl<T: Decoder + Clone> CloneBoxedDecoder for T {
+    fn clone_boxed<'a>(&self) -> Box<Decoder+'a> where Self: 'a {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<Decoder> {
+    fn clone(&self) -> Box<Decoder> {
+        self.clone_boxed()
+    }
+}
+
+pub trait Decoder : CloneBoxedDecoder {
     fn decode(&self, line: &str) -> Result<Record, &'static str>;
 }
 
