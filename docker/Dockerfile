@@ -17,6 +17,11 @@ RUN set -x && \
     mv target/release/flowgger /opt/flowgger/bin/ && \
     rm -fr /tmp/flowgger
 
+COPY 10-keepalive.conf /etc/sysctl.d/
+
+RUN set -x && \
+    service procps start
+
 COPY flowgger.sh /etc/service/flowgger/run
 
 EXPOSE 6514
