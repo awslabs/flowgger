@@ -1,5 +1,5 @@
 mod config;
-mod gelf;
+mod gelf_encoder;
 mod kafkapool;
 mod ltsv;
 mod record;
@@ -8,7 +8,7 @@ mod tcpinput;
 mod tlsinput;
 
 use self::config::Config;
-use self::gelf::Gelf;
+use self::gelf_encoder::GelfEncoder;
 use self::kafkapool::KafkaPool;
 use self::ltsv::LTSV;
 use self::record::Record;
@@ -69,7 +69,7 @@ pub fn start(config_file: &str) {
         "ltsv" => Box::new(LTSV::new(&config)) as Box<Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format)
     };
-    let encoder = Gelf::new(&config);
+    let encoder = GelfEncoder::new(&config);
     let output = KafkaPool::new(&config);
 
     let queue_size = config.lookup("input.queuesize").

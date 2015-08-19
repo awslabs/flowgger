@@ -9,18 +9,18 @@ use self::serde_json::builder::ObjectBuilder;
 use self::serde_json::value::Value;
 
 #[derive(Clone)]
-pub struct Gelf {
+pub struct GelfEncoder {
     extra: Vec<(String, String)>
 }
 
-impl Encoder for Gelf {
-    fn new(config: &Config) -> Gelf {
+impl Encoder for GelfEncoder {
+    fn new(config: &Config) -> GelfEncoder {
         let extra = match config.lookup("output.gelf_extra") {
             None => Vec::new(),
             Some(extra) => extra.as_table().unwrap().into_iter().
                 map(|(k, v)| (k.to_owned(), v.as_str().unwrap().to_owned())).collect()
         };
-        Gelf { extra: extra }
+        GelfEncoder { extra: extra }
     }
 
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
