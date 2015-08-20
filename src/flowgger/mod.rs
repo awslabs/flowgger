@@ -63,7 +63,7 @@ pub fn start(config_file: &str) {
         Err(_) => panic!("Unable to read the config file [{}]", config_file)
     };
     let input_format = config.lookup("input.format").
-        map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().unwrap());
+        map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().expect("input.format must be a string"));
     let decoder = match input_format {
         "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
         "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
@@ -73,14 +73,15 @@ pub fn start(config_file: &str) {
     let output = KafkaPool::new(&config);
 
     let queue_size = config.lookup("input.queuesize").
-        map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().unwrap() as usize);
+        map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().
+        expect("input.queuesize must be a size integer") as usize);
 
     let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(queue_size);
     let arx = Arc::new(Mutex::new(rx));
     output.start(arx);
 
     let input_type = config.lookup("input.type").
-        map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().unwrap());
+        map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
     match input_type {
         "syslog-tcp" => TcpInput::new(&config).accept(tx, decoder, encoder),
         "syslog-tls" => TlsInput::new(&config).accept(tx, decoder, encoder),

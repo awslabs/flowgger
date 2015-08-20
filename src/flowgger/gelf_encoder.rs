@@ -17,8 +17,9 @@ impl Encoder for GelfEncoder {
     fn new(config: &Config) -> GelfEncoder {
         let extra = match config.lookup("output.gelf_extra") {
             None => Vec::new(),
-            Some(extra) => extra.as_table().unwrap().into_iter().
-                map(|(k, v)| (k.to_owned(), v.as_str().unwrap().to_owned())).collect()
+            Some(extra) => extra.as_table().expect("output.gelf_extra must be a list of key/value pairs").
+                into_iter().map(|(k, v)| (k.to_owned(), v.as_str().
+                expect("output.gelf_extra values mmust be strings").to_owned())).collect()
         };
         GelfEncoder { extra: extra }
     }

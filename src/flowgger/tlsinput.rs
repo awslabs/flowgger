@@ -32,11 +32,16 @@ pub struct TlsInput {
 
 impl Input for TlsInput {
     fn new(config: &Config) -> TlsInput {
-        let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().unwrap()).to_owned();
-        let cert = config.lookup("input.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().unwrap()).to_owned();
-        let key = config.lookup("input.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().unwrap()).to_owned();
-        let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_CIPHERS, |x| x.as_str().unwrap()).to_owned();
-        let framed = config.lookup("input.framed").map_or(DEFAULT_FRAMED, |x| x.as_bool().unwrap());
+        let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().
+            expect("input.listen must be an ip:port string")).to_owned();
+        let cert = config.lookup("input.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
+            expect("input.tls_cert must be a path to a .pem file")).to_owned();
+        let key = config.lookup("input.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().
+            expect("input.tls_key must be a path to a .pem file")).to_owned();
+        let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_CIPHERS, |x| x.as_str().
+            expect("input.tls_ciphers must be a string with a cipher suite")).to_owned();
+        let framed = config.lookup("input.framed").map_or(DEFAULT_FRAMED, |x| x.as_bool().
+            expect("input.framed must be a boolean"));
 
         let tls_config = TlsConfig {
             cert: cert,

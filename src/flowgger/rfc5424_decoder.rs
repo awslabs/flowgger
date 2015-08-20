@@ -17,7 +17,7 @@ impl RFC5424Decoder {
 
 impl Decoder for RFC5424Decoder {
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
-        let (bom, line) = match BOM::parse(line, "<") {
+        let (_bom, line) = match BOM::parse(line, "<") {
             Ok(bom_line) => bom_line,
             Err(err) => return Err(err)
         };
@@ -175,7 +175,8 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
             ('"', false, _, _, _, true) => {
                 in_value = false;
                 let value = unescape_sd_value(&sd[value_start .. i]);
-                let pair = ("_".to_owned() + name.unwrap(), value);
+                let pair = ("_".to_owned() +
+                    name.expect("Name in structured data contains an invalid UTF-8 sequence"), value);
                 sd_res.pairs.push(pair);
                 name = None;
             }

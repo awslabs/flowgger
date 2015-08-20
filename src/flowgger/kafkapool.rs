@@ -108,16 +108,24 @@ impl KafkaWorker {
 impl Output for KafkaPool {
     fn new(config: &Config) -> KafkaPool {
         let acks = config.lookup("output.kafka_acks").
-            map_or(KAFKA_DEFAULT_ACKS, |x| x.as_integer().unwrap() as i16);
-        let brokers = config.lookup("output.kafka_brokers").unwrap().as_slice().unwrap().to_vec();
-        let brokers = brokers.iter().map(|x| x.as_str().unwrap().to_owned()).collect();
-        let topic = config.lookup("output.kafka_topic").unwrap().as_str().unwrap().to_owned();
+            map_or(KAFKA_DEFAULT_ACKS, |x| x.as_integer().
+            expect("output.kafka_acks must be a 16-bit integer") as i16);
+        let brokers = config.lookup("output.kafka_brokers").expect("output.kafka_brokers is required").
+            as_slice().expect("Invalid list of Kafka brokers").to_vec();
+        let brokers = brokers.iter().map(|x| x.as_str().
+            expect("output.kafka_brokers must be a list of strings").to_owned()).collect();
+        let topic = config.lookup("output.kafka_topic").
+            expect("output.kafka_topic must be a string").as_str().
+            expect("output.kafka_topic must be a string").to_owned();
         let timeout = config.lookup("output.kafka_timeout").
-            map_or(KAFKA_DEFAULT_TIMEOUT, |x| x.as_integer().unwrap() as i32);
+            map_or(KAFKA_DEFAULT_TIMEOUT, |x| x.as_integer().
+                expect("output.kafka_timeout must be a 32-bit integer") as i32);
         let threads = config.lookup("output.kafka_threads").
-            map_or(KAFKA_DEFAULT_THREADS, |x| x.as_integer().unwrap() as u32);
+            map_or(KAFKA_DEFAULT_THREADS, |x| x.as_integer().
+                expect("output.kafka_threads must be a 32-bit integer") as u32);
         let coalesce = config.lookup("output.kafka_coalesce").
-            map_or(KAFKA_DEFAULT_COALESCE, |x| x.as_integer().unwrap() as usize);
+            map_or(KAFKA_DEFAULT_COALESCE, |x| x.as_integer().
+                expect("output.kafka_coalesce must be a size integer") as usize);
         let kafka_config = KafkaConfig {
             acks: acks,
             brokers: brokers,
@@ -132,7 +140,7 @@ impl Output for KafkaPool {
     }
 
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>) {
-        for i in 0..self.threads {
+        for _ in 0..self.threads {
             let arx = arx.clone();
             let config = self.config.clone();
             thread::spawn(move || {
