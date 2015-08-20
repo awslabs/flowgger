@@ -98,7 +98,7 @@ fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<De
     ctx.set_private_key_file(&Path::new(&tls_config.key), X509FileType::PEM).unwrap();
     ctx.set_cipher_list(&tls_config.ciphers).unwrap();
     if let Ok(peer_addr) = client.peer_addr() {
-        println!("New connection over TLS from [{}]", peer_addr);
+        println!("Connection over TLS from [{}]", peer_addr);
     }
     let sslclient = match SslStream::accept(&ctx, client) {
         Err(_) => {
