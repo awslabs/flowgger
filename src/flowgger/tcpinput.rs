@@ -48,7 +48,10 @@ fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<De
     let reader = BufReader::new(client);
     for line in reader.lines() {
         let line = match line {
-            Err(_) => return,
+            Err(_) => {
+                let _ = writeln!(stderr(), "Invalid UTF-8 input");
+                continue;
+            }
             Ok(line) => line
         };
         if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
