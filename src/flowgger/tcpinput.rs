@@ -46,6 +46,9 @@ fn handle_line<TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decode
 }
 
 fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: TE) where TE: Encoder {
+    if let Ok(peer_addr) = client.peer_addr() {
+        println!("New connection over TCP from [{}]", peer_addr);
+    }
     let reader = BufReader::new(client);
     for line in reader.lines() {
         let line = match line {

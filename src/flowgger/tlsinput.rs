@@ -97,7 +97,16 @@ fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<De
     ctx.set_certificate_file(&Path::new(&tls_config.cert), X509FileType::PEM).unwrap();
     ctx.set_private_key_file(&Path::new(&tls_config.key), X509FileType::PEM).unwrap();
     ctx.set_cipher_list(&tls_config.ciphers).unwrap();
-    let sslclient = SslStream::accept(&ctx, client).unwrap();
+    if let Ok(peer_addr) = client.peer_addr() {
+        println!("New connection over TLS from [{}]", peer_addr);
+    }
+    let sslclient = match SslStream::accept(&ctx, client) {
+        Err(_) => {
+            let _ = writeln!(stderr(), "SSL handshake aborted by the client");
+            return
+        }
+        Ok(sslclient) => sslclient
+    };
     let mut reader = BufReader::new(sslclient);
     if tls_config.framed == false {
         for line in reader.lines() {
