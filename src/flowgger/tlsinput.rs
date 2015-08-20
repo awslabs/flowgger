@@ -80,11 +80,11 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
         Ok(nbytes_vl) => nbytes_vl
     };
     let nbytes_s = match str::from_utf8(&nbytes_v[..nbytes_vl - 1]) {
-        Err(_) => return Err("Invalid message length"),
+        Err(_) => return Err("Invalid or missing message length. Disable framing, maybe?"),
         Ok(nbytes_s) => nbytes_s
     };
     let nbytes: usize = match nbytes_s.parse() {
-        Err(_) => return Err("Invalid message length"),
+        Err(_) => return Err("Invalid or missing message length. Disable framing, maybe?"),
         Ok(nbytes) => nbytes
     };
     Ok(nbytes)
