@@ -70,7 +70,10 @@ Messages are assumed to be on a single line and use the UTF8 encoding.
 
 LTSV is especially designed for structured data, and is faster to
 parse than RFC 5424. Timestamps (the `time` property) can be in RFC
-3339 format (preferred) or in English format.
+3339 format (preferred) or in English format. Optional short
+descriptions of each event (equivalent to `short_message` in GELF or to
+the final, non-structured message in RFC 5424) can be given for a
+key called `message`.
 
 Up to `queuesize` messages can be buffered in memory if the final datastore
 cannot keep up with the input rate.
