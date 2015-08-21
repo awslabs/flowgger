@@ -20,6 +20,7 @@ impl Decoder for LTSVDecoder {
         let mut sd = StructuredData::new(None);
         let mut ts = None;
         let mut hostname = None;
+        let mut msg = None;
         for part in line.split('\t') {
             let mut pair = part.splitn(2, ':');
             let name = try!(pair.next().ok_or("Missing name in an LTSV record"));
@@ -35,6 +36,9 @@ impl Decoder for LTSVDecoder {
                 },
                 "host" => {
                     hostname = Some(value.to_owned())
+                },
+                "message" => {
+                    msg = Some(value.to_owned());
                 },
                 name @ _ => {
                     sd.pairs.push((format!("_{}", name), value.to_owned()));
@@ -53,7 +57,7 @@ impl Decoder for LTSVDecoder {
                 } else {
                     Some(sd)
                 },
-            msg: None
+            msg: msg
         };
         Ok(record)
     }
