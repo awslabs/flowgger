@@ -4,7 +4,7 @@ extern crate serde_json;
 
 use flowgger::Encoder;
 use flowgger::config::Config;
-use flowgger::record::Record;
+use flowgger::record::{Record, SDValue};
 use self::serde_json::builder::ObjectBuilder;
 use self::serde_json::value::Value;
 
@@ -41,7 +41,14 @@ impl Encoder for GelfEncoder {
                     map = map.insert("sd_id".to_owned(), Value::String(sd_id));
                 }
                 for (name, value) in sd.pairs {
-                    map = map.insert(name, Value::String(value));
+                    let value = match value {
+                        SDValue::String(value) => Value::String(value),
+                        SDValue::Bool(value) => Value::Bool(value),
+                        SDValue::F64(value) => Value::F64(value),
+                        SDValue::I64(value) => Value::I64(value),
+                        SDValue::U64(value) => Value::U64(value)
+                    };
+                    map = map.insert(name, value);
                 }
             }
         }

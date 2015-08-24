@@ -2,7 +2,7 @@ extern crate chrono;
 
 use flowgger::Decoder;
 use flowgger::config::Config;
-use flowgger::record::{Record, Pri, StructuredData};
+use flowgger::record::{Record, Pri, StructuredData, SDValue};
 use self::chrono::DateTime;
 
 #[derive(Clone)]
@@ -176,7 +176,8 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
                 in_value = false;
                 let value = unescape_sd_value(&sd[value_start .. i]);
                 let pair = ("_".to_owned() +
-                    name.expect("Name in structured data contains an invalid UTF-8 sequence"), value);
+                    name.expect("Name in structured data contains an invalid UTF-8 sequence"),
+                    SDValue::String(value));
                 sd_res.pairs.push(pair);
                 name = None;
             }

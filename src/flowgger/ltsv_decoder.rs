@@ -2,7 +2,7 @@ extern crate chrono;
 
 use flowgger::Decoder;
 use flowgger::config::Config;
-use flowgger::record::{Record, StructuredData};
+use flowgger::record::{Record, StructuredData, SDValue};
 use self::chrono::DateTime;
 
 #[derive(Clone)]
@@ -36,7 +36,7 @@ impl Decoder for LTSVDecoder {
                 },
                 "host" => hostname = Some(value.to_owned()),
                 "message" => msg = Some(value.to_owned()),
-                name @ _ => sd.pairs.push((format!("_{}", name), value.to_owned()))
+                name @ _ => sd.pairs.push((format!("_{}", name), SDValue::String(value.to_owned())))
             };
         }
         let record = Record {

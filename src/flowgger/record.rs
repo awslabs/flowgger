@@ -4,10 +4,20 @@ pub struct Pri {
     pub severity: u8
 }
 
+#[allow(dead_code)]
+#[derive(Debug)]
+pub enum SDValue {
+    String(String),
+    Bool(bool),
+    F64(f64),
+    I64(i64),
+    U64(u64)
+}
+
 #[derive(Debug)]
 pub struct StructuredData {
     pub sd_id: Option<String>,
-    pub pairs: Vec<(String, String)>
+    pub pairs: Vec<(String, SDValue)>
 }
 
 impl StructuredData {
