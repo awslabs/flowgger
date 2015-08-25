@@ -208,6 +208,11 @@ fn test_rfc5424() {
     let sd = res.sd.unwrap();
     assert!(sd.sd_id == Some("origin@123".to_owned()));
     let pairs = sd.pairs;
-    assert!(pairs.iter().cloned().any(|(k, v)| k == "_software" && v == "te\\st sc\"ript"));
-    assert!(pairs.iter().cloned().any(|(k, v)| k == "_swVersion" && v == "0.0.1"));
+
+    assert!(pairs.iter().cloned().any(|(k, v)|
+        if let SDValue::String(v) = v { k == "_software" && v == "te\\st sc\"ript" } else { false }
+    ));
+    assert!(pairs.iter().cloned().any(|(k, v)|
+        if let SDValue::String(v) = v { k == "_swVersion" && v == "0.0.1" } else { false }
+    ));
 }

@@ -89,7 +89,13 @@ fn test_ltsv() {
     assert!(res.msg.unwrap() == "this is a test");
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(pairs.iter().cloned().any(|(k, v)| k == "_name1" && v == "value1"));
-    assert!(pairs.iter().cloned().any(|(k, v)| k == "_name 2" && v == " value 2"));
-    assert!(pairs.iter().cloned().any(|(k, v)| k == "_n3" && v == "v3"));
+    assert!(pairs.iter().cloned().any(|(k, v)|
+        if let SDValue::String(v) = v { k == "_name1" && v == "value1" } else { false }
+    ));
+    assert!(pairs.iter().cloned().any(|(k, v)|
+        if let SDValue::String(v) = v { k == "_name 2" && v == " value 2" } else { false }
+    ));
+    assert!(pairs.iter().cloned().any(|(k, v)|
+        if let SDValue::String(v) = v { k == "_n3" && v == "v3" } else { false }
+    ));
 }

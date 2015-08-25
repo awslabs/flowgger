@@ -5,7 +5,7 @@ pub struct Pri {
 }
 
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum SDValue {
     String(String),
     Bool(bool),
