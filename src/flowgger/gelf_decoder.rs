@@ -28,7 +28,7 @@ impl Decoder for GelfDecoder {
 
         let obj: Value = try!(de::from_str(line).or(Err("Invalid GELF input, unable to parse as a JSON object")));
         let obj = try!(obj.as_object().ok_or("Empty GELF input"));
-        for (key, value) in obj.iter() {
+        for (key, value) in obj {
             match key.as_ref() {
                 "timestamp" => {
                     ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")) as i64);
@@ -55,13 +55,13 @@ impl Decoder for GelfDecoder {
                     severity = Some(level as u8)
                 },
                 name @ _ => {
-                    let sd_value: SDValue = match value {
-                        &Value::String(ref value) => SDValue::String(value.to_owned()),
-                        &Value::Bool(value) => SDValue::Bool(value),
-                        &Value::F64(value) => SDValue::F64(value),
-                        &Value::I64(value) => SDValue::I64(value),
-                        &Value::U64(value) => SDValue::U64(value),
-                        &Value::Null => SDValue::Null,
+                    let sd_value: SDValue = match *value {
+                        Value::String(ref value) => SDValue::String(value.to_owned()),
+                        Value::Bool(value) => SDValue::Bool(value),
+                        Value::F64(value) => SDValue::F64(value),
+                        Value::I64(value) => SDValue::I64(value),
+                        Value::U64(value) => SDValue::U64(value),
+                        Value::Null => SDValue::Null,
                         _ => return Err("Invalid value type in structured data")
                     };
                     let name = if name.starts_with("_") {
