@@ -60,13 +60,14 @@ over TLS).
 When using TLS, `tls_ciphers` is optional and defaults to a safe suite, but
 `tls_cert` and `tls_key` are required.
 
-The supported `format` types for now are `rfc5424`, `gelf` and `ltsv`.
+The supported input `format` types for now are `rfc5424`, `gelf` and `ltsv`:
 
-Flowgger supports the [RFC 5424](https://tools.ietf.org/html/rfc5424)
-and [LTSV](http://ltsv.org) formats, that support structured data
-(key-value pairs).
+* [RFC 5424](https://tools.ietf.org/html/rfc5424),
+* [GELF](https://www.graylog.org/resources/gelf-2/)
+* [LTSV](http://ltsv.org)
 
 Messages are assumed to be on a single line and use the UTF8 encoding.
+RFC 5424 structured data are supported.
 
 LTSV is especially designed for structured data, and is faster to
 parse than RFC 5424. Timestamps (the `time` property) can be in RFC
@@ -98,11 +99,11 @@ x-header2 = "zik"
 ```
 
 After having been decoded, records are reencoded in `format`. Currently, only
-Greylog's [`gelf` format](https://www.graylog.org/resources/gelf-2/) is supported.
+Greylog's GELF is supported.
 
-Structured data from RFC5424 records show up in Gelf data as additional fields.
+Structured data from RFC5424 records show up in GELF data as additional fields.
 
-Optionally, additional properties can be added to every Gelf record, by
+Optionally, additional properties can be added to every GELF record, by
 providing a table in a `[output.gelf_extra]` section. If no additional properties
 are required, this section doesn't have to be present in the configuration file.
 
