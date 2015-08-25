@@ -69,6 +69,9 @@ The supported input `format` types for now are `rfc5424`, `gelf` and `ltsv`:
 Messages are assumed to be on a single line and use the UTF8 encoding.
 RFC 5424 structured data are supported.
 
+The GELF codec doesn't support compression nor chunked GELF (useless
+over TCP) yet.
+
 LTSV is especially designed for structured data, and is faster to
 parse than RFC 5424. Timestamps (the `time` property) can be in RFC
 3339 format (preferred) or in English format. Optional short
