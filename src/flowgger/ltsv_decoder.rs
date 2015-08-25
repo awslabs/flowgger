@@ -40,18 +40,16 @@ impl Decoder for LTSVDecoder {
             };
         }
         let record = Record {
-            pri: None,
             ts: try!(ts.ok_or("Missing timestamp")),
             hostname: try!(hostname.ok_or("Missing hostname")),
+            facility: None,
+            severity: None,
             appname: None,
             procid: None,
             msgid: None,
-            sd: if sd.pairs.is_empty() {
-                    None
-                } else {
-                    Some(sd)
-                },
-            msg: msg
+            sd: if sd.pairs.is_empty() { None } else { Some(sd) },
+            msg: msg,
+            full_msg: None
         };
         Ok(record)
     }

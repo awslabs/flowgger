@@ -30,26 +30,26 @@ impl Encoder for GelfEncoder {
             insert("host".to_owned(), Value::String(record.hostname)).
             insert("short_message".to_owned(), Value::String(record.msg.unwrap_or("-".to_owned()))).
             insert("timestamp".to_owned(), Value::I64(record.ts));
-        match record.pri {
-            None => { },
-            Some(pri) => { map = map.insert("level".to_owned(), Value::U64(pri.severity as u64)); }
+        if let Some(severity) = record.severity {
+            map = map.insert("level".to_owned(), Value::U64(severity as u64));
         }
-        match record.sd {
-            None => { },
-            Some(sd) => {
-                if let Some(sd_id) = sd.sd_id {
-                    map = map.insert("sd_id".to_owned(), Value::String(sd_id));
-                }
-                for (name, value) in sd.pairs {
-                    let value = match value {
-                        SDValue::String(value) => Value::String(value),
-                        SDValue::Bool(value) => Value::Bool(value),
-                        SDValue::F64(value) => Value::F64(value),
-                        SDValue::I64(value) => Value::I64(value),
-                        SDValue::U64(value) => Value::U64(value)
-                    };
-                    map = map.insert(name, value);
-                }
+        if let Some(full_msg) = record.full_msg {
+            map = map.insert("full_message".to_owned(), Value::String(full_msg));
+        }
+        if let Some(sd) = record.sd {
+            if let Some(sd_id) = sd.sd_id {
+                map = map.insert("sd_id".to_owned(), Value::String(sd_id));
+            }
+            for (name, value) in sd.pairs {
+                let value = match value {
+                    SDValue::String(value) => Value::String(value),
+                    SDValue::Bool(value) => Value::Bool(value),
+                    SDValue::F64(value) => Value::F64(value),
+                    SDValue::I64(value) => Value::I64(value),
+                    SDValue::U64(value) => Value::U64(value),
+                    SDValue::Null => Value::Null
+                };
+                map = map.insert(name, value);
             }
         }
         for (name, value) in self.extra.iter().cloned() {

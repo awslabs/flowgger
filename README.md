@@ -60,7 +60,7 @@ over TLS).
 When using TLS, `tls_ciphers` is optional and defaults to a safe suite, but
 `tls_cert` and `tls_key` are required.
 
-The only supported `format` for now are `rfc5424` and `ltsv`.
+The supported `format` types for now are `rfc5424`, `gelf` and `ltsv`.
 
 Flowgger supports the [RFC 5424](https://tools.ietf.org/html/rfc5424)
 and [LTSV](http://ltsv.org) formats, that support structured data

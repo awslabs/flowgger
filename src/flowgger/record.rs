@@ -1,9 +1,3 @@
-#[derive(Debug)]
-pub struct Pri {
-    pub facility: u8,
-    pub severity: u8
-}
-
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum SDValue {
@@ -11,7 +5,8 @@ pub enum SDValue {
     Bool(bool),
     F64(f64),
     I64(i64),
-    U64(u64)
+    U64(u64),
+    Null
 }
 
 #[derive(Debug)]
@@ -34,12 +29,14 @@ impl StructuredData {
 
 #[derive(Debug)]
 pub struct Record {
-    pub pri: Option<Pri>,
     pub ts: i64,
     pub hostname: String,
+    pub facility: Option<u8>,
+    pub severity: Option<u8>,
     pub appname: Option<String>,
     pub procid: Option<String>,
     pub msgid: Option<String>,
     pub sd: Option<StructuredData>,
-    pub msg: Option<String>
+    pub msg: Option<String>,
+    pub full_msg: Option<String>
 }

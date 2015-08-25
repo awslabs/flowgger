@@ -1,4 +1,5 @@
 mod config;
+mod gelf_decoder;
 mod gelf_encoder;
 mod kafkapool;
 mod ltsv_decoder;
@@ -8,6 +9,7 @@ mod tcpinput;
 mod tlsinput;
 
 use self::config::Config;
+use self::gelf_decoder::GelfDecoder;
 use self::gelf_encoder::GelfEncoder;
 use self::kafkapool::KafkaPool;
 use self::ltsv_decoder::LTSVDecoder;
@@ -67,6 +69,7 @@ pub fn start(config_file: &str) {
     let decoder = match input_format {
         "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
         "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
+        "gelf" => Box::new(GelfDecoder::new(&config)) as Box<Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format)
     };
     let encoder = GelfEncoder::new(&config);

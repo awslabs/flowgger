@@ -2,7 +2,7 @@ extern crate chrono;
 
 use flowgger::Decoder;
 use flowgger::config::Config;
-use flowgger::record::{Record, Pri, StructuredData, SDValue};
+use flowgger::record::{Record, StructuredData, SDValue};
 use self::chrono::DateTime;
 
 #[derive(Clone)]
@@ -30,26 +30,24 @@ impl Decoder for RFC5424Decoder {
         let msgid = try!(parts.next().ok_or("Missing message id"));
         let (sd, msg) = try!(parse_data(try!(parts.next().ok_or("Missing message data"))));
         let record = Record {
-            pri: Some(pri_version),
             ts: ts,
             hostname: hostname.to_owned(),
+            facility: Some(pri_version.facility),
+            severity: Some(pri_version.severity),
             appname: Some(appname.to_owned()),
             procid: Some(procid.to_owned()),
             msgid: Some(msgid.to_owned()),
             sd: sd,
-            msg: msg
+            msg: msg,
+            full_msg: None
         };
         Ok(record)
     }
 }
 
-impl Pri {
-    fn new(encoded: u8) -> Pri {
-        Pri {
-            facility: encoded >> 3,
-            severity: encoded & 7
-        }
-    }
+struct Pri {
+    facility: u8,
+    severity: u8
 }
 
 enum BOM {
@@ -74,12 +72,15 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
         return Err("The priority should be inside brackets")
     }
     let mut parts = line[1..].splitn(2, '>');
-    let pri: u8 = try!(try!(parts.next().ok_or("Empty priority")).parse().or(Err("Invalid priority")));
+    let pri_encoded: u8 = try!(try!(parts.next().ok_or("Empty priority")).parse().or(Err("Invalid priority")));
     let version = try!(parts.next().ok_or("Missing version"));
     if version != "1" {
         return Err("Unsupported version");
     }
-    Ok(Pri::new(pri))
+    Ok(Pri {
+        facility: pri_encoded >> 3,
+        severity: pri_encoded & 7
+    })
 }
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<i64, &'static str> {
@@ -196,9 +197,8 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
 fn test_rfc5424() {
     let msg = r#"<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let res = RFC5424Decoder.decode(msg).unwrap();
-    let pri = res.pri.unwrap();
-    assert!(pri.facility == 2);
-    assert!(pri.severity == 7);
+    assert!(res.facility.unwrap() == 2);
+    assert!(res.severity.unwrap() == 7);
     assert!(res.ts == 1438790025);
     assert!(res.hostname == "testhostname");
     assert!(res.appname == Some("appname".to_owned()));
