@@ -36,6 +36,9 @@ impl Encoder for GelfEncoder {
         if let Some(full_msg) = record.full_msg {
             map = map.insert("full_message".to_owned(), Value::String(full_msg));
         }
+        for (name, value) in self.extra.iter().cloned() {
+            map = map.insert(name, Value::String(value));
+        }
         if let Some(sd) = record.sd {
             if let Some(sd_id) = sd.sd_id {
                 map = map.insert("sd_id".to_owned(), Value::String(sd_id));
@@ -51,9 +54,6 @@ impl Encoder for GelfEncoder {
                 };
                 map = map.insert(name, value);
             }
-        }
-        for (name, value) in self.extra.iter().cloned() {
-            map = map.insert(name, Value::String(value));
         }
         let json = serde_json::to_vec(&map.unwrap());
         Ok(json)
