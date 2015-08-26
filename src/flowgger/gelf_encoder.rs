@@ -19,7 +19,7 @@ impl Encoder for GelfEncoder {
             None => Vec::new(),
             Some(extra) => extra.as_table().expect("output.gelf_extra must be a list of key/value pairs").
                 into_iter().map(|(k, v)| (k.to_owned(), v.as_str().
-                expect("output.gelf_extra values mmust be strings").to_owned())).collect()
+                expect("output.gelf_extra values must be strings").to_owned())).collect()
         };
         GelfEncoder { extra: extra }
     }
