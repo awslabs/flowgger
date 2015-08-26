@@ -78,6 +78,8 @@ parse than RFC 5424. Timestamps (the `time` property) can be in RFC
 descriptions of each event (equivalent to `short_message` in GELF or to
 the final, non-structured message in RFC 5424) can be given for a
 key called `message`.
+A `level` property in a LTSV entry will also translate to a syslog
+severity level. It should be between 0 and 7.
 
 Up to `queuesize` messages can be buffered in memory if the final datastore
 cannot keep up with the input rate.

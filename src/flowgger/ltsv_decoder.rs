@@ -21,6 +21,8 @@ impl Decoder for LTSVDecoder {
         let mut ts = None;
         let mut hostname = None;
         let mut msg = None;
+        let mut severity = None;
+
         for part in line.split('\t') {
             let mut pair = part.splitn(2, ':');
             let name = try!(pair.next().ok_or("Missing name in an LTSV record"));
@@ -36,6 +38,13 @@ impl Decoder for LTSVDecoder {
                 },
                 "host" => hostname = Some(value.to_owned()),
                 "message" => msg = Some(value.to_owned()),
+                "level" => {
+                    let level: u8 = try!(value.parse().or(Err("Invalid severity level")));
+                    if level > 7 {
+                        return Err("Severity level should be <= 7")
+                    }
+                    severity = Some(level);
+                },
                 name @ _ => sd.pairs.push((format!("_{}", name), SDValue::String(value.to_owned())))
             };
         }
@@ -43,7 +52,7 @@ impl Decoder for LTSVDecoder {
             ts: try!(ts.ok_or("Missing timestamp")),
             hostname: try!(hostname.ok_or("Missing hostname")),
             facility: None,
-            severity: None,
+            severity: severity,
             appname: None,
             procid: None,
             msgid: None,
@@ -79,9 +88,10 @@ fn test_ltsv() {
     let res = LTSVDecoder.decode(msg).unwrap();
     assert!(res.ts == 1438790025);
 
-    let msg = "time:[10/Oct/2000:13:55:36 -0700]\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
+    let msg = "time:[10/Oct/2000:13:55:36 -0700]\tlevel:3\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = LTSVDecoder.decode(msg).unwrap();
     assert!(res.ts == 971211336);
+    assert!(res.severity.unwrap() == 3);
 
     assert!(res.hostname == "testhostname");
     assert!(res.msg.unwrap() == "this is a test");
