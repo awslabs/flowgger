@@ -43,8 +43,9 @@ impl Decoder for GelfDecoder {
                     full_msg = Some(try!(value.as_string().ok_or("GELF full message must be a string")).to_owned());
                 }
                 "version" => {
-                    if try!(value.as_string().ok_or("GELF version must be a string")) != "1.1" {
-                        return Err("Unsupported GELF version");
+                    match try!(value.as_string().ok_or("GELF version must be a string")) {
+                        "1.0" | "1.1" => { }
+                        _ => return Err("Unsupported GELF version")
                     }
                 }
                 "level" => {
