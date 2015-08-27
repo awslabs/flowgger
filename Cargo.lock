@@ -3,7 +3,7 @@ name = "flowgger"
 version = "0.1.0"
 dependencies = [
  "chrono 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "clippy 0.0.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clippy 0.0.12 (git+https://github.com/Manishearth/rust-clippy)",
  "kafka 0.1.6 (git+https://github.com/jedisct1/kafka-rust.git)",
  "log 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.6.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -42,8 +42,8 @@ dependencies = [
 
 [[package]]
 name = "clippy"
-version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+version = "0.0.12"
+source = "git+https://github.com/Manishearth/rust-clippy#7a1082d91659ebfa044d84ad06876bbdc4915d97"
 
 [[package]]
 name = "flate2"
