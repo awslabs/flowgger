@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum SDValue {
     String(String),
@@ -7,6 +6,11 @@ pub enum SDValue {
     I64(i64),
     U64(u64),
     Null
+}
+
+#[derive(Debug, Clone)]
+pub enum SDValueType {
+    String, Bool, F64, I64, U64
 }
 
 #[derive(Debug)]

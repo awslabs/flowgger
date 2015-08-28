@@ -2,16 +2,38 @@ extern crate chrono;
 
 use flowgger::Decoder;
 use flowgger::config::Config;
-use flowgger::record::{Record, StructuredData, SDValue};
+use flowgger::record::{Record, StructuredData, SDValue, SDValueType};
+use std::collections::HashMap;
 use self::chrono::DateTime;
 
 #[derive(Clone)]
-pub struct LTSVDecoder;
+pub struct LTSVDecoder {
+    schema: Option<HashMap<String, SDValueType>>
+}
 
 impl LTSVDecoder {
     pub fn new(config: &Config) -> LTSVDecoder {
-        let _ = config;
-        LTSVDecoder
+        let schema = match config.lookup("input.ltsv_schema") {
+            None => None,
+            Some(pairs) => {
+                let mut schema = HashMap::new();
+                for (name, sdtype) in pairs.as_table().expect("input.ltsv_schema must be a list of key/type pairs") {
+                    let sdtype = match sdtype.as_str().expect("input.ltsv_schema types must be strings").to_lowercase().as_ref() {
+                        "string" => SDValueType::String,
+                        "bool" => SDValueType::Bool,
+                        "f64" => SDValueType::F64,
+                        "i64" => SDValueType::I64,
+                        "u64" => SDValueType::U64,
+                        _ => panic!(format!("Unsupported type in input.ltsv_schema for name [{}]", name))
+                    };
+                    schema.insert(name.to_owned(), sdtype);
+                }
+                Some(schema)
+            }
+        };
+        LTSVDecoder {
+            schema: schema
+        }
     }
 }
 
@@ -45,7 +67,25 @@ impl Decoder for LTSVDecoder {
                     }
                     severity = Some(level);
                 },
-                name @ _ => sd.pairs.push((format!("_{}", name), SDValue::String(value.to_owned())))
+                name @ _ => {
+                    let value: SDValue = if let Some(ref schema) = self.schema {
+                        match schema.get(name) {
+                            None | Some(&SDValueType::String) =>
+                                SDValue::String(value.to_owned()),
+                            Some(&SDValueType::Bool) =>
+                                SDValue::Bool(try!(value.parse::<bool>().or(Err("Type error; boolean was expected")))),
+                            Some(&SDValueType::F64) =>
+                                SDValue::F64(try!(value.parse::<f64>().or(Err("Type error; f64 was expected")))),
+                            Some(&SDValueType::I64) =>
+                                SDValue::I64(try!(value.parse::<i64>().or(Err("Type error; i64 was expected")))),
+                            Some(&SDValueType::U64) =>
+                                SDValue::I64(try!(value.parse::<i64>().or(Err("Type error; u64 was expected"))))
+                        }
+                    } else {
+                        SDValue::String(value.to_owned())
+                    };
+                    sd.pairs.push((format!("_{}", name), value));
+                }
             };
         }
         let record = Record {
