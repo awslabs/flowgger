@@ -10,10 +10,14 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Config, Error>{
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
         let mut fd = try!(File::open(path));
         let mut toml = String::new();
         try!(fd.read_to_string(&mut toml));
+        Config::from_string(&toml)
+    }
+
+    pub fn from_string(toml: &str) -> Result<Config, Error> {
         let config = match toml.parse() {
             Ok(config) => config,
             Err(_) => return Err(Error::new(ErrorKind::InvalidData, "Syntax error"))

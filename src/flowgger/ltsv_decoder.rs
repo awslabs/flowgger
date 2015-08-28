@@ -79,7 +79,7 @@ impl Decoder for LTSVDecoder {
                             Some(&SDValueType::I64) =>
                                 SDValue::I64(try!(value.parse::<i64>().or(Err("Type error; i64 was expected")))),
                             Some(&SDValueType::U64) =>
-                                SDValue::I64(try!(value.parse::<i64>().or(Err("Type error; u64 was expected"))))
+                                SDValue::U64(try!(value.parse::<u64>().or(Err("Type error; u64 was expected"))))
                         }
                     } else {
                         SDValue::String(value.to_owned())
@@ -124,12 +124,15 @@ fn parse_ts(line: &str) -> Result<i64, &'static str> {
 
 #[test]
 fn test_ltsv() {
-    let msg = "time:[2015-08-05T15:53:45.637824Z]\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3";
-    let res = LTSVDecoder.decode(msg).unwrap();
+    let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter = \"u64\"");
+    let ltsv_decoder = LTSVDecoder::new(&config.unwrap());
+
+    let mut msg = "time:[2015-08-05T15:53:45.637824Z]\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3";
+    let mut res = ltsv_decoder.decode(msg).unwrap();
     assert!(res.ts == 1438790025);
 
-    let msg = "time:[10/Oct/2000:13:55:36 -0700]\tlevel:3\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
-    let res = LTSVDecoder.decode(msg).unwrap();
+    msg = "time:[10/Oct/2000:13:55:36 -0700]\tcounter:42\tlevel:3\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
+    res = ltsv_decoder.decode(msg).unwrap();
     assert!(res.ts == 971211336);
     assert!(res.severity.unwrap() == 3);
 
@@ -145,5 +148,8 @@ fn test_ltsv() {
     ));
     assert!(pairs.iter().cloned().any(|(k, v)|
         if let SDValue::String(v) = v { k == "_n3" && v == "v3" } else { false }
+    ));
+    assert!(pairs.iter().cloned().any(|(k, v)|
+        if let SDValue::U64(v) = v { k == "_counter" && v == 42 } else { false }
     ));
 }

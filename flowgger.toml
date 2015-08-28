@@ -9,7 +9,7 @@ tls_ciphers = "ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-R
 queuesize = 1000000
 
 [input.ltsv_schema]
-_counter = u64
+counter = "u64"
 
 [output]
 type = "kafka"
