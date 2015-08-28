@@ -127,7 +127,6 @@ English format with the timezone.
 
 This timestamp, as well as the `host` property, are mandatory.
 
-
 Records may include a special property named `message`, which contains a
 human-readable description of the event (equivalent to `short_message` in GELF
 or to the final, non-structured message in RFC 5424).
