@@ -1,7 +1,6 @@
-
 extern crate kafka;
 
-use flowgger::Output;
+use super::Output;
 use flowgger::config::Config;
 use self::kafka::client::KafkaClient;
 use self::kafka::utils::ProduceMessage;

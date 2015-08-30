@@ -2,7 +2,7 @@ mod config;
 mod decoder;
 mod encoder;
 mod input;
-mod kafkapool;
+mod output;
 mod record;
 
 use self::config::Config;
@@ -12,21 +12,17 @@ use self::decoder::ltsv_decoder::LTSVDecoder;
 use self::decoder::rfc5424_decoder::RFC5424Decoder;
 use self::encoder::Encoder;
 use self::encoder::gelf_encoder::GelfEncoder;
-use self::kafkapool::KafkaPool;
 use self::input::Input;
 use self::input::tcp_input::TcpInput;
 use self::input::tls_input::TlsInput;
+use self::output::Output;
+use self::output::kafkapool::KafkaPool;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
-
-pub trait Output {
-    fn new(config: &Config) -> Self;
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>);
-}
 
 pub fn start(config_file: &str) {
     let config = match Config::from_path(config_file) {
