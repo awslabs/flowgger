@@ -31,6 +31,13 @@ pub fn start(config_file: &str) {
     };
     let input_format = config.lookup("input.format").
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().expect("input.format must be a string"));
+    let input_type = config.lookup("input.type").
+        map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
+    let input = match input_type {
+        "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
+        "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
+        _ => panic!("Invalid input type: {}", input_type)
+    };
     let decoder = match input_format {
         "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
         "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
@@ -43,17 +50,9 @@ pub fn start(config_file: &str) {
     let queue_size = config.lookup("input.queuesize").
         map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().
         expect("input.queuesize must be a size integer") as usize);
-
     let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(queue_size);
     let arx = Arc::new(Mutex::new(rx));
-    output.start(arx);
 
-    let input_type = config.lookup("input.type").
-        map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
-    let input = match input_type {
-        "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
-        "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
-        _ => panic!("Invalid input type: {}", input_type)
-    };
+    output.start(arx);
     input.accept(tx, decoder, encoder);
 }
