@@ -16,7 +16,7 @@ use self::input::Input;
 use self::input::tcp_input::TcpInput;
 use self::input::tls_input::TlsInput;
 use self::output::Output;
-use self::output::kafkapool::KafkaPool;
+use self::output::kafka_output::KafkaOutput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
@@ -38,7 +38,7 @@ pub fn start(config_file: &str) {
         _ => panic!("Unknown input format: {}", input_format)
     };
     let encoder = GelfEncoder::new(&config);
-    let output = KafkaPool::new(&config);
+    let output = KafkaOutput::new(&config);
 
     let queue_size = config.lookup("input.queuesize").
         map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().

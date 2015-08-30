@@ -1,4 +1,4 @@
-pub mod kafkapool;
+pub mod kafka_output;
 
 use flowgger::config::Config;
 use std::sync::mpsc::Receiver;

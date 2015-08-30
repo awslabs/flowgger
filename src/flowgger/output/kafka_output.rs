@@ -14,7 +14,7 @@ const KAFKA_DEFAULT_THREADS: u32 = 1;
 const KAFKA_DEFAULT_TIMEOUT: i32 = 60000;
 const KAFKA_DEFAULT_ACKS: i16 = 0;
 
-pub struct KafkaPool {
+pub struct KafkaOutput {
     config: KafkaConfig,
     threads: u32
 }
@@ -104,8 +104,8 @@ impl KafkaWorker {
     }
 }
 
-impl Output for KafkaPool {
-    fn new(config: &Config) -> KafkaPool {
+impl Output for KafkaOutput {
+    fn new(config: &Config) -> KafkaOutput {
         let acks = config.lookup("output.kafka_acks").
             map_or(KAFKA_DEFAULT_ACKS, |x| x.as_integer().
             expect("output.kafka_acks must be a 16-bit integer") as i16);
@@ -132,7 +132,7 @@ impl Output for KafkaPool {
             timeout: timeout,
             coalesce: coalesce
         };
-        KafkaPool {
+        KafkaOutput {
             config: kafka_config,
             threads: threads
         }
