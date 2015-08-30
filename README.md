@@ -63,6 +63,9 @@ over TLS).
 When using TLS, `tls_ciphers` is optional and defaults to a safe suite, but
 `tls_cert` and `tls_key` are required.
 
+`tls_compression` is `false` by default, but might be turned on if saving
+bandwidth is more important than CPU cycles.
+
 Up to `queuesize` messages may be buffered in memory if the final datastore
 cannot keep up with the input rate.
 
