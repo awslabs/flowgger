@@ -18,6 +18,8 @@ const DEFAULT_FRAMED: bool = false;
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 const DEFAULT_TLS_METHOD: &'static str = "TLSv1.2";
+const DEFAULT_VERIFY_PEER: bool = false;
+const DEFAULT_COMPRESSION: bool = false;
 
 #[derive(Clone)]
 struct TlsConfig {
@@ -25,7 +27,9 @@ struct TlsConfig {
     key: String,
     ciphers: String,
     framed: bool,
-    tls_method: SslMethod
+    tls_method: SslMethod,
+    verify_peer: bool,
+    compression: bool
 }
 
 pub struct TlsInput {
@@ -50,6 +54,10 @@ impl TlsInput {
                 "tlsv1.2" => SslMethod::Tlsv1_2,
                 _ => panic!(r#"TLS method must be "TLSv1.0", "TLSv1.1" or "TLSv1.2""#)
         };
+        let verify_peer = config.lookup("input.tls_verify_peer").map_or(DEFAULT_VERIFY_PEER, |x| x.as_bool().
+            expect("input.tls_verify_peer must be a boolean"));
+        let compression = config.lookup("input.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
+            expect("input.tls_compression must be a boolean"));
         let framed = config.lookup("input.framed").map_or(DEFAULT_FRAMED, |x| x.as_bool().
             expect("input.framed must be a boolean"));
 
@@ -58,7 +66,9 @@ impl TlsInput {
             key: key,
             ciphers: ciphers,
             framed: framed,
-            tls_method: tls_method
+            tls_method: tls_method,
+            verify_peer: verify_peer,
+            compression: compression
         };
         TlsInput {
             listen: listen,
@@ -105,8 +115,14 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
 
 fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tls_config: TlsConfig) {
     let mut ctx = SslContext::new(Tlsv1_2).unwrap();
-    ctx.set_verify(SSL_VERIFY_PEER, None); // Sigh
-    ctx.set_options(SSL_OP_NO_COMPRESSION | SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+    if tls_config.verify_peer == false {
+        ctx.set_verify(SSL_VERIFY_PEER, None);
+    }
+    let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+    if tls_config.compression == false {
+        opts = opts | SSL_OP_NO_COMPRESSION;
+    }
+    ctx.set_options(opts);
     ctx.set_certificate_file(&Path::new(&tls_config.cert), X509FileType::PEM).unwrap();
     ctx.set_private_key_file(&Path::new(&tls_config.key), X509FileType::PEM).unwrap();
     ctx.set_cipher_list(&tls_config.ciphers).unwrap();

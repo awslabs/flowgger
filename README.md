@@ -49,6 +49,9 @@ listen = "0.0.0.0:6514"
 format = "rfc5424"
 tls_cert = "flowgger.pem"
 tls_key = "flowgger.pem"
+tls_compression = false
+tls_verify_peer = false
+tls_method = "TLSv1.2"
 tls_ciphers = "ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES128-GCM-SHA256"
 queuesize = 1000000
 ```
