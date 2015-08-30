@@ -28,13 +28,14 @@ struct TlsConfig {
     tls_method: SslMethod
 }
 
+#[derive(Clone)]
 pub struct TlsInput {
     listen: String,
     tls_config: TlsConfig
 }
 
-impl Input for TlsInput {
-    fn new(config: &Config) -> TlsInput {
+impl TlsInput {
+    pub fn new(config: &Config) -> TlsInput {
         let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x| x.as_str().
             expect("input.listen must be an ip:port string")).to_owned();
         let cert = config.lookup("input.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
@@ -65,14 +66,16 @@ impl Input for TlsInput {
             tls_config: tls_config
         }
     }
+}
 
-    fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static {
+impl Input for TlsInput {
+    fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
                 Ok(client) => {
                     let tx = tx.clone();
-                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone());
+                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     let tls_config = self.tls_config.clone();
                     thread::spawn(move|| {
                         handle_client(client, tx, decoder, encoder, tls_config);
@@ -101,7 +104,7 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
     Ok(nbytes)
 }
 
-fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: TE, tls_config: TlsConfig) where TE: Encoder {
+fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tls_config: TlsConfig) {
     let mut ctx = SslContext::new(Tlsv1_2).unwrap();
     ctx.set_verify(SSL_VERIFY_PEER, None); // Sigh
     ctx.set_options(SSL_OP_NO_COMPRESSION | SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
@@ -150,7 +153,7 @@ fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<De
     }
 }
 
-fn handle_line<TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &TE) -> Result<(), &'static str> where TE: Encoder {
+fn handle_line(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(&line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();

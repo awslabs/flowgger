@@ -9,26 +9,29 @@ use super::Input;
 
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 
+#[derive(Clone)]
 pub struct TcpInput {
     listen: String
 }
 
-impl Input for TcpInput {
-    fn new(config: &Config) -> TcpInput {
+impl TcpInput {
+    pub fn new(config: &Config) -> TcpInput {
         let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x|x.as_str().
             expect("input.listen must be an ip:port string")).to_owned();
         TcpInput {
             listen: listen
         }
     }
+}
 
-    fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static {
+impl Input for TcpInput {
+    fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
                 Ok(client) => {
                     let tx = tx.clone();
-                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone());
+                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     thread::spawn(move|| {
                         handle_client(client, tx, decoder, encoder);
                     });
@@ -39,14 +42,14 @@ impl Input for TcpInput {
     }
 }
 
-fn handle_line<TE>(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &TE) -> Result<(), &'static str> where TE: Encoder {
+fn handle_line(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(&line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
     Ok(())
 }
 
-fn handle_client<TE>(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: TE) where TE: Encoder {
+fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TCP from [{}]", peer_addr);
     }

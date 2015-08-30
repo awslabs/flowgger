@@ -10,6 +10,7 @@ use self::decoder::Decoder;
 use self::decoder::gelf_decoder::GelfDecoder;
 use self::decoder::ltsv_decoder::LTSVDecoder;
 use self::decoder::rfc5424_decoder::RFC5424Decoder;
+use self::encoder::Encoder;
 use self::encoder::gelf_encoder::GelfEncoder;
 use self::input::Input;
 use self::input::tcp_input::TcpInput;
@@ -36,7 +37,7 @@ pub fn start(config_file: &str) {
         "gelf" => Box::new(GelfDecoder::new(&config)) as Box<Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format)
     };
-    let encoder = GelfEncoder::new(&config);
+    let encoder = Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>;
     let output = KafkaOutput::new(&config);
 
     let queue_size = config.lookup("input.queuesize").
