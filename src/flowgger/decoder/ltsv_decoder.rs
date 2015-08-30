@@ -58,8 +58,10 @@ impl Decoder for LTSVDecoder {
                     };
                     ts = Some(try!(parse_ts(ts_s)));
                 },
-                "host" => hostname = Some(value.to_owned()),
-                "message" => msg = Some(value.to_owned()),
+                "host" =>
+                    hostname = Some(value.to_owned()),
+                "message" =>
+                    msg = Some(value.to_owned()),
                 "level" => {
                     let severity_given: u8 = try!(value.parse().or(Err("Invalid severity level")));
                     if severity_given > 7 {

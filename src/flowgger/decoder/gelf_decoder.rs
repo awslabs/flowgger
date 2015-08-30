@@ -30,18 +30,14 @@ impl Decoder for GelfDecoder {
         let obj = try!(obj.as_object().ok_or("Empty GELF input"));
         for (key, value) in obj {
             match key.as_ref() {
-                "timestamp" => {
-                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")) as i64);
-                }
-                "host" => {
-                    hostname = Some(try!(value.as_string().ok_or("GELF host name must be a string")).to_owned());
-                }
-                "short_message" => {
-                    msg = Some(try!(value.as_string().ok_or("GELF short message must be a string")).to_owned());
-                }
-                "full_message" => {
-                    full_msg = Some(try!(value.as_string().ok_or("GELF full message must be a string")).to_owned());
-                }
+                "timestamp" =>
+                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")) as i64),
+                "host" =>
+                    hostname = Some(try!(value.as_string().ok_or("GELF host name must be a string")).to_owned()),
+                "short_message" =>
+                    msg = Some(try!(value.as_string().ok_or("GELF short message must be a string")).to_owned()),
+                "full_message" =>
+                    full_msg = Some(try!(value.as_string().ok_or("GELF full message must be a string")).to_owned()),
                 "version" => {
                     match try!(value.as_string().ok_or("GELF version must be a string")) {
                         "1.0" | "1.1" => { }
