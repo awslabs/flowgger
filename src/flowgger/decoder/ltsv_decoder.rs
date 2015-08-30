@@ -1,10 +1,10 @@
 extern crate chrono;
 
-use super::Decoder;
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue, SDValueType};
-use std::collections::HashMap;
 use self::chrono::DateTime;
+use std::collections::HashMap;
+use super::Decoder;
 
 #[derive(Clone)]
 pub struct LTSVDecoder {

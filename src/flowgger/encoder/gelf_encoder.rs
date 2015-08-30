@@ -2,11 +2,11 @@
 extern crate serde;
 extern crate serde_json;
 
-use super::Encoder;
 use flowgger::config::Config;
 use flowgger::record::{Record, SDValue};
 use self::serde_json::builder::ObjectBuilder;
 use self::serde_json::value::Value;
+use super::Encoder;
 
 #[derive(Clone)]
 pub struct GelfEncoder {

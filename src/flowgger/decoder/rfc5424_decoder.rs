@@ -1,9 +1,9 @@
 extern crate chrono;
 
-use super::Decoder;
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue};
 use self::chrono::DateTime;
+use super::Decoder;
 
 #[derive(Clone)]
 pub struct RFC5424Decoder;

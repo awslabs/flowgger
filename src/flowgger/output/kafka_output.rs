@@ -1,6 +1,5 @@
 extern crate kafka;
 
-use super::Output;
 use flowgger::config::Config;
 use self::kafka::client::KafkaClient;
 use self::kafka::utils::ProduceMessage;
@@ -8,11 +7,12 @@ use std::process::exit;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use super::Output;
 
+const KAFKA_DEFAULT_ACKS: i16 = 0;
 const KAFKA_DEFAULT_COALESCE: usize = 1;
 const KAFKA_DEFAULT_THREADS: u32 = 1;
 const KAFKA_DEFAULT_TIMEOUT: i32 = 60000;
-const KAFKA_DEFAULT_ACKS: i16 = 0;
 
 pub struct KafkaOutput {
     config: KafkaConfig,

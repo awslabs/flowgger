@@ -1,11 +1,11 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use super::Input;
 use std::io::{stderr, Write, BufRead, BufReader};
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
 use std::thread;
+use super::Input;
 
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 
