@@ -1,10 +1,9 @@
 mod config;
 mod decoder;
 mod encoder;
+mod input;
 mod kafkapool;
 mod record;
-mod tcpinput;
-mod tlsinput;
 
 use self::config::Config;
 use self::decoder::Decoder;
@@ -14,19 +13,15 @@ use self::decoder::rfc5424_decoder::RFC5424Decoder;
 use self::encoder::Encoder;
 use self::encoder::gelf_encoder::GelfEncoder;
 use self::kafkapool::KafkaPool;
-use self::tcpinput::TcpInput;
-use self::tlsinput::TlsInput;
+use self::input::Input;
+use self::input::tcp_input::TcpInput;
+use self::input::tls_input::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
-
-pub trait Input {
-    fn new(config: &Config) -> Self;
-    fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static;
-}
 
 pub trait Output {
     fn new(config: &Config) -> Self;
