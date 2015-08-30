@@ -49,11 +49,11 @@ impl Decoder for GelfDecoder {
                     }
                 }
                 "level" => {
-                    let level = try!(value.as_u64().ok_or("Invalid severity level"));
-                    if level > 7 {
+                    let severity_given = try!(value.as_u64().ok_or("Invalid severity level"));
+                    if severity_given > 7 {
                         return Err("Severity level should be <= 7")
                     }
-                    severity = Some(level as u8)
+                    severity = Some(severity_given as u8)
                 },
                 name @ _ => {
                     let sd_value: SDValue = match *value {

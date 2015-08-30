@@ -61,11 +61,11 @@ impl Decoder for LTSVDecoder {
                 "host" => hostname = Some(value.to_owned()),
                 "message" => msg = Some(value.to_owned()),
                 "level" => {
-                    let level: u8 = try!(value.parse().or(Err("Invalid severity level")));
-                    if level > 7 {
+                    let severity_given: u8 = try!(value.parse().or(Err("Invalid severity level")));
+                    if severity_given > 7 {
                         return Err("Severity level should be <= 7")
                     }
-                    severity = Some(level);
+                    severity = Some(severity_given);
                 },
                 name @ _ => {
                     let value: SDValue = if let Some(ref schema) = self.schema {
