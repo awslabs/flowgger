@@ -1,6 +1,6 @@
-
 use flowgger::config::Config;
-use flowgger::{Decoder, Encoder, Input};
+use flowgger::decoder::Decoder;
+use flowgger::{Encoder, Input};
 use openssl::ssl::*;
 use openssl::ssl::SslMethod::*;
 use openssl::x509::X509FileType;

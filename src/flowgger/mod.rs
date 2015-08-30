@@ -1,20 +1,19 @@
 mod config;
-mod gelf_decoder;
+mod decoder;
 mod gelf_encoder;
 mod kafkapool;
-mod ltsv_decoder;
 mod record;
-mod rfc5424_decoder;
 mod tcpinput;
 mod tlsinput;
 
 use self::config::Config;
-use self::gelf_decoder::GelfDecoder;
+use self::decoder::Decoder;
+use self::decoder::gelf_decoder::GelfDecoder;
+use self::decoder::ltsv_decoder::LTSVDecoder;
+use self::decoder::rfc5424_decoder::RFC5424Decoder;
 use self::gelf_encoder::GelfEncoder;
 use self::kafkapool::KafkaPool;
-use self::ltsv_decoder::LTSVDecoder;
 use self::record::Record;
-use self::rfc5424_decoder::RFC5424Decoder;
 use self::tcpinput::TcpInput;
 use self::tlsinput::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
@@ -27,26 +26,6 @@ const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 pub trait Input {
     fn new(config: &Config) -> Self;
     fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static;
-}
-
-pub trait CloneBoxedDecoder {
-    fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a> where Self: 'a;
-}
-
-impl<T: Decoder + Clone + Send> CloneBoxedDecoder for T {
-    fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a> where Self: 'a {
-        Box::new(self.clone())
-    }
-}
-
-impl Clone for Box<Decoder> {
-    fn clone(&self) -> Box<Decoder> {
-        self.clone_boxed()
-    }
-}
-
-pub trait Decoder : CloneBoxedDecoder {
-    fn decode(&self, line: &str) -> Result<Record, &'static str>;
 }
 
 pub trait Encoder {

@@ -1,6 +1,6 @@
 extern crate chrono;
 
-use flowgger::Decoder;
+use super::Decoder;
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue};
 use self::chrono::DateTime;
