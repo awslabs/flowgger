@@ -49,6 +49,7 @@ listen = "0.0.0.0:6514"
 format = "rfc5424"
 tls_cert = "flowgger.pem"
 tls_key = "flowgger.pem"
+tls_ca = "flowgger.pem"
 tls_compression = false
 tls_verify_peer = false
 tls_method = "TLSv1.2"
