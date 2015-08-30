@@ -1,4 +1,3 @@
-
 extern crate serde;
 extern crate serde_json;
 
@@ -13,8 +12,8 @@ pub struct GelfEncoder {
     extra: Vec<(String, String)>
 }
 
-impl Encoder for GelfEncoder {
-    fn new(config: &Config) -> GelfEncoder {
+impl GelfEncoder {
+    pub fn new(config: &Config) -> GelfEncoder {
         let extra = match config.lookup("output.gelf_extra") {
             None => Vec::new(),
             Some(extra) => extra.as_table().expect("output.gelf_extra must be a list of key/value pairs").
@@ -23,7 +22,9 @@ impl Encoder for GelfEncoder {
         };
         GelfEncoder { extra: extra }
     }
+}
 
+impl Encoder for GelfEncoder {
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
         let mut map = ObjectBuilder::new().
             insert("version".to_owned(), Value::String("1.1".to_owned())).

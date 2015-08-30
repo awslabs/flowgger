@@ -10,7 +10,6 @@ use self::decoder::Decoder;
 use self::decoder::gelf_decoder::GelfDecoder;
 use self::decoder::ltsv_decoder::LTSVDecoder;
 use self::decoder::rfc5424_decoder::RFC5424Decoder;
-use self::encoder::Encoder;
 use self::encoder::gelf_encoder::GelfEncoder;
 use self::input::Input;
 use self::input::tcp_input::TcpInput;
