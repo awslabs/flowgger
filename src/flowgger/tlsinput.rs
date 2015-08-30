@@ -16,13 +16,15 @@ const DEFAULT_CIPHERS: &'static str = "ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-C
 const DEFAULT_FRAMED: bool = false;
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
+const DEFAULT_TLS_METHOD: &'static str = "TLSv1.2";
 
 #[derive(Clone)]
 struct TlsConfig {
     cert: String,
     key: String,
     ciphers: String,
-    framed: bool
+    framed: bool,
+    tls_method: SslMethod
 }
 
 pub struct TlsInput {
@@ -40,6 +42,13 @@ impl Input for TlsInput {
             expect("input.tls_key must be a path to a .pem file")).to_owned();
         let ciphers = config.lookup("input.tls_ciphers").map_or(DEFAULT_CIPHERS, |x| x.as_str().
             expect("input.tls_ciphers must be a string with a cipher suite")).to_owned();
+        let tls_method = match config.lookup("input.tls_method").map_or(DEFAULT_TLS_METHOD, |x| x.as_str().
+            expect("input.tls_method must be a string with the TLS method")).to_lowercase().as_ref() {
+                "tlsv1" | "tlsv1.0" => SslMethod::Tlsv1,
+                "tlsv1.1" => SslMethod::Tlsv1_1,
+                "tlsv1.2" => SslMethod::Tlsv1_2,
+                _ => panic!(r#"TLS method must be "TLSv1.0", "TLSv1.1" or "TLSv1.2""#)
+        };
         let framed = config.lookup("input.framed").map_or(DEFAULT_FRAMED, |x| x.as_bool().
             expect("input.framed must be a boolean"));
 
@@ -47,7 +56,8 @@ impl Input for TlsInput {
             cert: cert,
             key: key,
             ciphers: ciphers,
-            framed: framed
+            framed: framed,
+            tls_method: tls_method
         };
         TlsInput {
             listen: listen,
