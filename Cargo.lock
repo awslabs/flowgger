@@ -1,6 +1,6 @@
 [root]
 name = "flowgger"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "clippy 0.0.12 (git+https://github.com/Manishearth/rust-clippy)",
