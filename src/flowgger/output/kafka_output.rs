@@ -104,8 +104,8 @@ impl KafkaWorker {
     }
 }
 
-impl Output for KafkaOutput {
-    fn new(config: &Config) -> KafkaOutput {
+impl KafkaOutput {
+    pub fn new(config: &Config) -> KafkaOutput {
         let acks = config.lookup("output.kafka_acks").
             map_or(KAFKA_DEFAULT_ACKS, |x| x.as_integer().
             expect("output.kafka_acks must be a 16-bit integer") as i16);
@@ -137,7 +137,9 @@ impl Output for KafkaOutput {
             threads: threads
         }
     }
+}
 
+impl Output for KafkaOutput {
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>) {
         for _ in 0..self.threads {
             let arx = arx.clone();

@@ -38,7 +38,7 @@ pub fn start(config_file: &str) {
         _ => panic!("Unknown input format: {}", input_format)
     };
     let encoder = Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>;
-    let output = KafkaOutput::new(&config);
+    let output = Box::new(KafkaOutput::new(&config)) as Box<Output>;
 
     let queue_size = config.lookup("input.queuesize").
         map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().
@@ -50,9 +50,10 @@ pub fn start(config_file: &str) {
 
     let input_type = config.lookup("input.type").
         map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
-    match input_type {
-        "syslog-tcp" => TcpInput::new(&config).accept(tx, decoder, encoder),
-        "syslog-tls" => TlsInput::new(&config).accept(tx, decoder, encoder),
+    let input = match input_type {
+        "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
+        "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
         _ => panic!("Invalid input type: {}", input_type)
-    }
+    };
+    input.accept(tx, decoder, encoder);
 }
