@@ -28,7 +28,6 @@ struct TlsConfig {
     tls_method: SslMethod
 }
 
-#[derive(Clone)]
 pub struct TlsInput {
     listen: String,
     tls_config: TlsConfig

@@ -9,7 +9,6 @@ use super::Input;
 
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 
-#[derive(Clone)]
 pub struct TcpInput {
     listen: String
 }
