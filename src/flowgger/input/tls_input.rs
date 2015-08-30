@@ -20,6 +20,7 @@ const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 const DEFAULT_TLS_METHOD: &'static str = "TLSv1.2";
 const DEFAULT_VERIFY_PEER: bool = false;
 const DEFAULT_COMPRESSION: bool = false;
+const TLS_VERIFY_DEPTH: u32 = 6;
 
 #[derive(Clone)]
 struct TlsConfig {
@@ -115,8 +116,9 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
 
 fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tls_config: TlsConfig) {
     let mut ctx = SslContext::new(Tlsv1_2).unwrap();
-    if tls_config.verify_peer == false {
-        ctx.set_verify(SSL_VERIFY_PEER, None);
+    if tls_config.verify_peer == true {
+        ctx.set_verify_depth(TLS_VERIFY_DEPTH);
+        ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
     }
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
     if tls_config.compression == false {
