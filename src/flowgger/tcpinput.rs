@@ -1,6 +1,7 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
-use flowgger::{Encoder, Input};
+use flowgger::encoder::Encoder;
+use flowgger::Input;
 use std::io::{stderr, Write, BufRead, BufReader};
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;

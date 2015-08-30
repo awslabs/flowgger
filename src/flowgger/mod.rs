@@ -1,6 +1,6 @@
 mod config;
 mod decoder;
-mod gelf_encoder;
+mod encoder;
 mod kafkapool;
 mod record;
 mod tcpinput;
@@ -11,9 +11,9 @@ use self::decoder::Decoder;
 use self::decoder::gelf_decoder::GelfDecoder;
 use self::decoder::ltsv_decoder::LTSVDecoder;
 use self::decoder::rfc5424_decoder::RFC5424Decoder;
-use self::gelf_encoder::GelfEncoder;
+use self::encoder::Encoder;
+use self::encoder::gelf_encoder::GelfEncoder;
 use self::kafkapool::KafkaPool;
-use self::record::Record;
 use self::tcpinput::TcpInput;
 use self::tlsinput::TlsInput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
@@ -26,11 +26,6 @@ const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 pub trait Input {
     fn new(config: &Config) -> Self;
     fn accept<TE>(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: TE) where TE: Encoder + Clone + Send + 'static;
-}
-
-pub trait Encoder {
-    fn new(config: &Config) -> Self;
-    fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str>;
 }
 
 pub trait Output {
