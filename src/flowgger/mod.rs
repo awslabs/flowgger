@@ -16,12 +16,14 @@ use self::input::Input;
 use self::input::tcp_input::TcpInput;
 use self::input::tls_input::TlsInput;
 use self::output::Output;
+use self::output::debug_output::DebugOutput;
 use self::output::kafka_output::KafkaOutput;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
+const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
 pub fn start(config_file: &str) {
@@ -45,7 +47,13 @@ pub fn start(config_file: &str) {
         _ => panic!("Unknown input format: {}", input_format)
     };
     let encoder = Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>;
-    let output = Box::new(KafkaOutput::new(&config)) as Box<Output>;
+    let output_type = config.lookup("output.type").
+        map_or(DEFAULT_OUTPUT_TYPE, |x| x.as_str().expect("output.type must be a string"));
+    let output = match output_type {
+        "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
+        "kafka" => Box::new(KafkaOutput::new(&config)) as Box<Output>,
+        _ => panic!("Invalid output type: {}", output_type)
+    };
 
     let queue_size = config.lookup("input.queuesize").
         map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().

@@ -1,3 +1,4 @@
+pub mod debug_output;
 pub mod kafka_output;
 
 use std::sync::mpsc::Receiver;

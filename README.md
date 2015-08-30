@@ -203,9 +203,11 @@ x-header2 = "zik"
 If no additional properties are required, this section doesn't have to be
 present in the configuration file.
 
-The only `type` of data store currently supported by Flowgger is `kafka`.
+The only data stores (`type`) currently supported by Flowgger are
+`kafka` and `debug` (which just prints to the screen).
 
-The output data is dispatched to a pool of `kafka_threads` workers.
+When using Kafka, the output data is dispatched to a pool of `kafka_threads`
+workers.
 
 You probably want to keep the number of Kafka threads low. However, increasing
 `kafka_coalesce` can drastically improve performance.
