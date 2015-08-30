@@ -5,6 +5,7 @@ format = "ltsv"
 framed = false
 tls_cert = "flowgger.pem"
 tls_key = "flowgger.pem"
+tls_ca_file = "flowgger.pem"
 tls_method = "TLSv1.2"
 tls_verify_peer = false
 tls_compression = false

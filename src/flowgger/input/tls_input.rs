@@ -6,7 +6,7 @@ use openssl::ssl::SslMethod::*;
 use openssl::x509::X509FileType;
 use std::io::{stderr, Write, BufRead, BufReader};
 use std::net::{TcpListener, TcpStream};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str;
 use std::sync::mpsc::SyncSender;
 use std::thread;
@@ -30,6 +30,7 @@ struct TlsConfig {
     framed: bool,
     tls_method: SslMethod,
     verify_peer: bool,
+    ca_file: Option<PathBuf>,
     compression: bool
 }
 
@@ -57,6 +58,8 @@ impl TlsInput {
         };
         let verify_peer = config.lookup("input.tls_verify_peer").map_or(DEFAULT_VERIFY_PEER, |x| x.as_bool().
             expect("input.tls_verify_peer must be a boolean"));
+        let ca_file: Option<PathBuf> = config.lookup("input.tls_ca_file").map_or(None, |x|
+            Some(PathBuf::from(x.as_str().expect("input.tls_ca_file must be a path to a file"))));
         let compression = config.lookup("input.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
             expect("input.tls_compression must be a boolean"));
         let framed = config.lookup("input.framed").map_or(DEFAULT_FRAMED, |x| x.as_bool().
@@ -69,6 +72,7 @@ impl TlsInput {
             framed: framed,
             tls_method: tls_method,
             verify_peer: verify_peer,
+            ca_file: ca_file,
             compression: compression
         };
         TlsInput {
@@ -121,6 +125,11 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
     } else {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
         ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
+        if let Some(ca_file) = tls_config.ca_file {
+            if ctx.set_CA_file(&ca_file).is_err() {
+                panic!("Unable to read the trusted CA file");
+            }
+        }
     }
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
     if tls_config.compression == false {
