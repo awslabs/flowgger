@@ -51,7 +51,7 @@ impl Decoder for GelfDecoder {
                     }
                     severity = Some(severity_given as u8)
                 },
-                name @ _ => {
+                name => {
                     let sd_value: SDValue = match *value {
                         Value::String(ref value) => SDValue::String(value.to_owned()),
                         Value::Bool(value) => SDValue::Bool(value),

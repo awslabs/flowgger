@@ -69,7 +69,7 @@ impl Decoder for LTSVDecoder {
                     }
                     severity = Some(severity_given);
                 },
-                name @ _ => {
+                name => {
                     let value: SDValue = if let Some(ref schema) = self.schema {
                         match schema.get(name) {
                             None | Some(&SDValueType::String) =>

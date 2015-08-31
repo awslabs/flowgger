@@ -122,7 +122,7 @@ fn parse_msg(line: &str, offset: usize) -> Option<String> {
     } else {
         match line[offset..].trim() {
             "" => None,
-            m @ _ => Some(m.to_owned())
+            m => Some(m.to_owned())
         }
     }
 }
