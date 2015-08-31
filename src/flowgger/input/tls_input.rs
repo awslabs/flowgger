@@ -1,6 +1,7 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
+use openssl::dh::DH;
 use openssl::ssl::*;
 use openssl::ssl::SslMethod::*;
 use openssl::x509::X509FileType;
@@ -136,6 +137,7 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         opts = opts | SSL_OP_NO_COMPRESSION;
     }
     ctx.set_options(opts);
+    ctx.set_tmp_dh(DH::get_2048_256().unwrap()).unwrap();
     ctx.set_certificate_file(&Path::new(&tls_config.cert), X509FileType::PEM).unwrap();
     ctx.set_private_key_file(&Path::new(&tls_config.key), X509FileType::PEM).unwrap();
     ctx.set_cipher_list(&tls_config.ciphers).unwrap();

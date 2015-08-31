@@ -17,7 +17,7 @@ git = "https://github.com/Manishearth/rust-clippy"
 git = "https://github.com/jedisct1/kafka-rust.git"
 
 [dependencies.openssl]
-version = "*"
+git = "https://github.com/jedisct1/rust-openssl.git"
 features = ["tlsv1_2", "tlsv1_1"]
 
 [profile.dev]
