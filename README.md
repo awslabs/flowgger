@@ -53,7 +53,7 @@ tls_ca = "flowgger.pem"
 tls_compression = false
 tls_verify_peer = false
 tls_method = "TLSv1.2"
-tls_ciphers = "CHACHA20-POLY1305:AES128-GCM-SHA256"
+tls_ciphers = "DHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:CHACHA20-POLY1305:AES128-GCM-SHA256"
 queuesize = 1000000
 ```
 
