@@ -6,9 +6,9 @@ dependencies = [
  "clippy 0.0.12 (git+https://github.com/Manishearth/rust-clippy)",
  "kafka 0.1.6 (git+https://github.com/jedisct1/kafka-rust.git)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl 0.6.4 (git+https://github.com/jedisct1/rust-openssl.git)",
- "serde 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl 0.6.5 (git+https://github.com/jedisct1/rust-openssl.git)",
+ "serde 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -47,7 +47,7 @@ source = "git+https://github.com/Manishearth/rust-clippy#d3da9f6c81dd3e026bd679c
 
 [[package]]
 name = "flate2"
-version = "0.2.7"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -69,7 +69,7 @@ version = "0.1.6"
 source = "git+https://github.com/jedisct1/kafka-rust.git#3fd47d6056a593ad44fd47634a085f7476f36e09"
 dependencies = [
  "byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
- "flate2 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "flate2 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -129,19 +129,19 @@ dependencies = [
 
 [[package]]
 name = "openssl"
-version = "0.6.4"
-source = "git+https://github.com/jedisct1/rust-openssl.git#6562baeb2245071f0eb1ddaa27126763d5753eff"
+version = "0.6.5"
+source = "git+https://github.com/jedisct1/rust-openssl.git#6368775c90d7fcf4a3a4c70ac0c6f602bce18f25"
 dependencies = [
  "bitflags 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl-sys 0.6.4 (git+https://github.com/jedisct1/rust-openssl.git)",
+ "openssl-sys 0.6.5 (git+https://github.com/jedisct1/rust-openssl.git)",
 ]
 
 [[package]]
 name = "openssl-sys"
-version = "0.6.4"
-source = "git+https://github.com/jedisct1/rust-openssl.git#6562baeb2245071f0eb1ddaa27126763d5753eff"
+version = "0.6.5"
+source = "git+https://github.com/jedisct1/rust-openssl.git#6368775c90d7fcf4a3a4c70ac0c6f602bce18f25"
 dependencies = [
  "gcc 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -179,7 +179,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -187,11 +187,11 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
