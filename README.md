@@ -61,12 +61,39 @@ The currently supported values for the input `type` are `syslog-tcp` (text-based
 syslog messages over a TCP socket) and `syslog-tls` (text-based syslog messages
 over TLS).
 
+### TCP
+
+TCP accepts plain, uncrypted, unauthenticated messages. It is compatible with
+most syslog daemons and other log collectors.
+
+TCP input assumes no framing around messages.
+
+### TLS
+
 When using TLS, `tls_ciphers` is optional and defaults to a safe suite, but
 `tls_cert` and `tls_key` are required.
+
+A self-signed certificate and key can be created with:
+
+```bash
+openssl req -x509 -nodes -newkey rsa:3072 -sha256 \
+  -keyout flowgger.pem -out flowgger.pem
+```
 
 `tls_compression` is `false` by default, but might be turned on if saving
 bandwidth is more important than CPU cycles and logs don't contain
 secrets.
+
+Certificate-based client authentication is also supported. In order to use it,
+set `tls_verify_peer` to `true`, and add the path to a file containing one or
+more client certificates:
+
+```toml
+tls_verify_peer = false
+tls_ca_file = "flowgger-client.pem"
+```
+
+### Input formats
 
 Up to `queuesize` messages may be buffered in memory if the final datastore
 cannot keep up with the input rate.
