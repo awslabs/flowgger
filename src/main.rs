@@ -13,6 +13,7 @@ mod flowgger;
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
 
 fn main() {
+    println!("Starting flowgger 0.1.2");
     let config_file = std::env::args().skip(1).next().unwrap_or(DEFAULT_CONFIG_FILE.to_owned());
     flowgger::start(&config_file);
 }
