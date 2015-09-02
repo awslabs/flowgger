@@ -43,7 +43,7 @@ dependencies = [
 [[package]]
 name = "clippy"
 version = "0.0.12"
-source = "git+https://github.com/Manishearth/rust-clippy#d3da9f6c81dd3e026bd679c09cea1d6b337ccd25"
+source = "git+https://github.com/Manishearth/rust-clippy#a9869e6fe4f7475af66f5e0ea5fea093b075d62c"
 
 [[package]]
 name = "flate2"
