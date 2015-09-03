@@ -10,9 +10,6 @@ serde = "*"
 serde_json = "*"
 toml = "*"
 
-[dependencies.clippy]
-git = "https://github.com/Manishearth/rust-clippy"
-
 [dependencies.kafka]
 git = "https://github.com/jedisct1/kafka-rust.git"
 

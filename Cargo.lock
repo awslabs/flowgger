@@ -3,11 +3,10 @@ name = "flowgger"
 version = "0.1.2"
 dependencies = [
  "chrono 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "clippy 0.0.12 (git+https://github.com/Manishearth/rust-clippy)",
  "kafka 0.1.6 (git+https://github.com/jedisct1/kafka-rust.git)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.6.5 (git+https://github.com/jedisct1/rust-openssl.git)",
- "serde 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -39,11 +38,6 @@ dependencies = [
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "time 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "clippy"
-version = "0.0.12"
-source = "git+https://github.com/Manishearth/rust-clippy#a9869e6fe4f7475af66f5e0ea5fea093b075d62c"
 
 [[package]]
 name = "flate2"
@@ -130,7 +124,7 @@ dependencies = [
 [[package]]
 name = "openssl"
 version = "0.6.5"
-source = "git+https://github.com/jedisct1/rust-openssl.git#6368775c90d7fcf4a3a4c70ac0c6f602bce18f25"
+source = "git+https://github.com/jedisct1/rust-openssl.git#af54e6092ad9d99c3b82867aae013055e79a9b7b"
 dependencies = [
  "bitflags 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -141,7 +135,7 @@ dependencies = [
 [[package]]
 name = "openssl-sys"
 version = "0.6.5"
-source = "git+https://github.com/jedisct1/rust-openssl.git#6368775c90d7fcf4a3a4c70ac0c6f602bce18f25"
+source = "git+https://github.com/jedisct1/rust-openssl.git#af54e6092ad9d99c3b82867aae013055e79a9b7b"
 dependencies = [
  "gcc 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -179,7 +173,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde"
-version = "0.5.3"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -191,7 +185,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "num 0.1.27 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
