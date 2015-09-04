@@ -24,6 +24,8 @@ RUN set -x && \
 
 COPY flowgger.sh /etc/service/flowgger/run
 
+ENV RUST_BACKTRACE=1
+
 EXPOSE 6514
 
 ENTRYPOINT ["/sbin/my_init"]
