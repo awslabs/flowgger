@@ -42,13 +42,14 @@ impl Input for RedisInput {
             }
         };
         println!("Connected to Redis [{}], pulling messages from key [{}]", self.connect, self.queue_key);
+        let (queue_key, queue_key_tmp): (&str, &str) = (&self.queue_key, &self.queue_key_tmp);
         while {
-            let dummy: RedisResult<()> = redis_cnx.rpoplpush(self.queue_key_tmp.clone(), self.queue_key.clone());
+            let dummy: RedisResult<()> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
             dummy.is_ok()
         } { };
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (decoder, encoder);
         loop {
-            let line: String = match redis_cnx.brpoplpush(self.queue_key.clone(), self.queue_key_tmp.clone(), 0) {
+            let line: String = match redis_cnx.brpoplpush(queue_key, queue_key_tmp, 0) {
                 Err(_) => panic!("Redis protocol error in BRPOPLPUSH"),
                 Ok(line) => line
             };
