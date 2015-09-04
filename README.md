@@ -54,12 +54,14 @@ tls_compression = false
 tls_verify_peer = false
 tls_method = "TLSv1.2"
 tls_ciphers = "DHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:CHACHA20-POLY1305:AES128-GCM-SHA256"
+redis_connect = "127.0.0.1"
+redis_queue_key = "logs"
 queuesize = 1000000
 ```
 
 The currently supported values for the input `type` are `syslog-tcp` (text-based
-syslog messages over a TCP socket) and `syslog-tls` (text-based syslog messages
-over TLS).
+syslog messages over a TCP socket), `syslog-tls` (text-based syslog messages
+over TLS) and `redis` (Redis queue).
 
 ### TCP
 
@@ -92,6 +94,20 @@ more client certificates:
 tls_verify_peer = false
 tls_ca_file = "flowgger-client.pem"
 ```
+
+### Redis
+
+Flowgger can also retrieve messages from a queue speaking the Redis
+protocol, such as Redis itself or Ardb:
+
+```toml
+type = "redis"
+redis_connect = "127.0.0.1"
+redis_queue_key = "logs"
+```
+
+This uses the Redis reliable queue pattern, moving messages to a
+temporary list whose key is `<redis_queue_key>.tmp`.
 
 ### Input formats
 
