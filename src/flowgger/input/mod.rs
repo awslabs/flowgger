@@ -1,3 +1,4 @@
+pub mod redis_input;
 pub mod tcp_input;
 pub mod tls_input;
 

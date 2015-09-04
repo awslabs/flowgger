@@ -13,6 +13,7 @@ use self::decoder::rfc5424_decoder::RFC5424Decoder;
 use self::encoder::Encoder;
 use self::encoder::gelf_encoder::GelfEncoder;
 use self::input::Input;
+use self::input::redis_input::RedisInput;
 use self::input::tcp_input::TcpInput;
 use self::input::tls_input::TlsInput;
 use self::output::Output;
@@ -38,6 +39,7 @@ pub fn start(config_file: &str) {
     let input = match input_type {
         "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
         "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
+        "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
         _ => panic!("Invalid input type: {}", input_type)
     };
     let decoder = match input_format {

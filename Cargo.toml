@@ -9,6 +9,7 @@ log = "*"
 serde = "*"
 serde_json = "*"
 toml = "*"
+redis = "*"
 
 [dependencies.kafka]
 git = "https://github.com/jedisct1/kafka-rust.git"
