@@ -3,7 +3,7 @@ extern crate redis;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use self::redis::Commands;
+use self::redis::{Commands, RedisResult};
 use std::io::{stderr, Write};
 use std::sync::mpsc::SyncSender;
 use super::Input;
@@ -42,6 +42,10 @@ impl Input for RedisInput {
             }
         };
         println!("Connected to Redis [{}], pulling messages from key [{}]", self.connect, self.queue_key);
+        while {
+            let dummy: RedisResult<()> = redis_cnx.rpoplpush(self.queue_key_tmp.clone(), self.queue_key.clone());
+            dummy.is_ok()
+        } { };
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (decoder, encoder);
         loop {
             let line: String = match redis_cnx.brpoplpush(self.queue_key.clone(), self.queue_key_tmp.clone(), 0) {
