@@ -41,8 +41,8 @@ impl Input for RedisInput {
                 Ok(redis_cnx) => redis_cnx
             }
         };
-        println!("Connected to Redis [{}], pulling messages from key [{}]", self.connect, self.queue_key);
         let (queue_key, queue_key_tmp): (&str, &str) = (&self.queue_key, &self.queue_key_tmp);
+        println!("Connected to Redis [{}], pulling messages from key [{}]", self.connect, queue_key);
         while {
             let dummy: RedisResult<()> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
             dummy.is_ok()
