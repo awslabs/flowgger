@@ -46,14 +46,13 @@ Input section
 [input]
 type = "syslog-tls"
 listen = "0.0.0.0:6514"
-format = "rfc5424"
+format = "ltsv"
 tls_cert = "flowgger.pem"
 tls_key = "flowgger.pem"
 tls_ca = "flowgger.pem"
 tls_compression = false
 tls_verify_peer = false
 tls_method = "TLSv1.2"
-tls_ciphers = "DHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:CHACHA20-POLY1305:AES128-GCM-SHA256"
 redis_connect = "127.0.0.1"
 redis_queue_key = "logs"
 queuesize = 1000000

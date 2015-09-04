@@ -1,30 +1,56 @@
-[input]
-type = "syslog-tls"
-listen = "0.0.0.0:6514"
-format = "ltsv"
-framed = false
-tls_cert = "flowgger.pem"
-tls_key = "flowgger.pem"
-tls_ca_file = "flowgger.pem"
-tls_method = "TLSv1.2"
-tls_verify_peer = false
-tls_compression = false
-tls_ciphers = "DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SH";
-queuesize = 1000000
+###################
+#  Input section  #
+###################
 
-[input.ltsv_schema]
-counter = "u64"
+[input]
+
+### Syslog over TCP
+type = "syslog-tcp"
+listen = "0.0.0.0:514"
+
+### Syslog over TLS
+# type = "syslog-tls"
+# listen = "0.0.0.0:6514"
+# framed = false
+# tls_cert = "flowgger.pem"
+# tls_key = "flowgger.pem"
+# tls_ca_file = "flowgger.pem"
+# tls_method = "TLSv1.2"
+# tls_verify_peer = false
+# tls_compression = false
+# tls_ciphers = "DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SH";
+
+### Redis client
+# type = "redis"
+# redis_connect = "127.0.0.1"
+# redis_queue_key = "logs"
+
+### Input format and parameters
+# format = "ltsv"
+# queuesize = 1000000
+# [input.ltsv_schema]
+# counter = "u64"
+
+####################
+#  Output section  #
+####################
 
 [output]
-type = "kafka"
-format = "gelf"
-kafka_brokers = [ "172.16.205.129:9092" ]
-kafka_topic = "test"
-kafka_threads = 1
-kafka_coalesce = 1000
-kafka_timeout = 60000
-kafka_acks = 0
 
-[output.gelf_extra]
-x-header1 = "zok"
-x-header2 = "zik"
+### Debug output
+type = "debug"
+
+### Kafka output
+# type = "kafka"
+# kafka_brokers = [ "172.16.205.129:9092" ]
+# kafka_topic = "test"
+# kafka_threads = 1
+# kafka_coalesce = 1000
+# kafka_timeout = 60000
+# kafka_acks = 0
+
+### Output format and parameters
+format = "gelf"
+# [output.gelf_extra]
+# x-header1 = "x-header1 value"
+# x-header2 = "x-header2 value"
