@@ -24,6 +24,7 @@ listen = "0.0.0.0:514"
 # type = "redis"
 # redis_connect = "127.0.0.1"
 # redis_queue_key = "logs"
+# redis_threads = 1
 
 ### Input format and parameters
 # format = "ltsv"

@@ -6,6 +6,7 @@ use flowgger::encoder::Encoder;
 use self::redis::{Commands, Connection, RedisResult};
 use std::io::{stderr, Write};
 use std::sync::mpsc::SyncSender;
+use std::thread;
 use super::Input;
 
 const DEFAULT_CONNECT: &'static str = "127.0.0.1";
@@ -18,6 +19,7 @@ pub struct RedisInput {
 }
 
 struct RedisWorker {
+    tid: u32,
     config: RedisConfig,
     redis_cnx: Connection,
     tx: SyncSender<Vec<u8>>,
@@ -28,8 +30,7 @@ struct RedisWorker {
 #[derive(Clone)]
 struct RedisConfig {
     connect: String,
-    queue_key: String,
-    queue_key_tmp: String
+    queue_key: String
 }
 
 impl RedisInput {
@@ -38,21 +39,22 @@ impl RedisInput {
             expect("input.redis_connect must be an ip:port string")).to_owned();
         let queue_key = config.lookup("input.redis_queue_key").map_or(DEFAULT_QUEUE_KEY, |x|x.as_str().
             expect("input.redis_queue_key must be a string")).to_owned();
-        let queue_key_tmp = queue_key.clone() + ".tmp";
+        let threads = config.lookup("input.redis_threads").
+            map_or(DEFAULT_THREADS, |x| x.as_integer().
+                expect("input.redis_threads must be a 32-bit integer") as u32);
         let redis_config = RedisConfig {
             connect: connect,
-            queue_key: queue_key,
-            queue_key_tmp: queue_key_tmp
+            queue_key: queue_key
         };
         RedisInput {
             config: redis_config,
-            threads: DEFAULT_THREADS
+            threads: threads
         }
     }
 }
 
 impl RedisWorker {
-    fn new(config: RedisConfig, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) -> RedisWorker {
+    fn new(tid: u32, config: RedisConfig, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) -> RedisWorker {
         let redis_cnx = match redis::Client::open(format!("redis://{}/", config.connect).as_ref()) {
             Err(_) => panic!("Invalid connection string for the Redis server: [{}]", config.connect),
             Ok(client) => match client.get_connection() {
@@ -61,6 +63,7 @@ impl RedisWorker {
             }
         };
         RedisWorker {
+            tid: tid,
             config: config,
             redis_cnx: redis_cnx,
             tx: tx,
@@ -70,12 +73,12 @@ impl RedisWorker {
     }
 
     fn run(self) {
-        let (queue_key, queue_key_tmp): (&str, &str) =
-            (&self.config.queue_key, &self.config.queue_key_tmp);
+        let queue_key: &str = &self.config.queue_key;
+        let queue_key_tmp: &str = &format!("{}.tmp.{}", queue_key, self.tid);
         let redis_cnx = self.redis_cnx;
         println!("Connected to Redis [{}], pulling messages from key [{}]", self.config.connect, queue_key);
         while {
-            let dummy: RedisResult<()> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
+            let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
             dummy.is_ok()
         } { };
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (self.decoder, self.encoder);
@@ -87,9 +90,9 @@ impl RedisWorker {
             if let Err(e) = handle_line(&line, &self.tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
-            match redis_cnx.lrem(queue_key, 1, line) {
-                Err(_) => panic!("Redis protocol error in LREM"),
-                Ok(()) => ()
+            match redis_cnx.lrem(queue_key_tmp, 1, line) as RedisResult<u8> {
+                Err(x) => panic!(format!("Redis protocol error in LREM [{}]", x)),
+                Ok(_) => ()
             };
         }
     }
@@ -97,9 +100,21 @@ impl RedisWorker {
 
 impl Input for RedisInput {
     fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
-        let config = self.config.clone();
-        let worker = RedisWorker::new(config, tx, decoder, encoder);
-        worker.run();
+        let mut jids = Vec::new();
+        for tid in (0..self.threads) {
+            let config = self.config.clone();
+            let (encoder, decoder) = (encoder.clone_boxed(), decoder.clone_boxed());
+            let tx = tx.clone();
+            jids.push(thread::spawn(move || {
+                let worker = RedisWorker::new(tid, config, tx, decoder, encoder);
+                worker.run();
+            }));
+        }
+        for jid in jids {
+            if let Err(_) = jid.join() {
+                panic!("Redis connection lost");
+            }
+        }
     }
 }
 

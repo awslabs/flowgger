@@ -55,6 +55,7 @@ tls_verify_peer = false
 tls_method = "TLSv1.2"
 redis_connect = "127.0.0.1"
 redis_queue_key = "logs"
+redis_threads = 1
 queuesize = 1000000
 ```
 
@@ -103,10 +104,11 @@ protocol, such as Redis itself or Ardb:
 type = "redis"
 redis_connect = "127.0.0.1"
 redis_queue_key = "logs"
+redis_threads = 1
 ```
 
 This uses the Redis reliable queue pattern, moving messages to a
-temporary list whose key is `<redis_queue_key>.tmp`.
+temporary list whose key is `<redis_queue_key>.tmp.<thread number>`.
 
 ### Input formats
 
