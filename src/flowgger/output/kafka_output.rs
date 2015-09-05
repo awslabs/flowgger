@@ -54,7 +54,7 @@ impl KafkaWorker {
         }
     }
 
-    fn run_nocoalesce(&mut self) {
+    fn run_nocoalesce(mut self) {
         loop {
             let bytes = match { self.arx.lock().unwrap().recv() } {
                 Ok(line) => line,
@@ -70,7 +70,7 @@ impl KafkaWorker {
         }
     }
 
-    fn run_coalesce(&mut self) {
+    fn run_coalesce(mut self) {
         loop {
             let bytes = match { self.arx.lock().unwrap().recv() } {
                 Ok(line) => line,
@@ -95,7 +95,7 @@ impl KafkaWorker {
         }
     }
 
-    fn run(&mut self) {
+    fn run(self) {
         if self.config.coalesce <= 1 {
             self.run_nocoalesce()
         } else {
@@ -145,7 +145,7 @@ impl Output for KafkaOutput {
             let arx = arx.clone();
             let config = self.config.clone();
             thread::spawn(move || {
-                let mut worker = KafkaWorker::new(arx, config);
+                let worker = KafkaWorker::new(arx, config);
                 worker.run();
             });
         }
