@@ -5,6 +5,7 @@ use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use self::redis::{Commands, Connection, RedisResult};
 use std::io::{stderr, Write};
+use std::process::exit;
 use std::sync::mpsc::SyncSender;
 use std::thread;
 use super::Input;
@@ -72,7 +73,7 @@ impl RedisWorker {
         }
     }
 
-    fn run(self) {
+    fn run(self) -> Result<(), String> {
         let queue_key: &str = &self.config.queue_key;
         let queue_key_tmp: &str = &format!("{}.tmp.{}", queue_key, self.tid);
         let redis_cnx = self.redis_cnx;
@@ -84,14 +85,14 @@ impl RedisWorker {
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (self.decoder, self.encoder);
         loop {
             let line: String = match redis_cnx.brpoplpush(queue_key, queue_key_tmp, 0) {
-                Err(_) => panic!("Redis protocol error in BRPOPLPUSH"),
+                Err(e) => return Err(format!("Redis protocol error in BRPOPLPUSH: [{}]", e)),
                 Ok(line) => line
             };
             if let Err(e) = handle_line(&line, &self.tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
             match redis_cnx.lrem(queue_key_tmp, 1, line) as RedisResult<u8> {
-                Err(x) => panic!(format!("Redis protocol error in LREM [{}]", x)),
+                Err(e) => return Err(format!("Redis protocol error in LREM: [{}]", e)),
                 Ok(_) => ()
             };
         }
@@ -107,7 +108,10 @@ impl Input for RedisInput {
             let tx = tx.clone();
             jids.push(thread::spawn(move || {
                 let worker = RedisWorker::new(tid, config, tx, decoder, encoder);
-                worker.run();
+                if let Err(e) = worker.run() {
+                    let _ = writeln!(stderr(), "Redis connection lost, aborting - {}", e);
+                }
+                exit(1);
             }));
         }
         for jid in jids {
