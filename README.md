@@ -59,9 +59,9 @@ redis_threads = 1
 queuesize = 1000000
 ```
 
-The currently supported values for the input `type` are `syslog-tcp` (text-based
-syslog messages over a TCP socket), `syslog-tls` (text-based syslog messages
-over TLS) and `redis` (Redis queue).
+The currently supported values for the input `type` are `syslog-tcp`
+(text-based syslog messages over a TCP socket), `syslog-tls`
+(text-based syslog messages over TLS) and `redis` (Redis queue).
 
 ### TCP
 
@@ -133,12 +133,14 @@ UTF8 sequences.
 Structured data are optional, but supported. The above example includes two
 key-value pairs as structured data: `(software, test script)` and
 `(swVersion, 0.0.1)`.
-Pay attention to the fact that RFC 5424 requires structured data values requires
-proper escaping: a `\` character should be prepended to `]`, `"` and `\\`
-characters (not bytes, due to UTF-8 encoding).
 
-Messages can optionally be framed, i.e. prepend the length of the message before
-each message. This depends on the configuration of the log producer.
+Pay attention to the fact that RFC 5424 requires structured data
+values requires proper escaping: a `\` character should be prepended
+to `]`, `"` and `\\` characters (not bytes, due to UTF-8 encoding).
+
+Messages can optionally be framed, i.e. prepend the length of the
+message before each message. This depends on the configuration of the
+log producer.
 
 In order to disable/enable framing, a `framed` property should be added to the
 `[input]` section of the Flowgger config file:
