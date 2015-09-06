@@ -118,7 +118,7 @@ cannot keep up with the input rate.
 The currently supported input `format` types are `rfc5424`, `gelf` and `ltsv`:
 
 * [RFC 5424](https://tools.ietf.org/html/rfc5424),
-* [GELF](https://www.graylog.org/resources/gelf-2/)
+* [JSON (GELF)](https://www.graylog.org/resources/gelf-2/)
 * [LTSV](http://ltsv.org)
 
 ### RFC5424
@@ -147,7 +147,7 @@ In order to disable/enable framing, a `framed` property should be added to the
 
     framed = false
 
-### GELF
+### JSON (GELF)
 
 Record example:
 
