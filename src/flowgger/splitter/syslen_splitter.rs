@@ -3,6 +3,7 @@ use flowgger::encoder::Encoder;
 use std::io::{stderr, Read, Write, BufRead, BufReader};
 use std::str;
 use std::sync::mpsc::SyncSender;
+use super::Splitter;
 
 pub struct SyslenSplitter<T: Read> {
     buf_reader: BufReader<T>,
@@ -11,17 +12,8 @@ pub struct SyslenSplitter<T: Read> {
     encoder: Box<Encoder>
 }
 
-impl<T: Read> SyslenSplitter<T> {
-    pub fn new(buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> SyslenSplitter<T> {
-        SyslenSplitter {
-            buf_reader: buf_reader,
-            tx: tx,
-            decoder: decoder,
-            encoder: encoder
-        }
-    }
-
-    pub fn run(self) {
+impl<T: Read> Splitter for SyslenSplitter<T> {
+    fn run(self) {
         let tx = self.tx;
         let (decoder, encoder) = (self.decoder, self.encoder);
         let mut buf_reader = self.buf_reader;
@@ -42,6 +34,17 @@ impl<T: Read> SyslenSplitter<T> {
     }
 }
 
+impl<T: Read> SyslenSplitter<T> {
+    pub fn new(buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> SyslenSplitter<T> {
+        SyslenSplitter {
+            buf_reader: buf_reader,
+            tx: tx,
+            decoder: decoder,
+            encoder: encoder
+        }
+    }
+}
+
 fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
     let mut nbytes_v = Vec::with_capacity(16);
     let nbytes_vl = match reader.read_until(b' ', &mut nbytes_v) {
@@ -53,7 +56,7 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
         Ok(nbytes_s) => nbytes_s
     };
     let nbytes: usize = match nbytes_s.parse() {
-        Err(_) => return Err("Invalid or missing message length. Disable framing, maybe?"),
+        Err(_) => return Err("Invalid message length. Disable framing, maybe?"),
         Ok(nbytes) => nbytes
     };
     Ok(nbytes)

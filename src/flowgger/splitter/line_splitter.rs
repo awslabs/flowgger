@@ -2,6 +2,7 @@ use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use std::io::{stderr, Read, Write, BufRead, BufReader};
 use std::sync::mpsc::SyncSender;
+use super::Splitter;
 
 pub struct LineSplitter<T: Read> {
     buf_reader: BufReader<T>,
@@ -10,17 +11,8 @@ pub struct LineSplitter<T: Read> {
     encoder: Box<Encoder>
 }
 
-impl<T: Read> LineSplitter<T> {
-    pub fn new(buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> LineSplitter<T> {
-        LineSplitter {
-            buf_reader: buf_reader,
-            tx: tx,
-            decoder: decoder,
-            encoder: encoder
-        }
-    }
-
-    pub fn run(self) {
+impl<T: Read> Splitter for LineSplitter<T> {
+    fn run(self) {
         let tx = self.tx;
         let (decoder, encoder) = (self.decoder, self.encoder);
         for line in self.buf_reader.lines() {
@@ -34,6 +26,17 @@ impl<T: Read> LineSplitter<T> {
             if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
+        }
+    }
+}
+
+impl<T: Read> LineSplitter<T> {
+    pub fn new(buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> LineSplitter<T> {
+        LineSplitter {
+            buf_reader: buf_reader,
+            tx: tx,
+            decoder: decoder,
+            encoder: encoder
         }
     }
 }

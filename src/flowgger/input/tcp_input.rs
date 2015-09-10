@@ -1,6 +1,7 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
+use flowgger::splitter::Splitter;
 use flowgger::splitter::line_splitter::LineSplitter;
 use std::io::BufReader;
 use std::net::{TcpListener, TcpStream};
