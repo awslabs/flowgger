@@ -27,7 +27,7 @@ impl<T: Read> Splitter<T> for NulSplitter {
                     continue;
                 }
                 Ok(line) => line
-            };            
+            };
             if let Err(e) = handle_line(line, &self.tx, &self.decoder, &self.encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
