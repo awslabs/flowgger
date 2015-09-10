@@ -48,6 +48,6 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         println!("Connection over TCP from [{}]", peer_addr);
     }
     let reader = BufReader::new(client);
-    let splitter = LineSplitter::new(reader, tx, decoder, encoder);
-    splitter.run();
+    let splitter = Box::new(LineSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>;
+    splitter.run(reader);
 }

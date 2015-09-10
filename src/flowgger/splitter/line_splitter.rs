@@ -4,18 +4,15 @@ use std::io::{stderr, Read, Write, BufRead, BufReader};
 use std::sync::mpsc::SyncSender;
 use super::Splitter;
 
-pub struct LineSplitter<T: Read> {
-    buf_reader: BufReader<T>,
+pub struct LineSplitter {
     tx: SyncSender<Vec<u8>>,
     decoder: Box<Decoder>,
     encoder: Box<Encoder>
 }
 
-impl<T: Read> Splitter for LineSplitter<T> {
-    fn run(self) {
-        let tx = self.tx;
-        let (decoder, encoder) = (self.decoder, self.encoder);
-        for line in self.buf_reader.lines() {
+impl<T: Read> Splitter<T> for LineSplitter {
+    fn run(&self, buf_reader: BufReader<T>) {
+        for line in buf_reader.lines() {
             let line = match line {
                 Err(_) => {
                     let _ = writeln!(stderr(), "Invalid UTF-8 input");
@@ -23,17 +20,16 @@ impl<T: Read> Splitter for LineSplitter<T> {
                 }
                 Ok(line) => line
             };
-            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
+            if let Err(e) = handle_line(&line, &self.tx, &self.decoder, &self.encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
         }
     }
 }
 
-impl<T: Read> LineSplitter<T> {
-    pub fn new(buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> LineSplitter<T> {
+impl LineSplitter {
+    pub fn new(tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> LineSplitter {
         LineSplitter {
-            buf_reader: buf_reader,
             tx: tx,
             decoder: decoder,
             encoder: encoder

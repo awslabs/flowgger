@@ -147,11 +147,10 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         Ok(sslclient) => sslclient
     };
     let reader = BufReader::new(sslclient);
-    if tls_config.framed == false {
-        let splitter = LineSplitter::new(reader, tx, decoder, encoder);
-        splitter.run();
+    let splitter = if tls_config.framed == false {
+        Box::new(LineSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>
     } else {
-        let splitter = SyslenSplitter::new(reader, tx, decoder, encoder);
-        splitter.run();
-    }
+        Box::new(SyslenSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>
+    };
+    splitter.run(reader);
 }

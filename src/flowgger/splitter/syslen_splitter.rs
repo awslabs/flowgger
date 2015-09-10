@@ -5,18 +5,17 @@ use std::str;
 use std::sync::mpsc::SyncSender;
 use super::Splitter;
 
-pub struct SyslenSplitter<T: Read> {
-    buf_reader: BufReader<T>,
+pub struct SyslenSplitter {
     tx: SyncSender<Vec<u8>>,
     decoder: Box<Decoder>,
     encoder: Box<Encoder>
 }
 
-impl<T: Read> Splitter for SyslenSplitter<T> {
-    fn run(self) {
-        let tx = self.tx;
-        let (decoder, encoder) = (self.decoder, self.encoder);
-        let mut buf_reader = self.buf_reader;
+impl<T: Read> Splitter<T> for SyslenSplitter {
+    fn run(&self, buf_reader: BufReader<T>) {
+        let mut buf_reader = buf_reader;
+        let tx = &self.tx;
+        let (decoder, encoder) = (&self.decoder, &self.encoder);
         loop {
             if let Err(e) = read_msglen(&mut buf_reader) {
                 let _ = writeln!(stderr(), "{}", e);
@@ -27,17 +26,16 @@ impl<T: Read> Splitter for SyslenSplitter<T> {
                 println!("err");
                 return;
             }
-            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
+            if let Err(e) = handle_line(&line, tx, decoder, encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
         }
     }
 }
 
-impl<T: Read> SyslenSplitter<T> {
-    pub fn new(buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> SyslenSplitter<T> {
+impl SyslenSplitter {
+    pub fn new(tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> SyslenSplitter {
         SyslenSplitter {
-            buf_reader: buf_reader,
             tx: tx,
             decoder: decoder,
             encoder: encoder

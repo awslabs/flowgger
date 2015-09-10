@@ -1,6 +1,8 @@
 pub mod line_splitter;
 pub mod syslen_splitter;
 
-pub trait Splitter {
-    fn run(self);
+use std::io::BufReader;
+
+pub trait Splitter<T> {
+    fn run(&self, buf_reader: BufReader<T>);
 }
