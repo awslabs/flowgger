@@ -2,15 +2,15 @@ use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::splitter::line_splitter::LineSplitter;
+use flowgger::splitter::syslen_splitter::SyslenSplitter;
 use openssl::bn::BigNum;
 use openssl::dh::DH;
 use openssl::ssl::*;
 use openssl::ssl::SslMethod::*;
 use openssl::x509::X509FileType;
-use std::io::{stderr, Write, BufRead, BufReader};
+use std::io::{stderr, Write, BufReader};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
-use std::str;
 use std::sync::mpsc::SyncSender;
 use std::thread;
 use super::Input;
@@ -105,23 +105,6 @@ impl Input for TlsInput {
     }
 }
 
-fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
-    let mut nbytes_v = Vec::with_capacity(16);
-    let nbytes_vl = match reader.read_until(b' ', &mut nbytes_v) {
-        Err(_) | Ok(0) | Ok(1) => return Err("EOF"),
-        Ok(nbytes_vl) => nbytes_vl
-    };
-    let nbytes_s = match str::from_utf8(&nbytes_v[..nbytes_vl - 1]) {
-        Err(_) => return Err("Invalid or missing message length. Disable framing, maybe?"),
-        Ok(nbytes_s) => nbytes_s
-    };
-    let nbytes: usize = match nbytes_s.parse() {
-        Err(_) => return Err("Invalid or missing message length. Disable framing, maybe?"),
-        Ok(nbytes) => nbytes
-    };
-    Ok(nbytes)
-}
-
 fn set_fs(ctx: &SslContext) {
     let p = BigNum::from_hex_str("87A8E61DB4B6663CFFBBD19C651959998CEEF608660DD0F25D2CEED4435E3B00E00DF8F1D61957D4FAF7DF4561B2AA3016C3D91134096FAA3BF4296D830E9A7C209E0C6497517ABD5A8A9D306BCF67ED91F9E6725B4758C022E0B1EF4275BF7B6C5BFC11D45F9088B941F54EB1E59BB8BC39A0BF12307F5C4FDB70C581B23F76B63ACAE1CAA6B7902D52526735488A0EF13C6D9A51BFA4AB3AD8347796524D8EF6A167B5A41825D967E144E5140564251CCACB83E6B486F6B3CA3F7971506026C0B857F689962856DED4010ABD0BE621C3A3960A54E710C375F26375D7014103A4B54330C198AF126116D2276E11715F693877FAD7EF09CADB094AE91E1A1597").unwrap();
     let g = BigNum::from_hex_str("3FB32C9B73134D0B2E77506660EDBD484CA7B18F21EF205407F4793A1A0BA12510DBC15077BE463FFF4FED4AAC0BB555BE3A6C1B0C6B47B1BC3773BF7E8C6F62901228F8C28CBB18A55AE31341000A650196F931C77A57F2DDF463E5E9EC144B777DE62AAAB8A8628AC376D282D6ED3864E67982428EBC831D14348F6F2F9193B5045AF2767164E1DFC967C1FB3F2E55A4BD1BFFE83B9C80D052B985D182EA0ADB2A3B7313D3FE14C8484B1E052588B9B7D2BBD2DF016199ECD06E1557CD0915B3353BBB64E0EC377FD028370DF92B52C7891428CDC67EB6184B523D1DB246C32F63078490F00EF8D647D148D47954515E2327CFEF98C582664B4C0F6CC41659").unwrap();
@@ -162,31 +145,12 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         }
         Ok(sslclient) => sslclient
     };
-    let mut reader = BufReader::new(sslclient);
+    let reader = BufReader::new(sslclient);
     if tls_config.framed == false {
         let splitter = LineSplitter::new(reader, tx, decoder, encoder);
         splitter.run();
     } else {
-        loop {
-            if let Err(e) = read_msglen(&mut reader) {
-                let _ = writeln!(stderr(), "{}", e);
-                return;
-            }
-            let mut line = String::new();
-            if reader.read_line(&mut line).is_err() {
-                println!("err");
-                return;
-            }
-            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
-                let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
-            }
-        }
+        let splitter = SyslenSplitter::new(reader, tx, decoder, encoder);
+        splitter.run();
     }
-}
-
-fn handle_line(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(&line));
-    let reencoded = try!(encoder.encode(decoded));
-    tx.send(reencoded).unwrap();
-    Ok(())
 }
