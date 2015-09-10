@@ -1,5 +1,6 @@
 
 #![feature(plugin)]
+#![plugin(clippy)]
 
 #[macro_use]
 extern crate kafka;
