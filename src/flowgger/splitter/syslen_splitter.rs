@@ -1,5 +1,7 @@
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
+use std::cmp;
+use std::io;
 use std::io::{stderr, Read, Write, BufRead, BufReader};
 use std::str;
 use std::sync::mpsc::SyncSender;
@@ -17,16 +19,26 @@ impl<T: Read> Splitter<T> for SyslenSplitter {
         let tx = &self.tx;
         let (decoder, encoder) = (&self.decoder, &self.encoder);
         loop {
-            if let Err(e) = read_msglen(&mut buf_reader) {
-                let _ = writeln!(stderr(), "{}", e);
-                return;
-            }
-            let mut line = String::new();
-            if buf_reader.read_line(&mut line).is_err() {
+            let msg_len = match read_msglen(&mut buf_reader) {
+                Err(e) => {
+                    let _ = writeln!(stderr(), "{}", e);
+                    return;
+                }
+                Ok(msg_len) => msg_len
+            };
+            let mut line = vec![0; msg_len];
+            if read_exact(&mut buf_reader, &mut line).is_err() {
                 println!("err");
                 return;
             }
-            if let Err(e) = handle_line(&line, tx, decoder, encoder) {
+            let line = match str::from_utf8(&line) {
+                Err(_) => {
+                    let _ = writeln!(stderr(), "Invalid UTF-8 sequence");
+                    return;
+                }
+                Ok(line) => line
+            };
+            if let Err(e) = handle_line(line, tx, decoder, encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
         }
@@ -60,8 +72,29 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
     Ok(nbytes)
 }
 
-fn handle_line(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(&line));
+fn read_exact<R: BufRead + ?Sized>(reader: &mut R, buf: &mut Vec<u8>) -> io::Result<usize> {
+    let len = buf.len();
+    let mut to_read = len;
+    buf.clear();
+    while to_read > 0 {
+        let used = {
+            let buffer = match reader.fill_buf() {
+                Ok(buffer) => buffer,
+                Err(ref e) if e.kind() == io::ErrorKind::Interrupted => continue,
+                Err(e) => return Err(e)
+            };
+            let used = cmp::min(buffer.len(), to_read);
+            buf.push_all(&buffer[..used]);
+            used
+        };
+        reader.consume(used);
+        to_read -= used;
+    }
+    Ok(len)
+}
+
+fn handle_line(line: &str, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
+    let decoded = try!(decoder.decode(line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
     Ok(())

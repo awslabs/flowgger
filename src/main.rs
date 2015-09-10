@@ -1,5 +1,6 @@
 
 #![feature(plugin)]
+#![feature(vec_push_all)]
 #![plugin(clippy)]
 
 #[macro_use]
