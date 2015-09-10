@@ -3,6 +3,7 @@ use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::splitter::Splitter;
 use flowgger::splitter::line_splitter::LineSplitter;
+use flowgger::splitter::nul_splitter::NulSplitter;
 use flowgger::splitter::syslen_splitter::SyslenSplitter;
 use openssl::bn::BigNum;
 use openssl::dh::DH;
@@ -18,7 +19,7 @@ use super::Input;
 
 const DEFAULT_CERT: &'static str = "flowgger.pem";
 const DEFAULT_CIPHERS: &'static str = "DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SH";
-const DEFAULT_FRAMED: bool = false;
+const DEFAULT_FRAMING: &'static str = "line";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 const DEFAULT_TLS_METHOD: &'static str = "TLSv1.2";
@@ -31,7 +32,7 @@ struct TlsConfig {
     cert: String,
     key: String,
     ciphers: String,
-    framed: bool,
+    framing: String,
     tls_method: SslMethod,
     verify_peer: bool,
     ca_file: Option<PathBuf>,
@@ -67,14 +68,20 @@ impl TlsInput {
             Some(PathBuf::from(x.as_str().expect("input.tls_ca_file must be a path to a file"))));
         let compression = config.lookup("input.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
             expect("input.tls_compression must be a boolean"));
-        let framed = config.lookup("input.framed").map_or(DEFAULT_FRAMED, |x| x.as_bool().
-            expect("input.framed must be a boolean"));
+        let framing = if config.lookup("input.framed").map_or(false, |x| x.as_bool().
+            expect("input.framed must be a boolean")) {
+            "syslen"
+        } else {
+            DEFAULT_FRAMING
+        };
+        let framing = config.lookup("input.framing").map_or(framing, |x| x.as_str().
+            expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)).to_owned();
 
         let tls_config = TlsConfig {
             cert: cert,
             key: key,
             ciphers: ciphers,
-            framed: framed,
+            framing: framing,
             tls_method: tls_method,
             verify_peer: verify_peer,
             ca_file: ca_file,
@@ -147,10 +154,11 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         Ok(sslclient) => sslclient
     };
     let reader = BufReader::new(sslclient);
-    let splitter = if tls_config.framed == false {
-        Box::new(LineSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>
-    } else {
-        Box::new(SyslenSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>
+    let splitter = match &tls_config.framing as &str {
+        "line" => Box::new(LineSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>,
+        "syslen" => Box::new(SyslenSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>,
+        "nul" => Box::new(NulSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>,
+        _ => panic!("Unsupported framing scheme")
     };
     splitter.run(reader);
 }
