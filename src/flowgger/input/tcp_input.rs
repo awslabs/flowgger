@@ -1,7 +1,8 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use std::io::{stderr, Write, BufRead, BufReader};
+use flowgger::splitter::line_splitter::LineSplitter;
+use std::io::BufReader;
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
 use std::thread;
@@ -41,28 +42,11 @@ impl Input for TcpInput {
     }
 }
 
-fn handle_line(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(&line));
-    let reencoded = try!(encoder.encode(decoded));
-    tx.send(reencoded).unwrap();
-    Ok(())
-}
-
 fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TCP from [{}]", peer_addr);
     }
     let reader = BufReader::new(client);
-    for line in reader.lines() {
-        let line = match line {
-            Err(_) => {
-                let _ = writeln!(stderr(), "Invalid UTF-8 input");
-                continue;
-            }
-            Ok(line) => line
-        };
-        if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
-            let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
-        }
-    }
+    let splitter = LineSplitter::new(reader, tx, decoder, encoder);
+    splitter.run();
 }

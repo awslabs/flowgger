@@ -1,6 +1,7 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
+use flowgger::splitter::line_splitter::LineSplitter;
 use openssl::bn::BigNum;
 use openssl::dh::DH;
 use openssl::ssl::*;
@@ -163,18 +164,8 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
     };
     let mut reader = BufReader::new(sslclient);
     if tls_config.framed == false {
-        for line in reader.lines() {
-            let line = match line {
-                Err(_) => {
-                    let _ = writeln!(stderr(), "Invalid UTF-8 input");
-                    continue;
-                }
-                Ok(line) => line
-            };
-            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
-                let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
-            }
-        }
+        let splitter = LineSplitter::new(reader, tx, decoder, encoder);
+        splitter.run();
     } else {
         loop {
             if let Err(e) = read_msglen(&mut reader) {

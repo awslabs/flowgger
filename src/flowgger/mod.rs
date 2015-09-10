@@ -4,6 +4,7 @@ mod encoder;
 mod input;
 mod output;
 mod record;
+mod splitter;
 
 use self::config::Config;
 use self::decoder::Decoder;
