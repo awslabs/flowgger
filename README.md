@@ -254,7 +254,7 @@ x-header2 = "zik"
 ```
 
 After having been decoded, records are reencoded in `format` format. Currently,
-only Greylog's GELF is supported.
+only Graylog's GELF is supported.
 
 Structured data from RFC5424 records show up in GELF data as additional fields.
 
