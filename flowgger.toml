@@ -5,11 +5,11 @@
 [input]
 
 ### Syslog over TCP
-type = "syslog-tcp"
+type = "tcp"
 listen = "0.0.0.0:514"
 
 ### Syslog over TLS
-# type = "syslog-tls"
+# type = "tls"
 # listen = "0.0.0.0:6514"
 # framing = "line"
 # tls_cert = "flowgger.pem"

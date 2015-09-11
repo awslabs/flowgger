@@ -44,7 +44,7 @@ Input section
 
 ```toml
 [input]
-type = "syslog-tls"
+type = "tls"
 listen = "0.0.0.0:6514"
 format = "ltsv"
 framing = "line"
@@ -60,9 +60,9 @@ redis_threads = 1
 queuesize = 1000000
 ```
 
-The currently supported values for the input `type` are `syslog-tcp`
-(text-based syslog messages over a TCP socket), `syslog-tls`
-(text-based syslog messages over TLS) and `redis` (Redis queue).
+The currently supported values for the input `type` are `tcp`
+(text-based syslog messages over a TCP socket), `tls` (text-based
+syslog messages over TLS) and `redis` (Redis queue).
 
 ### TCP
 

@@ -38,8 +38,8 @@ pub fn start(config_file: &str) {
     let input_type = config.lookup("input.type").
         map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
     let input = match input_type {
-        "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
-        "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
+        "syslog-tcp" | "tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
+        "syslog-tls" | "tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
         "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
         _ => panic!("Invalid input type: {}", input_type)
     };
