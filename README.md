@@ -47,6 +47,7 @@ Input section
 type = "syslog-tls"
 listen = "0.0.0.0:6514"
 format = "ltsv"
+framing = "line"
 tls_cert = "flowgger.pem"
 tls_key = "flowgger.pem"
 tls_ca = "flowgger.pem"
@@ -68,7 +69,17 @@ The currently supported values for the input `type` are `syslog-tcp`
 TCP accepts plain, uncrypted, unauthenticated messages. It is compatible with
 most syslog daemons and other log collectors.
 
-TCP input assumes no framing around messages.
+The TCP input assumes that records are separated by line breaks (LF / CR+LF) by
+default. However, this can be changed using the `framing` option:
+
+```toml
+framing = "line"
+```
+
+Supported framing types are:
+- `line`: line breaks
+- `nul`: NUL characters (usually required for GELF over TCP)
+- `syslen`: length-prefixed syslog messages as specified in RFC 5425.
 
 ### TLS
 
@@ -94,6 +105,20 @@ more client certificates:
 tls_verify_peer = false
 tls_ca_file = "flowgger-client.pem"
 ```
+
+The TCP input assumes that records are separated by line breaks (LF / CR+LF) by
+default. However, this can be changed using the `framing` option:
+
+```toml
+framing = "line"
+```
+
+Supported framing types are:
+- `line`: line breaks
+- `nul`: NUL characters (usually required for GELF over TCP)
+- `syslen`: length-prefixed syslog messages as specified in RFC 5425. However,
+line breaks also act as delimiters, in order to recover from corrupted/invalid
+entries.
 
 ### Redis
 
@@ -138,14 +163,8 @@ Pay attention to the fact that RFC 5424 requires structured data
 values requires proper escaping: a `\` character should be prepended
 to `]`, `"` and `\\` characters (not bytes, due to UTF-8 encoding).
 
-Messages can optionally be framed, i.e. prepend the length of the
-message before each message. This depends on the configuration of the
-log producer.
-
-In order to disable/enable framing, a `framed` property should be added to the
-`[input]` section of the Flowgger config file:
-
-    framed = false
+RFC 5424 messages commonly prefix messages by the length, whose support can
+be enabled using `framing = "syslen"`.
 
 ### JSON (GELF)
 
