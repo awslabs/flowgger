@@ -11,7 +11,7 @@ listen = "0.0.0.0:514"
 ### Syslog over TLS
 # type = "syslog-tls"
 # listen = "0.0.0.0:6514"
-# framing = line
+# framing = "line"
 # tls_cert = "flowgger.pem"
 # tls_key = "flowgger.pem"
 # tls_ca_file = "flowgger.pem"
