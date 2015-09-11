@@ -143,7 +143,7 @@ cannot keep up with the input rate.
 The currently supported input `format` types are `rfc5424`, `gelf` and `ltsv`:
 
 * [RFC 5424](https://tools.ietf.org/html/rfc5424),
-* [JSON (GELF)](https://www.graylog.org/resources/gelf-2/)
+* [JSON (GELF)](https://www.graylog.org/resources/gelf/)
 * [LTSV](http://ltsv.org)
 
 ### RFC5424
