@@ -155,10 +155,10 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
     };
     let reader = BufReader::new(sslclient);
     let splitter = match &tls_config.framing as &str {
-        "line" => Box::new(LineSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>,
-        "syslen" => Box::new(SyslenSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>,
-        "nul" => Box::new(NulSplitter::new(tx, decoder, encoder)) as Box<Splitter<_>>,
+        "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
+        "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
+        "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,
         _ => panic!("Unsupported framing scheme")
     };
-    splitter.run(reader);
+    splitter.run(reader, tx, decoder, encoder);
 }

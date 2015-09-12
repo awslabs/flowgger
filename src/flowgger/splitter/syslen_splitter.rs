@@ -5,17 +5,11 @@ use std::str;
 use std::sync::mpsc::SyncSender;
 use super::Splitter;
 
-pub struct SyslenSplitter {
-    tx: SyncSender<Vec<u8>>,
-    decoder: Box<Decoder>,
-    encoder: Box<Encoder>
-}
+pub struct SyslenSplitter;
 
 impl<T: Read> Splitter<T> for SyslenSplitter {
-    fn run(&self, buf_reader: BufReader<T>) {
+    fn run(&self, buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) {
         let mut buf_reader = buf_reader;
-        let tx = &self.tx;
-        let (decoder, encoder) = (&self.decoder, &self.encoder);
         loop {
             if let Err(e) = read_msglen(&mut buf_reader) {
                 let _ = writeln!(stderr(), "{}", e);
@@ -26,19 +20,9 @@ impl<T: Read> Splitter<T> for SyslenSplitter {
                 println!("err");
                 return;
             }
-            if let Err(e) = handle_line(&line, tx, decoder, encoder) {
+            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
-        }
-    }
-}
-
-impl SyslenSplitter {
-    pub fn new(tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> SyslenSplitter {
-        SyslenSplitter {
-            tx: tx,
-            decoder: decoder,
-            encoder: encoder
         }
     }
 }

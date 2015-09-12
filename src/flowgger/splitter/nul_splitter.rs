@@ -5,14 +5,10 @@ use std::str;
 use std::sync::mpsc::SyncSender;
 use super::Splitter;
 
-pub struct NulSplitter {
-    tx: SyncSender<Vec<u8>>,
-    decoder: Box<Decoder>,
-    encoder: Box<Encoder>
-}
+pub struct NulSplitter;
 
 impl<T: Read> Splitter<T> for NulSplitter {
-    fn run(&self, buf_reader: BufReader<T>) {
+    fn run(&self, buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) {
         for line in buf_reader.split(0) {
             let line = match line {
                 Err(_) => {
@@ -28,19 +24,9 @@ impl<T: Read> Splitter<T> for NulSplitter {
                 }
                 Ok(line) => line
             };
-            if let Err(e) = handle_line(line, &self.tx, &self.decoder, &self.encoder) {
+            if let Err(e) = handle_line(line, &tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
-        }
-    }
-}
-
-impl NulSplitter {
-    pub fn new(tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) -> NulSplitter {
-        NulSplitter {
-            tx: tx,
-            decoder: decoder,
-            encoder: encoder
         }
     }
 }
