@@ -184,6 +184,28 @@ property mandatory.
 
 Values can be of any type, including booleans and `null` values.
 
+#### Notes on log4perl_gelf
+
+`Log::Log4perl::Layout::GELF` is a module to add GELF support to Log4Perl, a
+logging framework for a language called Perl.
+
+Unfortunately, this module:
+
+- Doesn't implement the GELF specification. Lines numbers, timestamps and
+severity levels are sent as UTF-8 strings where the specification mentions that
+they MUST be numbers.
+- Can send UTF-8 strings that cannot be parsed as UTF-8 strings.
+- Can send invalid, unparsable JSON.
+- Can only send messages over UDP. TCP support is documented but cannot
+possibly work with any GELF parsers: messages are concatenated without any
+delimiter, and the output of the concatenation gets compressed as a single
+chunk, which is unworkable on a persistent TCP connection.
+- Hasn't been updated since 2011.
+
+There are no compatibility hacks that Flowgger or any other GELF (or even JSON)
+parser could implement in order to reliably support the output of this module
+when used with TCP.
+
 ### LTSV
 
 Record example:
