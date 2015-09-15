@@ -259,6 +259,26 @@ Pay attention to the fact that some of these values may not have a
 representation in the target format. For example, Javascript, hence JSON, hence
 GELF can only represent values up to 2^53-1 without losing precision.
 
+#### LTSV automatic suffixing
+
+When a schema has been defined for LTSV records, suffixes can be enforced for
+non-string values. For example, flowgger can ensure that names for `i64` and
+`u64` values are always suffixed with `_long`, that `f64` values are always
+suffixed with `_double`, and that boolean values are always suffixed with
+`_bool`:
+
+    [input.ltsv_suffixes]
+    i64: "_long"
+    u64: "_long"
+    f64: "_double"
+    bool: "_bool"
+
+This can be especially useful with ElasticSearch, that expects a fixed type
+for a given index.
+
+Property names will be transparently rewritten with the correct suffix for
+their value type, unless they are already properly suffixed.
+
 Output section
 --------------
 
