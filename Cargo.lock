@@ -44,7 +44,7 @@ dependencies = [
 [[package]]
 name = "clippy"
 version = "0.0.13"
-source = "git+https://github.com/Manishearth/rust-clippy#b86ebad0e77aa4b87b9b8ae23fce5179d106a079"
+source = "git+https://github.com/Manishearth/rust-clippy#68d4b3af127372c02aab0c2308f5c2bc81fec785"
 dependencies = [
  "unicode-normalization 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
