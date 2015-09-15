@@ -25,7 +25,9 @@ required for TLS support.
 
 After having intalled rust-nightly, compile with the usual:
 
+```bash
     cargo build --release
+```
 
 And copy the `target/release/flowgger` file anywhere; this is the only file
 you need.
@@ -35,7 +37,9 @@ Configuration
 
 Flowgger reads its configuration from a file given as an argument:
 
+```bash
     flowgger flowgger.toml
+```
 
 The configuration file consists of two main sections: `[input]` and `[output]`.
 
@@ -170,7 +174,9 @@ be enabled using `framing = "syslen"`.
 
 Record example:
 
+```json
     {"version":"1.1", "host": "example.org", "short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}
+```
 
 The GELF codec doesn't support compression nor chunking.
 Chunking is useless with TCP, and compression can be better handled by the TLS
@@ -243,9 +249,11 @@ types when converting LTSV to typed formats such as GELF.
 In order to do so, a schema can be defined for LTSV inputs, in an
 `[input.ltsv_schema]` section of the Flowgger configuration file:
 
+```toml
     [input.ltsv_schema]
     counter = "u64"
     amount = "f64"
+```
 
 Supported types are:
 
@@ -267,12 +275,13 @@ non-string values. For example, flowgger can ensure that names for `i64` and
 suffixed with `_double`, and that boolean values are always suffixed with
 `_bool`:
 
+```toml
     [input.ltsv_suffixes]
     i64: "_long"
     u64: "_long"
     f64: "_double"
     bool: "_bool"
-
+```
 This can be especially useful with ElasticSearch, that expects a fixed type
 for a given index.
 
@@ -306,7 +315,7 @@ Structured data from RFC5424 records show up in GELF data as additional fields.
 Optionally, additional properties can be added to every GELF record, by
 providing a table in a `[output.gelf_extra]` section.
 
-```
+```toml
 [output.gelf_extra]
 x-header1 = "zok"
 x-header2 = "zik"
