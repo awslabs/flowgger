@@ -206,6 +206,9 @@ There are no compatibility hacks that Flowgger or any other GELF (or even JSON)
 parser could implement in order to reliably support the output of this module
 when used with TCP.
 
+The [Log::Log4perl::Layout::LTSV](https://github.com/jedisct1/log4perl_ltsv)
+module is a recommended alternative.
+
 ### LTSV
 
 Record example:
