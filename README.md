@@ -178,10 +178,6 @@ Record example:
     {"version":"1.1", "host": "example.org", "short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}
 ```
 
-The GELF codec doesn't support compression nor chunking.
-Chunking is useless with TCP, and compression can be better handled by the TLS
-layer.
-
 Versions 1.0 and 1.1 of the GELF protocol are supported. As required by the
 specification, the `host` and `short_message` properties are mandatory.
 
