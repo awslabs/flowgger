@@ -178,7 +178,7 @@ fn parse_ts(line: &str) -> Result<i64, &'static str> {
 
 #[test]
 fn test_ltsv_suffixes() {
-    let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter = \"u64\"\nscore = \"i64\"\nmean = \"f64\"\ndone = \"bool\"\n[input.ltsv_suffixes]\nu64 = \"_u64\"\ni64 = \"_i64\"\nf64 = \"_f64\"\nbool = \"_bool\"\n");
+    let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter = \"U64\"\nscore = \"I64\"\nmean = \"f64\"\ndone = \"bool\"\n[input.ltsv_suffixes]\nu64 = \"_u64\"\ni64 = \"_i64\"\nF64 = \"_f64\"\nBool = \"_bool\"\n");
     let ltsv_decoder = LTSVDecoder::new(&config.unwrap());
     let msg = "time:[10/Oct/2000:13:55:36 -0700]\tdone:true\tscore:-1\tmean:0.42\tcounter:42\tlevel:3\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = ltsv_decoder.decode(msg).unwrap();
@@ -200,7 +200,7 @@ fn test_ltsv_suffixes() {
 
 #[test]
 fn test_ltsv_suffixes_2() {
-    let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter_u64 = \"u64\"\nscore_i64 = \"i64\"\nmean_f64 = \"f64\"\ndone_bool = \"bool\"\n[input.ltsv_suffixes]\nu64 = \"_u64\"\ni64 = \"_i64\"\nf64 = \"_f64\"\nbool = \"_bool\"\n");
+    let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter_u64 = \"U64\"\nscore_i64 = \"I64\"\nmean_f64 = \"f64\"\ndone_bool = \"bool\"\n[input.ltsv_suffixes]\nu64 = \"_u64\"\ni64 = \"_i64\"\nf64 = \"_f64\"\nbool = \"_bool\"\n");
     let ltsv_decoder = LTSVDecoder::new(&config.unwrap());
     let msg = "time:[10/Oct/2000:13:55:36 -0700]\tdone_bool:true\tscore_i64:-1\tmean_f64:0.42\tcounter_u64:42\tlevel:3\thost:testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = ltsv_decoder.decode(msg).unwrap();
