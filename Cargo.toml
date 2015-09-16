@@ -18,9 +18,6 @@ git = "https://github.com/jedisct1/kafka-rust.git"
 git = "https://github.com/jedisct1/rust-openssl.git"
 features = ["tlsv1_2", "tlsv1_1"]
 
-[dependencies.clippy]
-git = "https://github.com/Manishearth/rust-clippy"
-
 [profile.dev]
 codegen-units = 8
 debug = true
