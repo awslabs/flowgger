@@ -91,7 +91,8 @@ impl RedisWorker {
             if let Err(e) = handle_line(&line, &self.tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
-            match redis_cnx.lrem(queue_key_tmp, 1, line) as RedisResult<u8> {
+            let res: RedisResult<u8> = redis_cnx.lrem(queue_key_tmp as &str, 1, line as String);
+            match res {
                 Err(e) => return Err(format!("Redis protocol error in LREM: [{}]", e)),
                 Ok(_) => ()
             };
