@@ -273,10 +273,10 @@ suffixed with `_double`, and that boolean values are always suffixed with
 
 ```toml
     [input.ltsv_suffixes]
-    i64: "_long"
-    u64: "_long"
-    f64: "_double"
-    bool: "_bool"
+    i64 = "_long"
+    u64 = "_long"
+    f64 = "_double"
+    bool = "_bool"
 ```
 This can be especially useful with ElasticSearch, that expects a fixed type
 for a given index.
