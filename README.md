@@ -17,11 +17,10 @@ of magnitude faster and doesn't require a JVM.
 Compilation and installation
 ----------------------------
 
-The current code is written for rust-nightly (1.4.0), although it can work on
-rust-stable with minor changes.
+The current code works on rust-stable (1.3.0) as well as rust-nightly (1.4.0).
 
-In addition to rust-nightly, the openssl-dev system package (or LibreSSL) is
-required for TLS support.
+In addition to the Rust compiler, the openssl-dev system package (or LibreSSL)
+is required for TLS support.
 
 After having intalled rust-nightly, compile with the usual:
 
