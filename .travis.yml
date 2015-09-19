@@ -1,6 +1,8 @@
 language: rust
 
-rust: nightly
+rust:
+- nightly
+- stable
 
 before_script:
  - sudo apt-get install -y libsnappy-dev libssl-dev
