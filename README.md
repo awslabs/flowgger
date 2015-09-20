@@ -25,7 +25,7 @@ is required for TLS support.
 After having intalled rust-nightly, compile with the usual:
 
 ```bash
-    cargo build --release
+cargo build --release
 ```
 
 And copy the `target/release/flowgger` file anywhere; this is the only file
@@ -37,7 +37,7 @@ Configuration
 Flowgger reads its configuration from a file given as an argument:
 
 ```bash
-    flowgger flowgger.toml
+flowgger flowgger.toml
 ```
 
 The configuration file consists of two main sections: `[input]` and `[output]`.
