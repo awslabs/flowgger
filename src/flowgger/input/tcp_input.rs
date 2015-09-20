@@ -9,6 +9,7 @@ use std::io::BufReader;
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
 use std::thread;
+use std::time::Duration;
 use super::Input;
 
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
