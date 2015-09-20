@@ -3,6 +3,9 @@ name = "flowgger"
 version = "0.1.6"
 authors = ["Frank Denis <github@pureftpd.org>"]
 
+[features]
+ecdh = ["openssl/ecdh_auto"]
+
 [dependencies]
 chrono = "*"
 log = "*"
