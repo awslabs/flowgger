@@ -13,6 +13,7 @@ use openssl::x509::X509FileType;
 use std::io::{stderr, Write, BufReader};
 use std::net::{TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use std::sync::mpsc::SyncSender;
 use std::time::Duration;
 use std::thread;
@@ -30,14 +31,8 @@ const TLS_VERIFY_DEPTH: u32 = 6;
 
 #[derive(Clone)]
 struct TlsConfig {
-    cert: String,
-    key: String,
-    ciphers: String,
     framing: String,
-    tls_method: SslMethod,
-    verify_peer: bool,
-    ca_file: Option<PathBuf>,
-    compression: bool
+    arc_ctx: Arc<SslContext>
 }
 
 pub struct TlsInput {
@@ -77,16 +72,31 @@ impl TlsInput {
         };
         let framing = config.lookup("input.framing").map_or(framing, |x| x.as_str().
             expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)).to_owned();
-
+        let mut ctx = SslContext::new(tls_method).unwrap();
+        if verify_peer == false {
+            ctx.set_verify(SSL_VERIFY_NONE, None);
+        } else {
+            ctx.set_verify_depth(TLS_VERIFY_DEPTH);
+            ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
+            if let Some(ca_file) = ca_file {
+                if ctx.set_CA_file(&ca_file).is_err() {
+                    panic!("Unable to read the trusted CA file");
+                }
+            }
+        }
+        let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+        if compression == false {
+            opts = opts | SSL_OP_NO_COMPRESSION;
+        }
+        ctx.set_options(opts);
+        set_fs(&ctx);
+        ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).unwrap();
+        ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).unwrap();
+        ctx.set_cipher_list(&ciphers).unwrap();
+        let arc_ctx = Arc::new(ctx);
         let tls_config = TlsConfig {
-            cert: cert,
-            key: key,
-            ciphers: ciphers,
             framing: framing,
-            tls_method: tls_method,
-            verify_peer: verify_peer,
-            ca_file: ca_file,
-            compression: compression
+            arc_ctx: arc_ctx
         };
         TlsInput {
             listen: listen,
@@ -123,31 +133,10 @@ fn set_fs(ctx: &SslContext) {
 }
 
 fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tls_config: TlsConfig) {
-    let mut ctx = SslContext::new(tls_config.tls_method).unwrap();
-    if tls_config.verify_peer == false {
-        ctx.set_verify(SSL_VERIFY_NONE, None);
-    } else {
-        ctx.set_verify_depth(TLS_VERIFY_DEPTH);
-        ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
-        if let Some(ca_file) = tls_config.ca_file {
-            if ctx.set_CA_file(&ca_file).is_err() {
-                panic!("Unable to read the trusted CA file");
-            }
-        }
-    }
-    let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
-    if tls_config.compression == false {
-        opts = opts | SSL_OP_NO_COMPRESSION;
-    }
-    ctx.set_options(opts);
-    set_fs(&ctx);
-    ctx.set_certificate_file(&Path::new(&tls_config.cert), X509FileType::PEM).unwrap();
-    ctx.set_private_key_file(&Path::new(&tls_config.key), X509FileType::PEM).unwrap();
-    ctx.set_cipher_list(&tls_config.ciphers).unwrap();
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS from [{}]", peer_addr);
     }
-    let sslclient = match SslStream::accept(&ctx, client) {
+    let sslclient = match SslStream::accept(&*tls_config.arc_ctx, client) {
         Err(_) => {
             let _ = writeln!(stderr(), "SSL handshake aborted by the client");
             return
