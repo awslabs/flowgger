@@ -8,7 +8,7 @@ extern crate toml;
 mod flowgger;
 
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
-const FLOWGGER_VERSION_STRING: &'static str = "0.1.5";
+const FLOWGGER_VERSION_STRING: &'static str = "0.1.6";
 
 fn main() {
     println!("Flowgger v{}", FLOWGGER_VERSION_STRING);
