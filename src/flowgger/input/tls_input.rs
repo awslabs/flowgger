@@ -24,6 +24,7 @@ const DEFAULT_CIPHERS: &'static str = "DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-
 const DEFAULT_FRAMING: &'static str = "line";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
+const DEFAULT_TIMEOUT: u64 = 3600;
 const DEFAULT_TLS_METHOD: &'static str = "TLSv1.2";
 const DEFAULT_VERIFY_PEER: bool = false;
 const DEFAULT_COMPRESSION: bool = false;
@@ -37,6 +38,7 @@ struct TlsConfig {
 
 pub struct TlsInput {
     listen: String,
+    timeout: Option<Duration>,
     tls_config: TlsConfig
 }
 
@@ -64,6 +66,8 @@ impl TlsInput {
             Some(PathBuf::from(x.as_str().expect("input.tls_ca_file must be a path to a file"))));
         let compression = config.lookup("input.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
             expect("input.tls_compression must be a boolean"));
+        let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
+            expect("input.timeout must be an integer") as u64);
         let framing = if config.lookup("input.framed").map_or(false, |x| x.as_bool().
             expect("input.framed must be a boolean")) {
             "syslen"
@@ -100,7 +104,8 @@ impl TlsInput {
         };
         TlsInput {
             listen: listen,
-            tls_config: tls_config
+            tls_config: tls_config,
+            timeout: Some(Duration::from_secs(timeout))
         }
     }
 }
@@ -111,6 +116,7 @@ impl Input for TlsInput {
         for client in listener.incoming() {
             match client {
                 Ok(client) => {
+                    let _ = client.set_read_timeout(self.timeout);
                     let tx = tx.clone();
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     let tls_config = self.tls_config.clone();

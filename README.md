@@ -49,6 +49,7 @@ Input section
 [input]
 type = "tls"
 listen = "0.0.0.0:6514"
+timeout = 3600
 format = "ltsv"
 framing = "line"
 tls_cert = "flowgger.pem"
@@ -122,6 +123,10 @@ Supported framing types are:
 - `syslen`: length-prefixed syslog messages as specified in RFC 5425. However,
 line breaks also act as delimiters, in order to recover from corrupted/invalid
 entries.
+
+The session timeout, `timeout` is expressed in seconds. If no data are
+received after this duration, a client session will be automatically
+closed.
 
 ### Redis
 

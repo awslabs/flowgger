@@ -12,8 +12,9 @@ use std::thread;
 use std::time::Duration;
 use super::Input;
 
-const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 const DEFAULT_FRAMING: &'static str = "line";
+const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
+const DEFAULT_TIMEOUT: u64 = 3600;
 
 #[derive(Clone)]
 pub struct TcpConfig {
@@ -22,13 +23,16 @@ pub struct TcpConfig {
 
 pub struct TcpInput {
     listen: String,
-    tcp_config: TcpConfig
+    tcp_config: TcpConfig,
+    timeout: Option<Duration>
 }
 
 impl TcpInput {
     pub fn new(config: &Config) -> TcpInput {
         let listen = config.lookup("input.listen").map_or(DEFAULT_LISTEN, |x|x.as_str().
             expect("input.listen must be an ip:port string")).to_owned();
+        let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
+            expect("input.timeout must be an integer") as u64);
         let framing = if config.lookup("input.framed").map_or(false, |x| x.as_bool().
             expect("input.framed must be a boolean")) {
             "syslen"
@@ -42,7 +46,8 @@ impl TcpInput {
         };
         TcpInput {
             listen: listen,
-            tcp_config: tcp_config
+            tcp_config: tcp_config,
+            timeout: Some(Duration::from_secs(timeout))
         }
     }
 }
@@ -53,6 +58,7 @@ impl Input for TcpInput {
         for client in listener.incoming() {
             match client {
                 Ok(client) => {
+                    let _ = client.set_read_timeout(self.timeout);
                     let tx = tx.clone();
                     let tcp_config = self.tcp_config.clone();
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
