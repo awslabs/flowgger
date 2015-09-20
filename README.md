@@ -17,7 +17,7 @@ of magnitude faster and doesn't require a JVM.
 Compilation and installation
 ----------------------------
 
-The current code works on rust-stable (1.3.0) as well as rust-nightly (1.4.0).
+The current code works on rust-beta (1.4.0) as well as rust-nightly (1.5.0).
 
 In addition to the Rust compiler, the openssl-dev system package (or LibreSSL)
 is required for TLS support.
