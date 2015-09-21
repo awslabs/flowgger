@@ -56,7 +56,7 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
 }
 
 fn handle_line(line: &String, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(&line));
+    let decoded = try!(decoder.decode(line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
     Ok(())

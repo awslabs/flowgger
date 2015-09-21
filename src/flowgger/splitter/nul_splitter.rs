@@ -36,7 +36,7 @@ impl<T: Read> Splitter<T> for NulSplitter {
 }
 
 fn handle_line(line: &str, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(&line));
+    let decoded = try!(decoder.decode(line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
     Ok(())
