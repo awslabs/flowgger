@@ -64,9 +64,26 @@ redis_threads = 1
 queuesize = 1000000
 ```
 
-The currently supported values for the input `type` are `tcp`
+The currently supported values for the input `type` are `udp`, `tcp`
 (text-based syslog messages over a TCP socket), `tls` (text-based
 syslog messages over TLS) and `redis` (Redis queue).
+
+### UDP
+
+UDP is the traditional transport protocol for syslog messages, but
+Flowgger accepts it for any supported message format, including GELF
+and LTSV. On modern networks, UDP is fast and
+[surprisingly reliable](http://openmymind.net/How-Unreliable-Is-UDP/).
+However, messages can be only up to 65527 bytes long, and it doesn't
+provide any encryption/authentication.
+
+UDP can be enabled with:
+
+```toml
+type = "udp"
+```
+
+and doesn't require any framing.
 
 ### TCP
 
