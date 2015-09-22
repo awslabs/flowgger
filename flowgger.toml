@@ -9,22 +9,31 @@ type = "tcp"
 listen = "0.0.0.0:514"
 timeout = 3600
 
-### Syslog over UDP
-# type = "udp"
-# listen = "0.0.0.0:514"
-
 ### Syslog over TLS
 # type = "tls"
 # listen = "0.0.0.0:6514"
-# timeout = 3600
 # framing = "line"
+# timeout = 3600
 # tls_cert = "flowgger.pem"
 # tls_key = "flowgger.pem"
 # tls_ca_file = "flowgger.pem"
 # tls_method = "TLSv1.2"
 # tls_verify_peer = false
 # tls_compression = false
-# tls_ciphers = "ECDHE+CHACHA20:ECDHE+AES128:RSA+AES128:ECDHE+AES256:RSA+AES256:ECDHE+3DES:RSA+3DES:!MD5";
+# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
+
+### Syslog over TLS, using coroutines
+# type = "tls_co"
+# listen = "0.0.0.0:6514"
+# framing = "line"
+# tls_cert = "flowgger.pem"
+# tls_key = "flowgger.pem"
+# tls_ca_file = "flowgger.pem"
+# tls_method = "TLSv1.2"
+# tls_threads = 1
+# tls_verify_peer = false
+# tls_compression = false
+# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
 
 ### Redis client
 # type = "redis"

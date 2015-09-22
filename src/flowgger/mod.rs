@@ -18,6 +18,7 @@ use self::input::redis_input::RedisInput;
 use self::input::stdin_input::StdinInput;
 use self::input::tcp_input::TcpInput;
 use self::input::tls_input::TlsInput;
+use self::input::tlsco_input::TlsCoInput;
 use self::input::udp_input::UdpInput;
 use self::output::Output;
 use self::output::debug_output::DebugOutput;
@@ -42,8 +43,10 @@ pub fn start(config_file: &str) {
     let input = match input_type {
         "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
         "stdin" => Box::new(StdinInput::new(&config)) as Box<Input>,
-        "syslog-tcp" | "tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
-        "syslog-tls" | "tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
+        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
+        "tls" | "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
+        "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" =>
+            Box::new(TlsCoInput::new(&config)) as Box<Input>,
         "udp" => Box::new(UdpInput::new(&config)) as Box<Input>,
         _ => panic!("Invalid input type: {}", input_type)
     };
