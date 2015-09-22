@@ -32,7 +32,7 @@ RUN set -x && \
     cd /tmp && \
     git clone https://github.com/jedisct1/flowgger.git && \
     cd flowgger && \
-    cargo build --release --features=ecdh && \
+    cargo build --release --features='ecdh coroutines' && \
     mkdir -p /opt/flowgger/etc /opt/flowgger/bin && \
     mv target/release/flowgger /opt/flowgger/bin/ && \
     rm -fr /tmp/flowgger
