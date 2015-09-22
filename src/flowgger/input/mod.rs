@@ -1,6 +1,7 @@
 pub mod redis_input;
 pub mod stdin_input;
 pub mod tcp_input;
+pub mod tls_common;
 pub mod tls_input;
 #[cfg(feature = "coroutines")]
 pub mod tlsco_input;
