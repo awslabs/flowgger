@@ -17,6 +17,8 @@ use self::input::Input;
 use self::input::redis_input::RedisInput;
 use self::input::stdin_input::StdinInput;
 use self::input::tcp_input::TcpInput;
+#[cfg(feature = "coroutines")]
+use self::input::tcpco_input::TcpCoInput;
 use self::input::tls_input::TlsInput;
 #[cfg(feature = "coroutines")]
 use self::input::tlsco_input::TlsCoInput;
@@ -42,11 +44,22 @@ fn get_input_tlsco(_config: &Config) -> ! {
     panic!("Support for coroutines is not compiled in")
 }
 
+#[cfg(feature = "coroutines")]
+fn get_input_tcpco(config: &Config) -> Box<Input> {
+    Box::new(TcpCoInput::new(&config)) as Box<Input>
+}
+
+#[cfg(not(feature = "coroutines"))]
+fn get_input_tcpco(_config: &Config) -> ! {
+    panic!("Support for coroutines is not compiled in")
+}
+
 fn get_input(input_type: &str, config: &Config) -> Box<Input> {
     match input_type {
         "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
         "stdin" => Box::new(StdinInput::new(&config)) as Box<Input>,
         "tcp" | "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
+        "tcp_co" | "tcpco" | "syslog-tcp_co" | "syslog-tcpco" => get_input_tcpco(&config),
         "tls" | "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
         "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(&config),
         "udp" => Box::new(UdpInput::new(&config)) as Box<Input>,

@@ -27,9 +27,9 @@ const TLS_VERIFY_DEPTH: u32 = 6;
 
 #[derive(Clone)]
 pub struct TlsConfig {
-    pub framing: String,
-    pub threads: usize,
-    pub arc_ctx: Arc<SslContext>
+    framing: String,
+    threads: usize,
+    arc_ctx: Arc<SslContext>
 }
 
 #[cfg(feature = "ecdh")]

@@ -4,6 +4,8 @@ mod tls;
 pub mod redis_input;
 pub mod stdin_input;
 pub use self::tcp::tcp_input;
+#[cfg(feature = "coroutines")]
+pub use self::tcp::tcpco_input;
 pub use self::tls::tls_input;
 #[cfg(feature = "coroutines")]
 pub use self::tls::tlsco_input;

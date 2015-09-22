@@ -62,7 +62,7 @@ queuesize = 1000000
 
 The currently supported values for the input `type` are `tcp`
 (text-based syslog messages over a TCP socket), `tls` (text-based
-syslog messages over TLS), `redis` (Redis queue), `udp` and `tls_co`.
+syslog messages over TLS), `redis` (Redis queue), `udp`, `tcp_co` and `tls_co`.
 
 ### TCP
 
@@ -132,7 +132,7 @@ Supported framing types are:
 line breaks also act as delimiters, in order to recover from corrupted/invalid
 entries.
 
-### TLS, using coroutines
+### TLS and TCP, using coroutines
 
 With the TCP and TLS inputs, each client connection gets a dedicated thread,
 and a dedicated parser. Each connection can thus fully take advantage of a
@@ -183,6 +183,14 @@ defaults to `1`.
 Other available properties are the same as the standard TLS input processor,
 with the exception of the session timeout, which is ignored in this
 implementation.
+
+Similarly, a coroutines-based TCP implementation can be enabled with:
+
+```toml
+[input]
+type = "tcp_co"
+tcp_threads = 1
+```
 
 ### Redis
 
