@@ -174,7 +174,11 @@ in the configuration file with:
 ```toml
 [input]
 type = "tls_co"
+tls_threads = 1
 ```
+
+`tls_threads`, the number of threads to use (not including the output module)
+defaults to `1`.
 
 Other available properties are the same as the standard TLS input processor,
 with the exception of the session timeout, which is ignored in this
