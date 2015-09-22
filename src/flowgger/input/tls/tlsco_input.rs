@@ -11,8 +11,7 @@ use openssl::ssl::*;
 use self::coio::net::{TcpListener, TcpStream};
 use std::io::{stderr, Write, BufReader};
 use std::sync::mpsc::SyncSender;
-use super::Input;
-use super::common::*;
+use super::*;
 
 pub struct TlsCoInput {
     listen: String,

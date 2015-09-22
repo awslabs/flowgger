@@ -11,8 +11,7 @@ use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
 use std::time::Duration;
 use std::thread;
-use super::Input;
-use super::common::*;
+use super::*;
 
 pub struct TlsInput {
     listen: String,
