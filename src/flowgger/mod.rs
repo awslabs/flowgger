@@ -18,6 +18,7 @@ use self::input::redis_input::RedisInput;
 use self::input::stdin_input::StdinInput;
 use self::input::tcp_input::TcpInput;
 use self::input::tls_input::TlsInput;
+#[cfg(feature = "coroutines")]
 use self::input::tlsco_input::TlsCoInput;
 use self::input::udp_input::UdpInput;
 use self::output::Output;
@@ -31,6 +32,28 @@ const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
+#[cfg(feature = "coroutines")]
+fn get_input_tlsco(config: &Config) -> Box<Input> {
+    Box::new(TlsCoInput::new(&config)) as Box<Input>
+}
+
+#[cfg(not(feature = "coroutines"))]
+fn get_input_tlsco(_config: &Config) -> ! {
+    panic!("Support for coroutines is not compiled in")
+}
+
+fn get_input(input_type: &str, config: &Config) -> Box<Input> {
+    match input_type {
+        "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
+        "stdin" => Box::new(StdinInput::new(&config)) as Box<Input>,
+        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
+        "tls" | "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
+        "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(&config),
+        "udp" => Box::new(UdpInput::new(&config)) as Box<Input>,
+        _ => panic!("Invalid input type: {}", input_type)
+    }
+}
+
 pub fn start(config_file: &str) {
     let config = match Config::from_path(config_file) {
         Ok(config) => config,
@@ -40,16 +63,7 @@ pub fn start(config_file: &str) {
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().expect("input.format must be a string"));
     let input_type = config.lookup("input.type").
         map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
-    let input = match input_type {
-        "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
-        "stdin" => Box::new(StdinInput::new(&config)) as Box<Input>,
-        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
-        "tls" | "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
-        "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" =>
-            Box::new(TlsCoInput::new(&config)) as Box<Input>,
-        "udp" => Box::new(UdpInput::new(&config)) as Box<Input>,
-        _ => panic!("Invalid input type: {}", input_type)
-    };
+    let input = get_input(input_type, &config);
     let decoder = match input_format {
         "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
         "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,

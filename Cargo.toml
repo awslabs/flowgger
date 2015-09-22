@@ -5,6 +5,7 @@ authors = ["Frank Denis <github@pureftpd.org>"]
 
 [features]
 ecdh = ["openssl/ecdh_auto"]
+coroutines = ["coio"]
 
 [dependencies]
 chrono = "*"
@@ -16,6 +17,7 @@ redis = "*"
 
 [dependencies.coio]
 git = "https://github.com/jedisct1/coio-rs.git"
+optional = true
 
 [dependencies.kafka]
 git = "https://github.com/jedisct1/kafka-rust.git"

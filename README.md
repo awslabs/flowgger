@@ -17,16 +17,15 @@ of magnitude faster and doesn't require a JVM.
 Compilation and installation
 ----------------------------
 
-The current code works on rust-beta (1.4.0) as well as rust-nightly (1.5.0).
+The current code is written for rust-nightly (1.4.0), although it can work on
+rust-stable with minor changes.
 
-In addition to the Rust compiler, the openssl-dev system package (or LibreSSL)
-is required for TLS support.
+In addition to rust-nightly, the openssl-dev system package (or LibreSSL) is
+required for TLS support.
 
 After having intalled rust-nightly, compile with the usual:
 
-```bash
-cargo build --release
-```
+    cargo build --release
 
 And copy the `target/release/flowgger` file anywhere; this is the only file
 you need.
@@ -36,9 +35,7 @@ Configuration
 
 Flowgger reads its configuration from a file given as an argument:
 
-```bash
-flowgger flowgger.toml
-```
+    flowgger flowgger.toml
 
 The configuration file consists of two main sections: `[input]` and `[output]`.
 
@@ -49,7 +46,6 @@ Input section
 [input]
 type = "tls"
 listen = "0.0.0.0:6514"
-timeout = 3600
 format = "ltsv"
 framing = "line"
 tls_cert = "flowgger.pem"
@@ -64,28 +60,18 @@ redis_threads = 1
 queuesize = 1000000
 ```
 
-The currently supported values for the input `type` are `udp`, `tcp`
+The currently supported values for the input `type` are `tcp`
 (text-based syslog messages over a TCP socket), `tls` (text-based
-syslog messages over TLS) and `redis` (Redis queue).
-
-### UDP
-
-UDP is the traditional transport protocol for syslog messages, but
-Flowgger accepts it for any supported message format, including GELF
-and LTSV. On modern networks, UDP is fast and
-[surprisingly reliable](http://openmymind.net/How-Unreliable-Is-UDP/).
-However, messages can be only up to 65527 bytes long, and it doesn't
-provide any encryption/authentication.
-
-UDP can be enabled with:
-
-```toml
-type = "udp"
-```
-
-and doesn't require any framing.
+syslog messages over TLS), `redis` (Redis queue), `udp` and `tls_co`.
 
 ### TCP
+
+In the configuration file:
+
+```toml
+[input]
+type = "tcp"
+```
 
 TCP accepts plain, uncrypted, unauthenticated messages. It is compatible with
 most syslog daemons and other log collectors.
@@ -103,6 +89,11 @@ Supported framing types are:
 - `syslen`: length-prefixed syslog messages as specified in RFC 5425.
 
 ### TLS
+
+```toml
+[input]
+type = "tls"
+```
 
 When using TLS, `tls_ciphers` is optional and defaults to a safe suite, but
 `tls_cert` and `tls_key` are required.
@@ -141,9 +132,53 @@ Supported framing types are:
 line breaks also act as delimiters, in order to recover from corrupted/invalid
 entries.
 
-The session timeout, `timeout` is expressed in seconds. If no data are
-received after this duration, a client session will be automatically
-closed.
+### TLS, using coroutines
+
+With the TCP and TLS inputs, each client connection gets a dedicated thread,
+and a dedicated parser. Each connection can thus fully take advantage of a
+CPU core.
+
+To max out the performance of a Flowgger instance, incoming messages should
+be balanced over persistent connections whose number equals the number of CPU
+cores to use. If necessary, an intermediate log collector such as fluentd,
+rsyslog or syslog-ng can help achieve this distribution. On a dedicated 4 cores
+instance, reserving 1 core for the output module and 3 cores to parse the input
+is a reasonable ballpark figure.
+
+Having more persistent connections than available CPU cores is not recommended,
+as it will introduce additional context switches.
+On bare metal hardware, the overhead may not be significant.
+However, virtualized environments can perform poorly, especially on older CPUs
+or hypervisors without support for extended page tables. Cheap shared hosting
+providers can also enforce a fairly low number of allowed threads per instance.
+
+Flowgger can use an alternative TLS implementation leveraging coroutines in
+order to handle an arbitrary number of connections using a fixed number of
+threads. This should be used only as a last resort, if adding intermediate
+collectors is not an option. If the number of persistent connections is lower
+or equal to the number of CPU cores, use the standard implementation. In fact,
+you probably never want to use that implementation unless you really want to,
+or have to.
+
+Support for this is disabled by default, and requires Flowgger to be compiled
+with the "coroutines" feature, which will automatically pull quite a few nasty
+dependencies.
+
+```bash
+cargo build --features=coroutines --release
+```
+
+The coroutines-based implementation of the TLS input processor can be enabled
+in the configuration file with:
+
+```toml
+[input]
+type = "tls_co"
+```
+
+Other available properties are the same as the standard TLS input processor,
+with the exception of the session timeout, which is ignored in this
+implementation.
 
 ### Redis
 
@@ -195,9 +230,11 @@ be enabled using `framing = "syslen"`.
 
 Record example:
 
-```json
     {"version":"1.1", "host": "example.org", "short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}
-```
+
+The GELF codec doesn't support compression nor chunking.
+Chunking is useless with TCP, and compression can be better handled by the TLS
+layer.
 
 Versions 1.0 and 1.1 of the GELF protocol are supported. As required by the
 specification, the `host` and `short_message` properties are mandatory.
@@ -228,9 +265,6 @@ chunk, which is unworkable on a persistent TCP connection.
 There are no compatibility hacks that Flowgger or any other GELF (or even JSON)
 parser could implement in order to reliably support the output of this module
 when used with TCP.
-
-The [Log::Log4perl::Layout::LTSV](https://github.com/jedisct1/log4perl_ltsv)
-module is a recommended alternative.
 
 ### LTSV
 
@@ -266,11 +300,9 @@ types when converting LTSV to typed formats such as GELF.
 In order to do so, a schema can be defined for LTSV inputs, in an
 `[input.ltsv_schema]` section of the Flowgger configuration file:
 
-```toml
     [input.ltsv_schema]
     counter = "u64"
     amount = "f64"
-```
 
 Supported types are:
 
@@ -283,27 +315,6 @@ Supported types are:
 Pay attention to the fact that some of these values may not have a
 representation in the target format. For example, Javascript, hence JSON, hence
 GELF can only represent values up to 2^53-1 without losing precision.
-
-#### LTSV automatic suffixing
-
-When a schema has been defined for LTSV records, suffixes can be enforced for
-non-string values. For example, flowgger can ensure that names for `i64` and
-`u64` values are always suffixed with `_long`, that `f64` values are always
-suffixed with `_double`, and that boolean values are always suffixed with
-`_bool`:
-
-```toml
-    [input.ltsv_suffixes]
-    i64 = "_long"
-    u64 = "_long"
-    f64 = "_double"
-    bool = "_bool"
-```
-This can be especially useful with ElasticSearch, that expects a fixed type
-for a given index.
-
-Property names will be transparently rewritten with the correct suffix for
-their value type, unless they are already properly suffixed.
 
 Output section
 --------------
@@ -332,7 +343,7 @@ Structured data from RFC5424 records show up in GELF data as additional fields.
 Optionally, additional properties can be added to every GELF record, by
 providing a table in a `[output.gelf_extra]` section.
 
-```toml
+```
 [output.gelf_extra]
 x-header1 = "zok"
 x-header2 = "zik"
