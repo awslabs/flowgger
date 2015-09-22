@@ -12,7 +12,7 @@ use std::sync::mpsc::SyncSender;
 use std::time::Duration;
 use std::thread;
 use super::Input;
-use super::tls_common::*;
+use super::common::*;
 
 pub struct TlsInput {
     listen: String,

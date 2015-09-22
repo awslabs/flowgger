@@ -12,7 +12,7 @@ use self::coio::net::{TcpListener, TcpStream};
 use std::io::{stderr, Write, BufReader};
 use std::sync::mpsc::SyncSender;
 use super::Input;
-use super::tls_common::*;
+use super::common::*;
 
 pub struct TlsCoInput {
     listen: String,

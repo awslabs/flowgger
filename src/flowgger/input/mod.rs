@@ -1,10 +1,10 @@
 pub mod redis_input;
+pub use self::tls::tls_input;
+#[cfg(feature = "coroutines")]
+pub use self::tls::tlsco_input;
 pub mod stdin_input;
 pub mod tcp_input;
-pub mod tls_common;
-pub mod tls_input;
-#[cfg(feature = "coroutines")]
-pub mod tlsco_input;
+pub mod tls;
 pub mod udp_input;
 
 use flowgger::decoder::Decoder;
