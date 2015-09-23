@@ -73,7 +73,7 @@ In the configuration file:
 type = "tcp"
 ```
 
-TCP accepts plain, uncrypted, unauthenticated messages. It is compatible with
+TCP accepts plain, unencrypted, unauthenticated messages. It is compatible with
 most syslog daemons and other log collectors.
 
 The TCP input assumes that records are separated by line breaks (LF / CR+LF) by
