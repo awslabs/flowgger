@@ -1,9 +1,6 @@
 
 ![Flowgger](https://raw.github.com/jedisct1/flowgger/master/flowgger.png)
 
-Flowgger
-========
-
 Flowgger is a fast, simple and lightweight data collector written in Rust.
 
 It reads log entries over a given protocol, extracts them, decodes them using a
