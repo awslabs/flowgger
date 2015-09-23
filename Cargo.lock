@@ -233,7 +233,7 @@ dependencies = [
 [[package]]
 name = "openssl"
 version = "0.6.5"
-source = "git+https://github.com/jedisct1/rust-openssl.git#e4ca632ec31c19e0115136b876a3873bdde2b465"
+source = "git+https://github.com/jedisct1/rust-openssl.git#ed8e2350dee544418e67c09570c4ba3a4f7eb760"
 dependencies = [
  "bitflags 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -244,7 +244,7 @@ dependencies = [
 [[package]]
 name = "openssl-sys"
 version = "0.6.5"
-source = "git+https://github.com/jedisct1/rust-openssl.git#e4ca632ec31c19e0115136b876a3873bdde2b465"
+source = "git+https://github.com/jedisct1/rust-openssl.git#ed8e2350dee544418e67c09570c4ba3a4f7eb760"
 dependencies = [
  "gcc 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
