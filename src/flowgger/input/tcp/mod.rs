@@ -7,7 +7,8 @@ pub mod tcpco_input;
 pub use super::Input;
 
 const DEFAULT_FRAMING: &'static str = "line";
-const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
+const DEFAULT_LISTEN: &'static str = "0.0.0.0:514";
+#[cfg(feature = "coroutines")]
 const DEFAULT_THREADS: usize = 1;
 const DEFAULT_TIMEOUT: u64 = 3600;
 
