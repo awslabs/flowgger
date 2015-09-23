@@ -20,7 +20,7 @@ const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
 #[cfg(feature = "coroutines")]
 const DEFAULT_THREADS: usize = 1;
 const DEFAULT_TIMEOUT: u64 = 3600;
-const DEFAULT_TLS_METHOD: &'static str = "TLSv1.2";
+const DEFAULT_TLS_METHOD: &'static str = "any";
 const DEFAULT_VERIFY_PEER: bool = false;
 const DEFAULT_COMPRESSION: bool = false;
 const TLS_VERIFY_DEPTH: u32 = 6;
@@ -74,11 +74,11 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         expect("input.tls_ciphers must be a string with a cipher suite")).to_owned();
     let tls_method = match config.lookup("input.tls_method").map_or(DEFAULT_TLS_METHOD, |x| x.as_str().
         expect("input.tls_method must be a string with the TLS method")).to_lowercase().as_ref() {
-            "sslv23" => SslMethod::Sslv23,
+            "any" | "sslv23" => SslMethod::Sslv23,
             "tlsv1" | "tlsv1.0" => SslMethod::Tlsv1,
             "tlsv1.1" => SslMethod::Tlsv1_1,
             "tlsv1.2" => SslMethod::Tlsv1_2,
-            _ => panic!(r#"TLS method must be "SSLv23", "TLSv1.0", "TLSv1.1" or "TLSv1.2""#)
+            _ => panic!(r#"TLS method must be "any", "TLSv1.0", "TLSv1.1" or "TLSv1.2""#)
     };
     let verify_peer = config.lookup("input.tls_verify_peer").map_or(DEFAULT_VERIFY_PEER, |x| x.as_bool().
         expect("input.tls_verify_peer must be a boolean"));
