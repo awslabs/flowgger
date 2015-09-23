@@ -19,6 +19,4 @@ Flowgger supports common input types: stdin, UDP, TCP, TLS and Redis, as well as
 multiple input formats: JSON (GELF), LTSV and RFC5424. Normalized messages can
 be sent to Kafka for further processing.
 
-Jump to the
-[complete Flowgger documentation](https://github.com/jedisct1/flowgger/wiki) to
-learn more about it!
+# [Jump to the complete Flowgger documentation](https://github.com/jedisct1/flowgger/wiki)
