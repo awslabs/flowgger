@@ -71,7 +71,13 @@ type = "debug"
 # kafka_acks = 0
 
 ### Output format and parameters
+
+### JSON (GELF)
 format = "gelf"
 # [output.gelf_extra]
 # x-header1 = "x-header1 value"
 # x-header2 = "x-header2 value"
+
+### Cap'n Proto
+# format = "capnp"
+

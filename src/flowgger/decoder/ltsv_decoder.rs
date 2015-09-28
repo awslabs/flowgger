@@ -1,8 +1,6 @@
-extern crate chrono;
-
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue, SDValueType};
-use self::chrono::DateTime;
+use chrono::DateTime;
 use std::collections::HashMap;
 use super::Decoder;
 

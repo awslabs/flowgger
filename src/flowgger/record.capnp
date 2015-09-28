@@ -8,7 +8,9 @@ struct Record {
     appname  @4 :Text;
     procid   @5 :Text;
     msgid    @6 :Text;
-    sd       @7 :StructuredData;
+    msg      @7 :Text;
+    fullMsg  @8 :Text;    
+    sd       @9 :StructuredData;
 }
 
 struct StructuredData {

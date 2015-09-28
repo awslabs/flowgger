@@ -1,8 +1,6 @@
-extern crate kafka;
-
 use flowgger::config::Config;
-use self::kafka::client::KafkaClient;
-use self::kafka::utils::ProduceMessage;
+use kafka::client::KafkaClient;
+use kafka::utils::ProduceMessage;
 use std::process::exit;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};

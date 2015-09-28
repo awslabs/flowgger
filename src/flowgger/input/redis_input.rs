@@ -1,9 +1,8 @@
-extern crate redis;
-
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use self::redis::{Commands, Connection, RedisResult};
+use redis;
+use redis::{Commands, Connection, RedisResult};
 use std::io::{stderr, Write};
 use std::process::exit;
 use std::sync::mpsc::SyncSender;

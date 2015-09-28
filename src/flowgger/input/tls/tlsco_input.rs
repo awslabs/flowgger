@@ -1,5 +1,3 @@
-extern crate coio;
-
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
@@ -8,7 +6,8 @@ use flowgger::splitter::line_splitter::LineSplitter;
 use flowgger::splitter::nul_splitter::NulSplitter;
 use flowgger::splitter::syslen_splitter::SyslenSplitter;
 use openssl::ssl::*;
-use self::coio::net::{TcpListener, TcpStream};
+use coio;
+use coio::net::{TcpListener, TcpStream};
 use std::io::{stderr, Write, BufReader};
 use std::sync::mpsc::SyncSender;
 use super::*;

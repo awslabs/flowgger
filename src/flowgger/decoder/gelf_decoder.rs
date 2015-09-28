@@ -1,10 +1,7 @@
-extern crate serde;
-extern crate serde_json;
-
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue};
-use self::serde_json::de;
-use self::serde_json::value::Value;
+use serde_json::de;
+use serde_json::value::Value;
 use super::Decoder;
 
 #[derive(Clone)]

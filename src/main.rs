@@ -1,9 +1,21 @@
 
 #[macro_use]
+
+extern crate capnp;
+extern crate chrono;
+#[cfg(feature = "coroutines")]
+extern crate coio;
 extern crate kafka;
 extern crate log;
 extern crate openssl;
+extern crate redis;
+extern crate serde;
+extern crate serde_json;
 extern crate toml;
+
+pub mod record_capnp {
+    include!(concat!(env!("OUT_DIR"), "/record_capnp.rs"));
+}
 
 mod flowgger;
 

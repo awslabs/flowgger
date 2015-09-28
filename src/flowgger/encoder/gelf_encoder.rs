@@ -1,10 +1,8 @@
-extern crate serde;
-extern crate serde_json;
-
 use flowgger::config::Config;
 use flowgger::record::{Record, SDValue};
-use self::serde_json::builder::ObjectBuilder;
-use self::serde_json::value::Value;
+use serde_json;
+use serde_json::builder::ObjectBuilder;
+use serde_json::value::Value;
 use super::Encoder;
 
 #[derive(Clone)]

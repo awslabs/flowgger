@@ -40,7 +40,7 @@ pub struct Record {
     pub appname: Option<String>,
     pub procid: Option<String>,
     pub msgid: Option<String>,
-    pub sd: Option<StructuredData>,
     pub msg: Option<String>,
-    pub full_msg: Option<String>
+    pub full_msg: Option<String>,
+    pub sd: Option<StructuredData>
 }

@@ -1,3 +1,4 @@
+pub mod capnp_encoder;
 pub mod gelf_encoder;
 
 use flowgger::record::Record;

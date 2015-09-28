@@ -6,12 +6,15 @@ mod output;
 mod record;
 mod splitter;
 
+pub use ::record_capnp;
+
 use self::config::Config;
 use self::decoder::Decoder;
 use self::decoder::gelf_decoder::GelfDecoder;
 use self::decoder::ltsv_decoder::LTSVDecoder;
 use self::decoder::rfc5424_decoder::RFC5424Decoder;
 use self::encoder::Encoder;
+use self::encoder::capnp_encoder::CapnpEncoder;
 use self::encoder::gelf_encoder::GelfEncoder;
 use self::input::Input;
 use self::input::redis_input::RedisInput;
@@ -31,6 +34,7 @@ use std::sync::{Arc, Mutex};
 
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
+const DEFAULT_OUTPUT_FORMAT: &'static str = "gelf";
 const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
@@ -83,7 +87,13 @@ pub fn start(config_file: &str) {
         "gelf" => Box::new(GelfDecoder::new(&config)) as Box<Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format)
     };
-    let encoder = Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>;
+    let output_format = config.lookup("output.format").
+        map_or(DEFAULT_OUTPUT_FORMAT, |x| x.as_str().expect("output.format must be a string"));
+    let encoder = match output_format {
+        "capnp" => Box::new(CapnpEncoder::new(&config)) as Box<Encoder + Send>,
+        "gelf" | "json" => Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>,
+        _ => panic!("Unknown output format: {}", output_format)
+    };
     let output_type = config.lookup("output.type").
         map_or(DEFAULT_OUTPUT_TYPE, |x| x.as_str().expect("output.type must be a string"));
     let output = match output_type {
