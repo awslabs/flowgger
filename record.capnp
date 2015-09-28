@@ -9,7 +9,7 @@ struct Record {
     procid   @5 :Text;
     msgid    @6 :Text;
     msg      @7 :Text;
-    fullMsg  @8 :Text;    
+    fullMsg  @8 :Text;
     sd       @9 :StructuredData;
 }
 
