@@ -2,18 +2,23 @@
 name = "flowgger"
 version = "0.1.7"
 authors = ["Frank Denis <github@pureftpd.org>"]
+build = "build.rs"
 
 [features]
 ecdh = ["openssl/ecdh_auto"]
 coroutines = ["coio"]
 
+[build-dependencies]
+capnpc = "*"
+
 [dependencies]
+capnp = "*"
 chrono = "*"
 log = "*"
+redis = "*"
 serde = "*"
 serde_json = "*"
 toml = "*"
-redis = "*"
 
 [dependencies.coio]
 git = "https://github.com/jedisct1/coio-rs.git"

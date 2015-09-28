@@ -1,0 +1,29 @@
+@0xac72eb7464d85e40;
+
+struct Record {
+    ts       @0 :Int64;
+    hostname @1 :Text;
+    facility @2 :UInt8;
+    severity @3 :UInt8;
+    appname  @4 :Text;
+    procid   @5 :Text;
+    msgid    @6 :Text;
+    sd       @7 :StructuredData;
+}
+
+struct StructuredData {
+    sdId  @0 :Text;
+    pairs @1 :List(Pair);
+}
+
+struct Pair {
+    key @0 :Text;
+    value  :union {
+        string @1 :Text;
+        bool   @2 :Bool;
+        f64    @3 :Float64;
+        i64    @4 :Int64;
+        u64    @5 :UInt64;
+        null   @6 :Void;
+    }
+}
