@@ -60,6 +60,7 @@ timeout = 3600
 
 ### Debug output
 type = "debug"
+debug_lf = true
 
 ### Kafka output
 # type = "kafka"
