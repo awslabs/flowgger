@@ -8,8 +8,7 @@ use super::Decoder;
 pub struct GelfDecoder;
 
 impl GelfDecoder {
-    pub fn new(config: &Config) -> GelfDecoder {
-        let _ = config;
+    pub fn new(_config: &Config) -> GelfDecoder {
         GelfDecoder
     }
 }
