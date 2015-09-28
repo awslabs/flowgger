@@ -7,9 +7,11 @@ build = "build.rs"
 [features]
 ecdh = ["openssl/ecdh_auto"]
 coroutines = ["coio"]
+capnp-recompile = ["capnpc"]
 
-[build-dependencies]
-capnpc = "*"
+[build-dependencies.capnpc]
+version = "*"
+optional = true
 
 [dependencies]
 capnp = "*"

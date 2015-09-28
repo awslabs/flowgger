@@ -13,9 +13,7 @@ extern crate serde;
 extern crate serde_json;
 extern crate toml;
 
-pub mod record_capnp {
-    include!(concat!(env!("OUT_DIR"), "/record_capnp.rs"));
-}
+pub mod record_capnp;
 
 mod flowgger;
 
