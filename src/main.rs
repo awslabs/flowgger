@@ -13,9 +13,8 @@ extern crate serde;
 extern crate serde_json;
 extern crate toml;
 
-pub mod record_capnp;
-
 mod flowgger;
+pub use flowgger::record_capnp;
 
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
 const FLOWGGER_VERSION_STRING: &'static str = "0.1.7";

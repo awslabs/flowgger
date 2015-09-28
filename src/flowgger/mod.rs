@@ -6,7 +6,7 @@ mod output;
 mod record;
 mod splitter;
 
-pub use ::record_capnp;
+pub mod record_capnp;
 
 use self::config::Config;
 use self::decoder::Decoder;
