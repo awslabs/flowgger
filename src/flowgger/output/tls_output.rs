@@ -44,7 +44,10 @@ struct TlsConfig {
     timeout: Option<Duration>,
     connect: String,
     arc_ctx: Arc<SslContext>,
-    async: bool
+    async: bool,
+    recovery_delay_init: u32,
+    recovery_delay_max: u32,
+    recovery_probe_time: u32
 }
 
 struct TlsWorker {
@@ -95,11 +98,12 @@ impl TlsWorker {
     }
 
     fn run(self) {
-        let mut recovery_delay = DEFAULT_RECOVERY_DELAY_INIT as f64;
+        let tls_config = &self.tls_config;
+        let mut recovery_delay = tls_config.recovery_delay_init as f64;
         let mut last_recovery;
         loop {
             last_recovery = chrono::UTC::now();
-            let connect = &self.tls_config.connect;
+            let connect = &tls_config.connect;
             if let Err(e) = self.handle_connection(connect) {
                 match e.kind() {
                     ErrorKind::ConnectionRefused => {
@@ -114,10 +118,9 @@ impl TlsWorker {
                 }
             }
             let now = chrono::UTC::now();
-            if now - last_recovery > chrono::Duration::milliseconds(DEFAULT_RECOVERY_PROBE_TIME as i64) {
-                recovery_delay = DEFAULT_RECOVERY_DELAY_INIT as f64;
-            }
-            if recovery_delay < DEFAULT_RECOVERY_DELAY_MAX as f64 {
+            if now - last_recovery > chrono::Duration::milliseconds(tls_config.recovery_probe_time as i64) {
+                recovery_delay = tls_config.recovery_delay_init as f64;
+            } else if recovery_delay < tls_config.recovery_delay_max as f64 {
                 let between = Range::new(0.0, recovery_delay);
                 let mut rng = rand::thread_rng();
                 recovery_delay += between.ind_sample(&mut rng);
@@ -215,6 +218,18 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         expect("output.timeout must be an integer") as u64);
     let async = config.lookup("output.tls_async").map_or(DEFAULT_ASYNC, |x| x.as_bool().
         expect("output.tls_async must be a boolean"));
+    let recovery_delay_init = config.lookup("output.tls_recovery_delay_init").
+        map_or(DEFAULT_RECOVERY_DELAY_INIT, |x| x.as_integer().
+        expect("output.tls_recovery_delay_init must be an integer") as u32);
+    let recovery_delay_max = config.lookup("output.tls_recovery_delay_max").
+        map_or(DEFAULT_RECOVERY_DELAY_MAX, |x| x.as_integer().
+        expect("output.tls_recovery_delay_max must be an integer") as u32);
+    let recovery_probe_time = config.lookup("output.tls_recovery_probe_time").
+        map_or(DEFAULT_RECOVERY_PROBE_TIME, |x| x.as_integer().
+        expect("output.tls_recovery_probe_time must be an integer") as u32);
+    if recovery_delay_max < recovery_delay_init {
+        panic!("output.tls_recovery_delay_max cannot be less than output.tls_recovery_delay_init");
+    }
     let mut ctx = SslContext::new(tls_method).unwrap();
     if verify_peer == false {
         ctx.set_verify(SSL_VERIFY_NONE, None);
@@ -241,7 +256,10 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         connect: connect,
         timeout: Some(Duration::from_secs(timeout)),
         arc_ctx: arc_ctx,
-        async: async
+        async: async,
+        recovery_delay_init: recovery_delay_init,
+        recovery_delay_max: recovery_delay_max,
+        recovery_probe_time: recovery_probe_time
     };
     (tls_config, threads)
 }
