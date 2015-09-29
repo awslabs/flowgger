@@ -1,7 +1,12 @@
-pub mod capnp_splitter;
-pub mod nul_splitter;
-pub mod line_splitter;
-pub mod syslen_splitter;
+mod capnp_splitter;
+mod nul_splitter;
+mod line_splitter;
+mod syslen_splitter;
+
+pub use self::capnp_splitter::CapnpSplitter;
+pub use self::nul_splitter::NulSplitter;
+pub use self::line_splitter::LineSplitter;
+pub use self::syslen_splitter::SyslenSplitter;
 
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
