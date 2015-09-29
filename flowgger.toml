@@ -74,7 +74,7 @@ type = "debug"
 
 ### TLS output
 # type = "tls"
-# connect = "172.16.205.128:6514"
+# connect = [ "172.16.205.128:6514" ]
 # timeout = 3600
 # tls_threads = 1
 # tls_cert = "flowgger.pem"

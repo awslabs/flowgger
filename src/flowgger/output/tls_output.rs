@@ -22,7 +22,6 @@ use super::Output;
 const DEFAULT_CERT: &'static str = "flowgger.pem";
 const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
 const DEFAULT_COMPRESSION: bool = false;
-const DEFAULT_CONNECT: &'static str = "127.0.0.1:6514";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_RECOVERY_DELAY_INIT: u32 = 1;
 const DEFAULT_RECOVERY_DELAY_MAX: u32 = 10_000;
@@ -42,7 +41,7 @@ pub struct TlsOutput {
 #[derive(Clone)]
 struct TlsConfig {
     timeout: Option<Duration>,
-    connect: String,
+    connect: Vec<String>,
     arc_ctx: Arc<SslContext>,
     async: bool,
     recovery_delay_init: u32,
@@ -99,21 +98,22 @@ impl TlsWorker {
 
     fn run(self) {
         let tls_config = &self.tls_config;
+        let mut rng = rand::thread_rng();
         let mut recovery_delay = tls_config.recovery_delay_init as f64;
         let mut last_recovery;
         loop {
             last_recovery = chrono::UTC::now();
-            let connect = &tls_config.connect;
-            if let Err(e) = self.handle_connection(connect) {
+            let connect_chosen = &rand::sample(&mut rng, tls_config.connect.iter(), 1)[0];
+            if let Err(e) = self.handle_connection(connect_chosen) {
                 match e.kind() {
                     ErrorKind::ConnectionRefused => {
-                        let _ = writeln!(stderr(), "Connection to {} refused", connect);
+                        let _ = writeln!(stderr(), "Connection to {} refused", connect_chosen);
                     }
                     ErrorKind::ConnectionAborted | ErrorKind::ConnectionReset => {
-                        let _ = writeln!(stderr(), "Connection to {} aborted by the server", connect);
+                        let _ = writeln!(stderr(), "Connection to {} aborted by the server", connect_chosen);
                     }
                     _ => {
-                        let _ = writeln!(stderr(), "Error while communicating with {} - {}", connect, e);
+                        let _ = writeln!(stderr(), "Error while communicating with {} - {}", connect_chosen, e);
                     }
                 }
             }
@@ -191,8 +191,10 @@ fn set_fs(ctx: &mut SslContext) {
 fn config_parse(config: &Config) -> (TlsConfig, u32) {
     let threads = config.lookup("output.tls_threads").map_or(TLS_DEFAULT_THREADS, |x| x.as_integer().
         expect("output.tls_threads must be a 32-bit integer") as u32);
-    let connect = config.lookup("output.connect").map_or(DEFAULT_CONNECT, |x|x.as_str().
-        expect("output.connect must be an ip:port string")).to_owned();
+    let connect = config.lookup("output.connect").expect("output.connect is required").
+        as_slice().expect("output.connect must be a list").to_vec();
+    let connect: Vec<String> = connect.iter().map(|x| x.as_str().
+        expect("output.connect must be a list of strings").to_owned()).collect();
     let cert = config.lookup("output.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
         expect("output.tls_cert must be a path to a .pem file")).to_owned();
     let key = config.lookup("output.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().
