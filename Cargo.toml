@@ -5,9 +5,10 @@ authors = ["Frank Denis <github@pureftpd.org>"]
 build = "build.rs"
 
 [features]
-ecdh = ["openssl/ecdh_auto"]
-coroutines = ["coio"]
 capnp-recompile = ["capnpc"]
+cargo-clippy = ["clippy"]
+coroutines = ["coio"]
+ecdh = ["openssl/ecdh_auto"]
 
 [build-dependencies.capnpc]
 version = "*"
@@ -21,6 +22,10 @@ redis = "*"
 serde = "*"
 serde_json = "*"
 toml = "*"
+
+[dependencies.clippy]
+git = "https://github.com/Manishearth/rust-clippy"
+optional = true
 
 [dependencies.coio]
 git = "https://github.com/zonyitoo/coio-rs"
