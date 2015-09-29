@@ -23,7 +23,7 @@ serde_json = "*"
 toml = "*"
 
 [dependencies.coio]
-git = "https://github.com/jedisct1/coio-rs.git"
+git = "https://github.com/zonyitoo/coio-rs"
 optional = true
 
 [dependencies.kafka]
