@@ -1,5 +1,5 @@
 use flowgger::config::Config;
-use flowgger::record::{Record, StructuredData, SDValue};
+use flowgger::record::{Record, StructuredData, SDValue, SEVERITY_MAX};
 use serde_json::de;
 use serde_json::value::Value;
 use super::Decoder;
@@ -42,8 +42,8 @@ impl Decoder for GelfDecoder {
                 }
                 "level" => {
                     let severity_given = try!(value.as_u64().ok_or("Invalid severity level"));
-                    if severity_given > 7 {
-                        return Err("Severity level should be <= 7")
+                    if severity_given > SEVERITY_MAX as u64 {
+                        return Err("Invalid severity level (too high)")
                     }
                     severity = Some(severity_given as u8)
                 },

@@ -1,4 +1,5 @@
 pub mod gelf_decoder;
+pub mod invalid_decoder;
 pub mod ltsv_decoder;
 pub mod rfc5424_decoder;
 

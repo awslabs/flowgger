@@ -44,3 +44,8 @@ pub struct Record {
     pub full_msg: Option<String>,
     pub sd: Option<StructuredData>
 }
+
+pub const FACILITY_MAX: u8 = 0xff >> 3;
+pub const FACILITY_MISSING: u8 = 0xff;
+pub const SEVERITY_MAX: u8 = (1 << 3) - 1;
+pub const SEVERITY_MISSING: u8 = 0xff;

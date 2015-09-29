@@ -1,3 +1,4 @@
+pub mod capnp_splitter;
 pub mod nul_splitter;
 pub mod line_splitter;
 pub mod syslen_splitter;

@@ -2,6 +2,7 @@ use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::splitter::Splitter;
+use flowgger::splitter::capnp_splitter::CapnpSplitter;
 use flowgger::splitter::line_splitter::LineSplitter;
 use flowgger::splitter::nul_splitter::NulSplitter;
 use flowgger::splitter::syslen_splitter::SyslenSplitter;
@@ -63,6 +64,7 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
     };
     let reader = BufReader::new(sslclient);
     let splitter = match &tls_config.framing as &str {
+        "capnp" => Box::new(CapnpSplitter) as Box<Splitter<_>>,
         "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
         "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
         "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,

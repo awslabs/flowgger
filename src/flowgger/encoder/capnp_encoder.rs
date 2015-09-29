@@ -1,7 +1,7 @@
 use capnp;
 use capnp::message::{Allocator, Builder};
 use flowgger::config::Config;
-use flowgger::record::{Record, SDValue};
+use flowgger::record::{Record, SDValue, FACILITY_MISSING, SEVERITY_MISSING};
 use flowgger::record_capnp;
 use super::Encoder;
 
@@ -29,12 +29,14 @@ fn build_record<T: Allocator>(record_msg: &mut capnp::message::Builder<T>, recor
     let mut root: record_capnp::record::Builder = record_msg.init_root();
     root.set_ts(record.ts);
     root.set_hostname(&record.hostname);
-    if let Some(facility) = record.facility {
-        root.set_facility(facility);
-    }
-    if let Some(severity) = record.severity {
-        root.set_severity(severity);
-    }
+    match record.facility {
+        Some(facility) => root.set_facility(facility),
+        _ => root.set_facility(FACILITY_MISSING)
+    };
+    match record.severity {
+        Some(severity) => root.set_severity(severity),
+        _ => root.set_severity(SEVERITY_MISSING)
+    };
     if let Some(appname) = record.appname {
         root.set_appname(&appname);
     }

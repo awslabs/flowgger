@@ -11,6 +11,7 @@ pub mod record_capnp;
 use self::config::Config;
 use self::decoder::Decoder;
 use self::decoder::gelf_decoder::GelfDecoder;
+use self::decoder::invalid_decoder::InvalidDecoder;
 use self::decoder::ltsv_decoder::LTSVDecoder;
 use self::decoder::rfc5424_decoder::RFC5424Decoder;
 use self::encoder::Encoder;
@@ -82,11 +83,13 @@ pub fn start(config_file: &str) {
         map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
     let input = get_input(input_type, &config);
     let decoder = match input_format {
-        "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
-        "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
+        _ if input_format == "capnp" => Box::new(InvalidDecoder::new(&config)) as Box<Decoder + Send>,
         "gelf" => Box::new(GelfDecoder::new(&config)) as Box<Decoder + Send>,
+        "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
+        "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format)
     };
+
     let output_format = config.lookup("output.format").
         map_or(DEFAULT_OUTPUT_FORMAT, |x| x.as_str().expect("output.format must be a string"));
     let encoder = match output_format {
