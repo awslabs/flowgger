@@ -34,7 +34,7 @@ pub fn config_parse(config: &Config) -> (TcpConfig, String, u64) {
         expect("input.listen must be an ip:port string")).to_owned();
     let threads = get_default_threads(&config);
     let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
-        expect("input.timeout must be an integer") as u64);
+        expect("input.timeout must be an unsigned integer") as u64);
     let framing = if config.lookup("input.framed").map_or(false, |x| x.as_bool().
         expect("input.framed must be a boolean")) {
         "syslen"

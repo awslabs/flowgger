@@ -16,7 +16,7 @@ use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 #[cfg(feature = "coroutines")]
 use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{Merger, LineMerger, NulMerger, SyslenMerger};
-use self::output::{Output, DebugOutput, KafkaOutput};
+use self::output::{Output, DebugOutput, KafkaOutput, TlsOutput};
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
@@ -90,6 +90,7 @@ pub fn start(config_file: &str) {
     let output = match output_type {
         "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
         "kafka" => Box::new(KafkaOutput::new(&config)) as Box<Output>,
+        "tls" | "syslog-tls" => Box::new(TlsOutput::new(&config)) as Box<Output>,
         _ => panic!("Invalid output type: {}", output_type)
     };
     let output_framing = match config.lookup("output.framing") {
