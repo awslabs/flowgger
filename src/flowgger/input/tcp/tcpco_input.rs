@@ -31,7 +31,7 @@ impl Input for TcpCoInput {
         coio::spawn(move|| {
             for client in listener.incoming() {
                 match client {
-                    Ok(client) => {
+                    Ok((client, _addr)) => {
                         let tx = tx.clone();
                         let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                         let tcp_config = tcp_config.clone();

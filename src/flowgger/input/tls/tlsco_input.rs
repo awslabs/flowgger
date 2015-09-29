@@ -32,7 +32,7 @@ impl Input for TlsCoInput {
         coio::spawn(move|| {
             for client in listener.incoming() {
                 match client {
-                    Ok(client) => {
+                    Ok((client, _addr)) => {
                         let tx = tx.clone();
                         let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                         let tls_config = tls_config.clone();

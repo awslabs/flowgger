@@ -80,7 +80,7 @@ impl KafkaWorker {
                 topic: self.config.topic.clone(),
                 message: bytes
             };
-            let ref mut queue = self.queue;
+            let mut queue = &mut self.queue;
             queue.push(message);
             if queue.len() >= self.config.coalesce {
                 match self.client.send_messages(self.config.acks, self.config.timeout, queue.clone()) {

@@ -82,8 +82,8 @@ impl TlsWorker {
 
     fn run(self) {
         loop {
-            let ref connect = self.config.connect;
-            if let Err(e) = self.handle_connection(&connect) {
+            let connect = &self.config.connect;
+            if let Err(e) = self.handle_connection(connect) {
                 match e.kind() {
                     ErrorKind::ConnectionRefused => {
                         let _ = writeln!(stderr(), "Connection to {} refused", connect);
