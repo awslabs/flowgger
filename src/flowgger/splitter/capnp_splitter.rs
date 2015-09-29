@@ -72,9 +72,9 @@ fn get_pairs(message_pairs: capnp::struct_list::Reader<record_capnp::pair::Owned
     pairs
 }
 
-fn get_sd(message_sd: record_capnp::structured_data::Reader) -> Result<Option<StructuredData>, &'static str> {
-    let sd_id = message_sd.get_sd_id().and_then(|x| Ok(x.to_owned())).ok();
-    let pairs = match message_sd.get_pairs() {
+fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData>, &'static str> {
+    let sd_id = message.get_sd_id().and_then(|x| Ok(x.to_owned())).ok();
+    let pairs = match message.get_pairs() {
         Err(_) => {
             if sd_id.is_none() {
                 return Ok(None)
@@ -109,10 +109,7 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
     let msgid = message.get_msgid().and_then(|x| Ok(x.to_owned())).ok();
     let msg = message.get_msg().and_then(|x| Ok(x.to_owned())).ok();
     let full_msg = message.get_full_msg().and_then(|x| Ok(x.to_owned())).ok();
-    let sd = match message.get_sd() {
-        Err(_) => None,
-        Ok(message_sd) => try!(get_sd(message_sd))
-    };
+    let sd = try!(get_sd(message));
     Ok(Record {
         ts: ts,
         hostname: hostname,

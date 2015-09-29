@@ -102,11 +102,18 @@ pub mod record {
       !self.reader.get_pointer_field(5).is_null()
     }
     #[inline]
-    pub fn get_sd(self) -> Result<::record_capnp::structured_data::Reader<'a>> {
-      ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(6))
+    pub fn get_sd_id(self) -> Result<text::Reader<'a>> {
+      self.reader.get_pointer_field(6).get_text(::std::ptr::null(), 0)
     }
-    pub fn has_sd(&self) -> bool {
+    pub fn has_sd_id(&self) -> bool {
       !self.reader.get_pointer_field(6).is_null()
+    }
+    #[inline]
+    pub fn get_pairs(self) -> Result<struct_list::Reader<'a,::record_capnp::pair::Owned<>>> {
+      ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(7))
+    }
+    pub fn has_pairs(&self) -> bool {
+      !self.reader.get_pointer_field(7).is_null()
     }
   }
 
@@ -273,177 +280,34 @@ pub mod record {
       !self.builder.get_pointer_field(5).is_null()
     }
     #[inline]
-    pub fn get_sd(self) -> Result<::record_capnp::structured_data::Builder<'a>> {
-      ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(6))
-    }
-    #[inline]
-    pub fn set_sd<'b>(&mut self, value : ::record_capnp::structured_data::Reader<'b>) -> Result<()> {
-      ::capnp::traits::SetPointerBuilder::set_pointer_builder(self.builder.get_pointer_field(6), value)
-    }
-    #[inline]
-    pub fn init_sd(self, ) -> ::record_capnp::structured_data::Builder<'a> {
-      ::capnp::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(6), 0)
-    }
-    pub fn has_sd(&self) -> bool {
-      !self.builder.get_pointer_field(6).is_null()
-    }
-  }
-
-  pub struct Pipeline { _typeless : ::capnp::any_pointer::Pipeline }
-  impl FromTypelessPipeline for Pipeline {
-    fn new(typeless : ::capnp::any_pointer::Pipeline) -> Pipeline {
-      Pipeline { _typeless : typeless,  }
-    }
-  }
-  impl Pipeline {
-    pub fn get_sd(&self) -> ::record_capnp::structured_data::Pipeline<> {
-      FromTypelessPipeline::new(self._typeless.get_pointer_field(6))
-    }
-  }
-  mod _private {
-    use capnp::private::layout;
-    pub const STRUCT_SIZE : layout::StructSize = layout::StructSize { data : 2, pointers : 7 };
-    pub const TYPE_ID: u64 = 0xff99ba646e037d20;
-  }
-}
-
-pub mod structured_data {
-  #![allow(unused_imports)]
-  use capnp::capability::{FromClientHook, FromTypelessPipeline};
-  use capnp::{text, data, Result};
-  use capnp::private::layout;
-  use capnp::traits::{FromStructBuilder, FromStructReader};
-  use capnp::{primitive_list, enum_list, struct_list, text_list, data_list, list_list};
-
-  pub struct Owned;
-  impl <'a> ::capnp::traits::Owned<'a> for Owned { type Reader = Reader<'a>; type Builder = Builder<'a>; }
-  impl <'a> ::capnp::traits::OwnedStruct<'a> for Owned { type Reader = Reader<'a>; type Builder = Builder<'a>; }
-  impl ::capnp::traits::Pipelined for Owned { type Pipeline = Pipeline; }
-
-  #[derive(Clone, Copy)]
-  pub struct Reader<'a> { reader : layout::StructReader<'a> }
-
-  impl <'a,> ::capnp::traits::HasTypeId for Reader<'a,>
-  {
-    #[inline]
-    fn type_id() -> u64 { _private::TYPE_ID }
-  }
-  impl <'a,> ::capnp::traits::FromStructReader<'a> for Reader<'a,>
-  {
-    fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a,> {
-      Reader { reader : reader,  }
-    }
-  }
-
-  impl <'a,> ::capnp::traits::FromPointerReader<'a> for Reader<'a,>
-  {
-    fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>) -> Result<Reader<'a,>> {
-      ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(try!(reader.get_struct(::std::ptr::null()))))
-    }
-  }
-
-  impl <'a,> Reader<'a,>
-  {
-    pub fn borrow<'b>(&'b self) -> Reader<'b,> {
-      Reader { .. *self }
-    }
-
-    pub fn total_size(&self) -> Result<::capnp::MessageSize> {
-      self.reader.total_size()
-    }
-    #[inline]
-    pub fn get_sd_id(self) -> Result<text::Reader<'a>> {
-      self.reader.get_pointer_field(0).get_text(::std::ptr::null(), 0)
-    }
-    pub fn has_sd_id(&self) -> bool {
-      !self.reader.get_pointer_field(0).is_null()
-    }
-    #[inline]
-    pub fn get_pairs(self) -> Result<struct_list::Reader<'a,::record_capnp::pair::Owned<>>> {
-      ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(1))
-    }
-    pub fn has_pairs(&self) -> bool {
-      !self.reader.get_pointer_field(1).is_null()
-    }
-  }
-
-  pub struct Builder<'a> { builder : ::capnp::private::layout::StructBuilder<'a> }
-  impl <'a,> ::capnp::traits::HasStructSize for Builder<'a,>
-  {
-    #[inline]
-    fn struct_size() -> layout::StructSize { _private::STRUCT_SIZE }
-  }
-  impl <'a,> ::capnp::traits::HasTypeId for Builder<'a,>
-   {
-    #[inline]
-    fn type_id() -> u64 { _private::TYPE_ID }
-  }
-  impl <'a,> ::capnp::traits::FromStructBuilder<'a> for Builder<'a,>
-   {
-    fn new(builder : ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a, > {
-      Builder { builder : builder,  }
-    }
-  }
-
-  impl <'a,> ::capnp::traits::FromPointerBuilder<'a> for Builder<'a,>
-   {
-    fn init_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>, _size : u32) -> Builder<'a,> {
-      ::capnp::traits::FromStructBuilder::new(builder.init_struct(_private::STRUCT_SIZE))
-    }
-    fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>) -> Result<Builder<'a,>> {
-      ::std::result::Result::Ok(::capnp::traits::FromStructBuilder::new(try!(builder.get_struct(_private::STRUCT_SIZE, ::std::ptr::null()))))
-    }
-  }
-
-  impl <'a,> ::capnp::traits::SetPointerBuilder<Builder<'a,>> for Reader<'a,>
-   {
-    fn set_pointer_builder<'b>(pointer : ::capnp::private::layout::PointerBuilder<'b>, value : Reader<'a,>) -> Result<()> { pointer.set_struct(&value.reader) }
-  }
-
-  impl <'a,> Builder<'a,>
-   {
-    pub fn as_reader(self) -> Reader<'a,> {
-      ::capnp::traits::FromStructReader::new(self.builder.as_reader())
-    }
-    pub fn borrow<'b>(&'b mut self) -> Builder<'b,> {
-      Builder { .. *self }
-    }
-    pub fn borrow_as_reader<'b>(&'b self) -> Reader<'b,> {
-      ::capnp::traits::FromStructReader::new(self.builder.as_reader())
-    }
-
-    pub fn total_size(&self) -> Result<::capnp::MessageSize> {
-      self.builder.as_reader().total_size()
-    }
-    #[inline]
     pub fn get_sd_id(self) -> Result<text::Builder<'a>> {
-      self.builder.get_pointer_field(0).get_text(::std::ptr::null(), 0)
+      self.builder.get_pointer_field(6).get_text(::std::ptr::null(), 0)
     }
     #[inline]
     pub fn set_sd_id(&mut self, value : text::Reader)  {
-      self.builder.get_pointer_field(0).set_text(value);
+      self.builder.get_pointer_field(6).set_text(value);
     }
     #[inline]
     pub fn init_sd_id(self, size : u32) -> text::Builder<'a> {
-      self.builder.get_pointer_field(0).init_text(size)
+      self.builder.get_pointer_field(6).init_text(size)
     }
     pub fn has_sd_id(&self) -> bool {
-      !self.builder.get_pointer_field(0).is_null()
+      !self.builder.get_pointer_field(6).is_null()
     }
     #[inline]
     pub fn get_pairs(self) -> Result<struct_list::Builder<'a,::record_capnp::pair::Owned<>>> {
-      ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(1))
+      ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(7))
     }
     #[inline]
     pub fn set_pairs(&mut self, value : struct_list::Reader<'a,::record_capnp::pair::Owned<>>) -> Result<()> {
-      ::capnp::traits::SetPointerBuilder::set_pointer_builder(self.builder.get_pointer_field(1), value)
+      ::capnp::traits::SetPointerBuilder::set_pointer_builder(self.builder.get_pointer_field(7), value)
     }
     #[inline]
     pub fn init_pairs(self, size : u32) -> struct_list::Builder<'a,::record_capnp::pair::Owned<>> {
-      ::capnp::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(1), size)
+      ::capnp::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(7), size)
     }
     pub fn has_pairs(&self) -> bool {
-      !self.builder.get_pointer_field(1).is_null()
+      !self.builder.get_pointer_field(7).is_null()
     }
   }
 
@@ -457,8 +321,8 @@ pub mod structured_data {
   }
   mod _private {
     use capnp::private::layout;
-    pub const STRUCT_SIZE : layout::StructSize = layout::StructSize { data : 0, pointers : 2 };
-    pub const TYPE_ID: u64 = 0xfce675d3f69c816a;
+    pub const STRUCT_SIZE : layout::StructSize = layout::StructSize { data : 2, pointers : 8 };
+    pub const TYPE_ID: u64 = 0xff99ba646e037d20;
   }
 }
 

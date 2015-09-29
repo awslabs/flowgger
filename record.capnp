@@ -1,21 +1,17 @@
 @0xac72eb7464d85e40;
 
 struct Record {
-    ts       @0 :Int64;
-    hostname @1 :Text;
-    facility @2 :UInt8;
-    severity @3 :UInt8;
-    appname  @4 :Text;
-    procid   @5 :Text;
-    msgid    @6 :Text;
-    msg      @7 :Text;
-    fullMsg  @8 :Text;
-    sd       @9 :StructuredData;
-}
-
-struct StructuredData {
-    sdId  @0 :Text;
-    pairs @1 :List(Pair);
+    ts        @0 :Int64;
+    hostname  @1 :Text;
+    facility  @2 :UInt8;
+    severity  @3 :UInt8;
+    appname   @4 :Text;
+    procid    @5 :Text;
+    msgid     @6 :Text;
+    msg       @7 :Text;
+    fullMsg   @8 :Text;
+    sdId      @9 :Text;
+    pairs    @10 :List(Pair);
 }
 
 struct Pair {
