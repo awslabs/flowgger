@@ -17,7 +17,7 @@ is orders of magnitude faster than Logstash and Fluentd.
 
 Flowgger supports common input types: stdin, UDP, TCP, TLS and Redis,
 as well as multiple input formats: JSON (GELF), LTSV, Cap'n Proto and
-RFC5424. Normalized messages can be sent to Kafka, Graylog, other
-Flowgger servers or other log collectors for further processing.
+RFC5424. Normalized messages can be sent to Kafka, Graylog, to downstream
+Flowgger servers, or to other log collectors for further processing.
 
 # [Jump to the Flowgger documentation](https://github.com/jedisct1/flowgger/wiki)

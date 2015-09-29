@@ -6,6 +6,7 @@ use openssl::dh::DH;
 use openssl::ssl::*;
 use openssl::x509::X509FileType;
 use rand;
+use rand::Rng;
 use rand::distributions::{IndependentSample, Range};
 
 use std::error::Error;
@@ -39,9 +40,15 @@ pub struct TlsOutput {
 }
 
 #[derive(Clone)]
+struct Cluster {
+    connect: Vec<String>,
+    idx: usize
+}
+
+#[derive(Clone)]
 struct TlsConfig {
     timeout: Option<Duration>,
-    connect: Vec<String>,
+    mx_cluster: Arc<Mutex<Cluster>>,
     arc_ctx: Arc<SslContext>,
     async: bool,
     recovery_delay_init: u32,
@@ -64,21 +71,22 @@ impl TlsWorker {
         }
     }
 
-    fn handle_connection(&self, connect: &str) -> io::Result<()> {
-        let client = try!(new_tcp(connect));
-        let _ = writeln!(stderr(), "Connected to {}", connect);
+    fn handle_connection(&self, connect_chosen: &str) -> io::Result<()> {
+        let client = try!(new_tcp(connect_chosen));
+        let _ = writeln!(stderr(), "Connected to {}", connect_chosen);
         let sslclient = match SslStream::connect(&*self.tls_config.arc_ctx, client) {
             Err(_) => return Err(io::Error::new(io::ErrorKind::ConnectionAborted,
                 "SSL handshake aborted by the server")),
             Ok(sslclient) => sslclient
         };
-        let _ = writeln!(stderr(), "Completed SSL handshake with {}", connect);
+        let _ = writeln!(stderr(), "Completed SSL handshake with {}", connect_chosen);
         let mut writer = BufWriter::new(sslclient);
         let merger = &self.merger;
         loop {
             let mut bytes = match { self.arx.lock().unwrap().recv() } {
                 Ok(line) => line,
-                Err(_) => return Err(io::Error::new(io::ErrorKind::Other, "Cannot read the message queue any more"))
+                Err(_) => return Err(io::Error::new(io::ErrorKind::Other,
+                    "Cannot read the message queue any more"))
             };
             if let Some(ref merger) = *merger {
                 merger.frame(&mut bytes);
@@ -103,8 +111,16 @@ impl TlsWorker {
         let mut last_recovery;
         loop {
             last_recovery = chrono::UTC::now();
-            let connect_chosen = &rand::sample(&mut rng, tls_config.connect.iter(), 1)[0];
-            if let Err(e) = self.handle_connection(connect_chosen) {
+            let connect_chosen = {
+                let mut cluster = tls_config.mx_cluster.lock().unwrap();
+                cluster.idx += 1;
+                if cluster.idx >= cluster.connect.len() {
+                    rng.shuffle(&mut cluster.connect);
+                    cluster.idx = 0;
+                }
+                cluster.connect[cluster.idx].clone()
+            };
+            if let Err(e) = self.handle_connection(&connect_chosen) {
                 match e.kind() {
                     ErrorKind::ConnectionRefused => {
                         let _ = writeln!(stderr(), "Connection to {} refused", connect_chosen);
@@ -131,9 +147,9 @@ impl TlsWorker {
     }
 }
 
-fn new_tcp(connect: &str) -> Result<TcpStream, io::Error> {
+fn new_tcp(connect_chosen: &str) -> Result<TcpStream, io::Error> {
     loop {
-        match TcpStream::connect(connect) {
+        match TcpStream::connect(connect_chosen) {
             Ok(stream) => return Ok(stream),
             Err(e) => {
                 return Err(e);
@@ -253,8 +269,13 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).unwrap();
     ctx.set_cipher_list(&ciphers).unwrap();
     let arc_ctx = Arc::new(ctx);
-    let tls_config = TlsConfig {
+    let cluster = Cluster {
         connect: connect,
+        idx: 0
+    };
+    let mx_cluster = Arc::new(Mutex::new(cluster));
+    let tls_config = TlsConfig {
+        mx_cluster: mx_cluster,
         timeout: Some(Duration::from_secs(timeout)),
         arc_ctx: arc_ctx,
         async: async,
