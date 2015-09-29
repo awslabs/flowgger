@@ -34,12 +34,12 @@ struct TlsConfig {
 
 struct TlsWorker {
     arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-    merger: Arc<Option<Box<Merger + Send>>>,
+    merger: Option<Box<Merger + Send>>,
     config: TlsConfig
 }
 
 impl TlsWorker {
-    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Arc<Option<Box<Merger + Send>>>, config: TlsConfig) -> TlsWorker {
+    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger + Send>>, config: TlsConfig) -> TlsWorker {
         TlsWorker {
             arx: arx,
             merger: merger,
@@ -61,7 +61,7 @@ impl TlsWorker {
         };
         let _ = writeln!(stderr(), "Completed SSL handshake with {}", connect);
         let mut writer = BufWriter::new(sslclient);
-        let merger = &*self.merger;
+        let merger = &self.merger;
         loop {
             let mut bytes = match { self.arx.lock().unwrap().recv() } {
                 Ok(line) => line,
@@ -144,7 +144,7 @@ impl Output for TlsOutput {
                 None => None
             };
             thread::spawn(move || {
-                let worker = TlsWorker::new(arx, Arc::new(merger), config);
+                let worker = TlsWorker::new(arx, merger, config);
                 worker.run();
             });
         }
