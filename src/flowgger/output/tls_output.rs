@@ -21,6 +21,7 @@ const DEFAULT_COMPRESSION: bool = false;
 const DEFAULT_CONNECT: &'static str = "127.0.0.1:6514";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_SLEEP_AFTER_CONNECTION_FAILURE: u32 = 1000;
+const DEFAULT_ASYNC: bool = false;
 const DEFAULT_TIMEOUT: u64 = 3600;
 const DEFAULT_TLS_METHOD: &'static str = "any";
 const DEFAULT_VERIFY_PEER: bool = false;
@@ -36,7 +37,8 @@ pub struct TlsOutput {
 struct TlsConfig {
     timeout: Option<Duration>,
     connect: String,
-    arc_ctx: Arc<SslContext>
+    arc_ctx: Arc<SslContext>,
+    async: bool
 }
 
 struct TlsWorker {
@@ -80,6 +82,9 @@ impl TlsWorker {
                     _ => return Err(e)
                 }
             };
+            if self.tls_config.async == false {
+                try!(writer.flush());
+            }
         }
     }
 
@@ -190,6 +195,8 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         expect("output.tls_compression must be a boolean"));
     let timeout = config.lookup("output.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
         expect("output.timeout must be an integer") as u64);
+    let async = config.lookup("output.tls_async").map_or(DEFAULT_ASYNC, |x| x.as_bool().
+        expect("output.tls_async must be a boolean"));
     let mut ctx = SslContext::new(tls_method).unwrap();
     if verify_peer == false {
         ctx.set_verify(SSL_VERIFY_NONE, None);
@@ -215,7 +222,8 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     let tls_config = TlsConfig {
         connect: connect,
         timeout: Some(Duration::from_secs(timeout)),
-        arc_ctx: arc_ctx
+        arc_ctx: arc_ctx,
+        async: async
     };
     (tls_config, threads)
 }
