@@ -52,6 +52,8 @@ timeout = 3600
 # [input.ltsv_schema]
 # counter = "u64"
 
+
+
 ####################
 #  Output section  #
 ####################
@@ -70,16 +72,34 @@ type = "debug"
 # kafka_timeout = 60000
 # kafka_acks = 0
 
+### TLS output
+# type = "tls"
+# connect = "172.16.205.128:6514"
+# timeout = 3600
+# tls_threads = 1
+# tls_cert = "flowgger.pem"
+# tls_key = "flowgger.pem"
+# tls_ca_file = "flowgger.pem"
+# tls_method = "any"
+# tls_verify_peer = false
+# tls_compression = false
+# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
+# tls_async = false
+# tls_recovery_delay_init = 1
+# tls_recovery_delay_max = 10000
+# tls_recovery_probe_time = 30000
+
+
+
 ### Output format and parameters
 
 ### JSON (GELF)
 format = "gelf"
 framing = "nul"
-
 # [output.gelf_extra]
 # x-header1 = "x-header1 value"
 # x-header2 = "x-header2 value"
 
 ### Cap'n Proto
 # format = "capnp"
-
+# framing = "noop"

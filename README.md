@@ -15,8 +15,9 @@ malformed/incomplete records down the chain.
 is orders of magnitude faster than Logstash and Fluentd.
 - Standalone: it comes as a single executable file, and doesn't require a JVM.
 
-Flowgger supports common input types: stdin, UDP, TCP, TLS and Redis, as well as
-multiple input formats: JSON (GELF), LTSV, Cap'n Proto and RFC5424. Normalized messages can
-be sent to Kafka for further processing.
+Flowgger supports common input types: stdin, UDP, TCP, TLS and Redis,
+as well as multiple input formats: JSON (GELF), LTSV, Cap'n Proto and
+RFC5424. Normalized messages can be sent to Kafka, Graylog, other
+Flowgger servers or other log collectors for further processing.
 
 # [Jump to the Flowgger documentation](https://github.com/jedisct1/flowgger/wiki)

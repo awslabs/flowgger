@@ -26,7 +26,7 @@ const DEFAULT_CONNECT: &'static str = "127.0.0.1:6514";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_RECOVERY_DELAY_INIT: u32 = 1;
 const DEFAULT_RECOVERY_DELAY_MAX: u32 = 10_000;
-const DEFAULT_RECOVERY_PROBE_TIME: u32 = 10_000;
+const DEFAULT_RECOVERY_PROBE_TIME: u32 = 30_000;
 const DEFAULT_ASYNC: bool = false;
 const DEFAULT_TIMEOUT: u64 = 3600;
 const DEFAULT_TLS_METHOD: &'static str = "any";
@@ -189,9 +189,8 @@ fn set_fs(ctx: &mut SslContext) {
 }
 
 fn config_parse(config: &Config) -> (TlsConfig, u32) {
-    let threads = config.lookup("output.tls_threads").
-        map_or(TLS_DEFAULT_THREADS, |x| x.as_integer().
-            expect("output.tls_threads must be a 32-bit integer") as u32);
+    let threads = config.lookup("output.tls_threads").map_or(TLS_DEFAULT_THREADS, |x| x.as_integer().
+        expect("output.tls_threads must be a 32-bit integer") as u32);
     let connect = config.lookup("output.connect").map_or(DEFAULT_CONNECT, |x|x.as_str().
         expect("output.connect must be an ip:port string")).to_owned();
     let cert = config.lookup("output.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
