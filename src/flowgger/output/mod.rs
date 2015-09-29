@@ -1,5 +1,8 @@
-pub mod debug_output;
-pub mod kafka_output;
+mod debug_output;
+mod kafka_output;
+
+pub use self::debug_output::DebugOutput;
+pub use self::kafka_output::KafkaOutput;
 
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};

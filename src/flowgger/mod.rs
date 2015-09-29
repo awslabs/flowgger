@@ -9,14 +9,8 @@ mod splitter;
 pub mod record_capnp;
 
 use self::config::Config;
-use self::decoder::Decoder;
-use self::decoder::gelf_decoder::GelfDecoder;
-use self::decoder::invalid_decoder::InvalidDecoder;
-use self::decoder::ltsv_decoder::LTSVDecoder;
-use self::decoder::rfc5424_decoder::RFC5424Decoder;
-use self::encoder::Encoder;
-use self::encoder::capnp_encoder::CapnpEncoder;
-use self::encoder::gelf_encoder::GelfEncoder;
+use self::decoder::{Decoder, GelfDecoder, InvalidDecoder, LTSVDecoder, RFC5424Decoder};
+use self::encoder::{Encoder, CapnpEncoder, GelfEncoder};
 use self::input::Input;
 use self::input::redis_input::RedisInput;
 use self::input::stdin_input::StdinInput;
@@ -27,9 +21,7 @@ use self::input::tls_input::TlsInput;
 #[cfg(feature = "coroutines")]
 use self::input::tlsco_input::TlsCoInput;
 use self::input::udp_input::UdpInput;
-use self::output::Output;
-use self::output::debug_output::DebugOutput;
-use self::output::kafka_output::KafkaOutput;
+use self::output::{Output, DebugOutput, KafkaOutput};
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 

@@ -1,7 +1,12 @@
-pub mod gelf_decoder;
-pub mod invalid_decoder;
-pub mod ltsv_decoder;
-pub mod rfc5424_decoder;
+mod gelf_decoder;
+mod invalid_decoder;
+mod ltsv_decoder;
+mod rfc5424_decoder;
+
+pub use self::gelf_decoder::GelfDecoder;
+pub use self::invalid_decoder::InvalidDecoder;
+pub use self::ltsv_decoder::LTSVDecoder;
+pub use self::rfc5424_decoder::RFC5424Decoder;
 
 use flowgger::record::Record;
 
