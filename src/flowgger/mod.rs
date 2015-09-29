@@ -11,16 +11,9 @@ pub mod record_capnp;
 use self::config::Config;
 use self::decoder::{Decoder, GelfDecoder, InvalidDecoder, LTSVDecoder, RFC5424Decoder};
 use self::encoder::{Encoder, CapnpEncoder, GelfEncoder};
-use self::input::Input;
-use self::input::redis_input::RedisInput;
-use self::input::stdin_input::StdinInput;
-use self::input::tcp_input::TcpInput;
+use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 #[cfg(feature = "coroutines")]
-use self::input::tcpco_input::TcpCoInput;
-use self::input::tls_input::TlsInput;
-#[cfg(feature = "coroutines")]
-use self::input::tlsco_input::TlsCoInput;
-use self::input::udp_input::UdpInput;
+use self::input::{TcpCoInput, TlsCoInput};
 use self::output::{Output, DebugOutput, KafkaOutput};
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
