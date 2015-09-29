@@ -88,7 +88,7 @@ pub fn start(config_file: &str) {
     let output_type = config.lookup("output.type").
         map_or(DEFAULT_OUTPUT_TYPE, |x| x.as_str().expect("output.type must be a string"));
     let output = match output_type {
-        "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
+        "stdout" | "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
         "kafka" => Box::new(KafkaOutput::new(&config)) as Box<Output>,
         "tls" | "syslog-tls" => Box::new(TlsOutput::new(&config)) as Box<Output>,
         _ => panic!("Invalid output type: {}", output_type)

@@ -4,17 +4,24 @@
 
 [input]
 
-### Syslog over TCP
+### Standard input
+# type = "stdin"
+
+### Syslog over UDP
+# type = "udp"
+# listen = "0.0.0.0:514"
+
+### TCP
 type = "tcp"
-listen = "0.0.0.0:514"
+listen = "0.0.0.0:6514"
 timeout = 3600
 
-### Syslog over TCP, using coroutines
+### TCP, using coroutines
 # type = "tcp_co"
-# listen = "0.0.0.0:514"
+# listen = "0.0.0.0:6514"
 # tcp_threads = 1
 
-### Syslog over TLS
+### TLS
 # type = "tls"
 # listen = "0.0.0.0:6514"
 # framing = "line"
@@ -27,7 +34,7 @@ timeout = 3600
 # tls_compression = false
 # tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
 
-### Syslog over TLS, using coroutines
+### TLS, using coroutines
 # type = "tls_co"
 # listen = "0.0.0.0:6514"
 # framing = "line"
@@ -46,6 +53,8 @@ timeout = 3600
 # redis_queue_key = "logs"
 # redis_threads = 1
 
+
+
 ### Input format and parameters
 # format = "ltsv"
 # queuesize = 1000000
@@ -60,8 +69,8 @@ timeout = 3600
 
 [output]
 
-### Debug output
-type = "debug"
+### Debug output (stdout)
+type = "stdout"
 
 ### Kafka output
 # type = "kafka"
@@ -95,7 +104,7 @@ type = "debug"
 
 ### JSON (GELF)
 format = "gelf"
-framing = "nul"
+# framing = "nul"
 # [output.gelf_extra]
 # x-header1 = "x-header1 value"
 # x-header2 = "x-header2 value"
