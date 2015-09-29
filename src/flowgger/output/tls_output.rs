@@ -1,9 +1,13 @@
+use chrono;
 use flowgger::config::Config;
 use flowgger::merger::Merger;
 use openssl::bn::BigNum;
 use openssl::dh::DH;
 use openssl::ssl::*;
 use openssl::x509::X509FileType;
+use rand;
+use rand::distributions::{IndependentSample, Range};
+
 use std::error::Error;
 use std::io;
 use std::io::{stderr, BufWriter, ErrorKind, Write};
@@ -20,7 +24,9 @@ const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-A
 const DEFAULT_COMPRESSION: bool = false;
 const DEFAULT_CONNECT: &'static str = "127.0.0.1:6514";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
-const DEFAULT_SLEEP_AFTER_CONNECTION_FAILURE: u32 = 1000;
+const DEFAULT_RECOVERY_DELAY_INIT: u32 = 1;
+const DEFAULT_RECOVERY_DELAY_MAX: u32 = 10_000;
+const DEFAULT_RECOVERY_PROBE_TIME: u32 = 10_000;
 const DEFAULT_ASYNC: bool = false;
 const DEFAULT_TIMEOUT: u64 = 3600;
 const DEFAULT_TLS_METHOD: &'static str = "any";
@@ -89,7 +95,10 @@ impl TlsWorker {
     }
 
     fn run(self) {
+        let mut recovery_delay = DEFAULT_RECOVERY_DELAY_INIT as f64;
+        let mut last_recovery;
         loop {
+            last_recovery = chrono::UTC::now();
             let connect = &self.tls_config.connect;
             if let Err(e) = self.handle_connection(connect) {
                 match e.kind() {
@@ -104,7 +113,16 @@ impl TlsWorker {
                     }
                 }
             }
-            thread::sleep_ms(DEFAULT_SLEEP_AFTER_CONNECTION_FAILURE);
+            let now = chrono::UTC::now();
+            if now - last_recovery > chrono::Duration::milliseconds(DEFAULT_RECOVERY_PROBE_TIME as i64) {
+                recovery_delay = DEFAULT_RECOVERY_DELAY_INIT as f64;
+            }
+            if recovery_delay < DEFAULT_RECOVERY_DELAY_MAX as f64 {
+                let between = Range::new(0.0, recovery_delay);
+                let mut rng = rand::thread_rng();
+                recovery_delay += between.ind_sample(&mut rng);
+            }
+            thread::sleep_ms(recovery_delay.round() as u32);
             let _ = writeln!(stderr(), "Attempting to reconnect");
         }
     }

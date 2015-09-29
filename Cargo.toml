@@ -18,6 +18,7 @@ optional = true
 capnp = "*"
 chrono = "*"
 log = "*"
+rand = "*"
 redis = "*"
 serde = "*"
 serde_json = "*"

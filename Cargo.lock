@@ -10,6 +10,7 @@ dependencies = [
  "kafka 0.1.6 (git+https://github.com/jedisct1/kafka-rust.git)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.6.5 (git+https://github.com/jedisct1/rust-openssl.git)",
+ "rand 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "redis 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
