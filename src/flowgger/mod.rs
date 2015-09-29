@@ -104,6 +104,7 @@ pub fn start(config_file: &str) {
     };
     let merger: Option<Box<Merger>> = match output_framing {
         "noop" | "nop" | "none" => None,
+        "capnp" => None,
         "line" => Some(Box::new(LineMerger::new(&config)) as Box<Merger>),
         "nul" => Some(Box::new(NulMerger::new(&config)) as Box<Merger>),
         "syslen" => Some(Box::new(SyslenMerger::new(&config)) as Box<Merger>),
