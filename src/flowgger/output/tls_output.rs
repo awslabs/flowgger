@@ -113,7 +113,7 @@ fn new_tcp(connect: &str) -> Result<TcpStream, io::Error> {
 impl TlsOutput {
     pub fn new(config: &Config) -> TlsOutput {
         let connect = config.lookup("output.connect").map_or(DEFAULT_CONNECT, |x|x.as_str().
-            expect("input.listen must be an ip:port string")).to_owned();
+            expect("output.connect must be an ip:port string")).to_owned();
         let timeout = config.lookup("output.tls_timeout").
             map_or(TLS_DEFAULT_TIMEOUT, |x| x.as_integer().
                 expect("output.tls_timeout must be an unsigned integer") as u64);
