@@ -29,34 +29,31 @@ pub struct TlsOutput {
 #[derive(Clone)]
 struct TlsConfig {
     timeout: Option<Duration>,
-    connect: String
+    connect: String,
+    arc_ctx: Arc<SslContext>
 }
 
 struct TlsWorker {
     arx: Arc<Mutex<Receiver<Vec<u8>>>>,
     merger: Option<Box<Merger + Send>>,
-    config: TlsConfig
+    tls_config: TlsConfig
 }
 
 impl TlsWorker {
-    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger + Send>>, config: TlsConfig) -> TlsWorker {
+    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger + Send>>, tls_config: TlsConfig) -> TlsWorker {
         TlsWorker {
             arx: arx,
             merger: merger,
-            config: config
+            tls_config: tls_config
         }
     }
 
     fn handle_connection(&self, connect: &str) -> io::Result<()> {
         let client = try!(new_tcp(connect));
         let _ = writeln!(stderr(), "Connected to {}", connect);
-        let tls_method = SslMethod::Sslv23;
-        let mut ctx = SslContext::new(tls_method).unwrap();
-        let ciphers = DEFAULT_CIPHERS;
-        set_fs(&mut ctx);
-        ctx.set_cipher_list(&ciphers).unwrap();
-        let sslclient = match SslStream::connect(&ctx, client) {
-            Err(_) => return Err(io::Error::new(io::ErrorKind::ConnectionAborted, "SSL handshake aborted by the server")),
+        let sslclient = match SslStream::connect(&*self.tls_config.arc_ctx, client) {
+            Err(_) => return Err(io::Error::new(io::ErrorKind::ConnectionAborted,
+                "SSL handshake aborted by the server")),
             Ok(sslclient) => sslclient
         };
         let _ = writeln!(stderr(), "Completed SSL handshake with {}", connect);
@@ -82,7 +79,7 @@ impl TlsWorker {
 
     fn run(self) {
         loop {
-            let connect = &self.config.connect;
+            let connect = &self.tls_config.connect;
             if let Err(e) = self.handle_connection(connect) {
                 match e.kind() {
                     ErrorKind::ConnectionRefused => {
@@ -123,9 +120,16 @@ impl TlsOutput {
         let threads = config.lookup("output.tls_threads").
             map_or(TLS_DEFAULT_THREADS, |x| x.as_integer().
                 expect("output.tls_threads must be a 32-bit integer") as u32);
+        let tls_method = SslMethod::Sslv23;
+        let mut ctx = SslContext::new(tls_method).unwrap();
+        let ciphers = DEFAULT_CIPHERS;
+        set_fs(&mut ctx);
+        ctx.set_cipher_list(&ciphers).unwrap();
+        let arc_ctx = Arc::new(ctx);
         let tls_config = TlsConfig {
             connect: connect,
-            timeout: Some(Duration::from_secs(timeout))
+            timeout: Some(Duration::from_secs(timeout)),
+            arc_ctx: arc_ctx
         };
         TlsOutput {
             config: tls_config,
