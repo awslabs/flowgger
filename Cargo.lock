@@ -80,7 +80,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.1.2"
-source = "git+https://github.com/jedisct1/coio-rs.git#debca286fbd35ae58004567975982b25ebb80b13"
+source = "git+https://github.com/jedisct1/coio-rs.git#b7e04d4fd69dc9b31d80caa6de12139a54ddc8a1"
 dependencies = [
  "bytes 0.2.10 (git+https://github.com/carllerche/bytes.git?rev=7edb577d0a)",
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -96,7 +96,7 @@ dependencies = [
 [[package]]
 name = "context"
 version = "0.1.2"
-source = "git+https://github.com/zonyitoo/context-rs.git#c280dec642c1a1d1c0055f71a9c0bc4817733806"
+source = "git+https://github.com/zonyitoo/context-rs.git#a594f1e142f71270670c972523116f1b0d578c8c"
 dependencies = [
  "gcc 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
