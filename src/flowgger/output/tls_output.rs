@@ -15,10 +15,16 @@ use std::thread;
 use std::time::Duration;
 use super::Output;
 
+const DEFAULT_CERT: &'static str = "flowgger.pem";
 const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
+const DEFAULT_COMPRESSION: bool = false;
 const DEFAULT_CONNECT: &'static str = "127.0.0.1:6514";
+const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_SLEEP_AFTER_CONNECTION_FAILURE: u32 = 1000;
-const TLS_DEFAULT_TIMEOUT: u64 = 3600;
+const DEFAULT_TIMEOUT: u64 = 3600;
+const DEFAULT_TLS_METHOD: &'static str = "any";
+const DEFAULT_VERIFY_PEER: bool = false;
+const TLS_VERIFY_DEPTH: u32 = 6;
 const TLS_DEFAULT_THREADS: u32 = 1;
 
 pub struct TlsOutput {
@@ -114,16 +120,51 @@ impl TlsOutput {
     pub fn new(config: &Config) -> TlsOutput {
         let connect = config.lookup("output.connect").map_or(DEFAULT_CONNECT, |x|x.as_str().
             expect("output.connect must be an ip:port string")).to_owned();
-        let timeout = config.lookup("output.tls_timeout").
-            map_or(TLS_DEFAULT_TIMEOUT, |x| x.as_integer().
-                expect("output.tls_timeout must be an unsigned integer") as u64);
         let threads = config.lookup("output.tls_threads").
             map_or(TLS_DEFAULT_THREADS, |x| x.as_integer().
                 expect("output.tls_threads must be a 32-bit integer") as u32);
-        let tls_method = SslMethod::Sslv23;
+        let cert = config.lookup("output.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
+            expect("output.tls_cert must be a path to a .pem file")).to_owned();
+        let key = config.lookup("output.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().
+            expect("output.tls_key must be a path to a .pem file")).to_owned();
+        let ciphers = config.lookup("output.tls_ciphers").map_or(DEFAULT_CIPHERS, |x| x.as_str().
+            expect("output.tls_ciphers must be a string with a cipher suite")).to_owned();
+        let tls_method = match config.lookup("output.tls_method").map_or(DEFAULT_TLS_METHOD, |x| x.as_str().
+            expect("output.tls_method must be a string with the TLS method")).to_lowercase().as_ref() {
+                "any" | "sslv23" => SslMethod::Sslv23,
+                "tlsv1" | "tlsv1.0" => SslMethod::Tlsv1,
+                "tlsv1.1" => SslMethod::Tlsv1_1,
+                "tlsv1.2" => SslMethod::Tlsv1_2,
+                _ => panic!(r#"TLS method must be "any", "TLSv1.0", "TLSv1.1" or "TLSv1.2""#)
+        };
+        let verify_peer = config.lookup("output.tls_verify_peer").map_or(DEFAULT_VERIFY_PEER, |x| x.as_bool().
+            expect("output.tls_verify_peer must be a boolean"));
+        let ca_file: Option<PathBuf> = config.lookup("output.tls_ca_file").map_or(None, |x|
+            Some(PathBuf::from(x.as_str().expect("output.tls_ca_file must be a path to a file"))));
+        let compression = config.lookup("output.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
+            expect("output.tls_compression must be a boolean"));
+        let timeout = config.lookup("output.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
+            expect("output.timeout must be an integer") as u64);
         let mut ctx = SslContext::new(tls_method).unwrap();
-        let ciphers = DEFAULT_CIPHERS;
+        if verify_peer == false {
+            ctx.set_verify(SSL_VERIFY_NONE, None);
+        } else {
+            ctx.set_verify_depth(TLS_VERIFY_DEPTH);
+            ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
+            if let Some(ca_file) = ca_file {
+                if ctx.set_CA_file(&ca_file).is_err() {
+                    panic!("Unable to read the trusted CA file");
+                }
+            }
+        }
+        let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+        if compression == false {
+            opts = opts | SSL_OP_NO_COMPRESSION;
+        }
+        ctx.set_options(opts);
         set_fs(&mut ctx);
+        ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).unwrap();
+        ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).unwrap();
         ctx.set_cipher_list(&ciphers).unwrap();
         let arc_ctx = Arc::new(ctx);
         let tls_config = TlsConfig {
