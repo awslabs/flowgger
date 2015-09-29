@@ -1,6 +1,8 @@
 use flowgger::config::Config;
+use flowgger::merger::Merger;
 use kafka::client::KafkaClient;
 use kafka::utils::ProduceMessage;
+use std::io::{stderr, Write};
 use std::process::exit;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -138,7 +140,10 @@ impl KafkaOutput {
 }
 
 impl Output for KafkaOutput {
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>) {
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
+        if merger.is_some() {
+            let _ = writeln!(stderr(), "Output framing is ignored with the Kafka output");
+        }
         for _ in 0..self.threads {
             let arx = arx.clone();
             let config = self.config.clone();

@@ -60,7 +60,6 @@ timeout = 3600
 
 ### Debug output
 type = "debug"
-debug_lf = true
 
 ### Kafka output
 # type = "kafka"
@@ -75,6 +74,8 @@ debug_lf = true
 
 ### JSON (GELF)
 format = "gelf"
+framing = "nul"
+
 # [output.gelf_extra]
 # x-header1 = "x-header1 value"
 # x-header2 = "x-header2 value"

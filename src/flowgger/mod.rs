@@ -2,6 +2,7 @@ mod config;
 mod decoder;
 mod encoder;
 mod input;
+mod merger;
 mod output;
 mod record;
 mod splitter;
@@ -14,6 +15,7 @@ use self::encoder::{Encoder, CapnpEncoder, GelfEncoder};
 use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 #[cfg(feature = "coroutines")]
 use self::input::{TcpCoInput, TlsCoInput};
+use self::merger::{Merger, LineMerger, NulMerger, SyslenMerger};
 use self::output::{Output, DebugOutput, KafkaOutput};
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
@@ -21,6 +23,7 @@ use std::sync::{Arc, Mutex};
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_OUTPUT_FORMAT: &'static str = "gelf";
+const DEFAULT_OUTPUT_FRAMING: &'static str = "noop";
 const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
@@ -89,13 +92,28 @@ pub fn start(config_file: &str) {
         "kafka" => Box::new(KafkaOutput::new(&config)) as Box<Output>,
         _ => panic!("Invalid output type: {}", output_type)
     };
-
+    let output_framing = match config.lookup("output.framing") {
+        Some(framing) => framing.as_str().expect("output.framing must be a string"),
+        None => match (output_format, output_type) {
+            ("capnp", _) | (_, "kafka") => "noop",
+            (_, "debug") => "line",
+            ("gelf", _) => "nul",
+            _ => DEFAULT_OUTPUT_FRAMING
+        }
+    };
+    let merger: Option<Box<Merger>> = match output_framing {
+        "noop" | "nop" | "none" => None,
+        "line" => Some(Box::new(LineMerger::new(&config)) as Box<Merger>),
+        "nul" => Some(Box::new(NulMerger::new(&config)) as Box<Merger>),
+        "syslen" => Some(Box::new(SyslenMerger::new(&config)) as Box<Merger>),
+        _ => panic!("Invalid framing type: {}", output_framing)
+    };
     let queue_size = config.lookup("input.queuesize").
         map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().
         expect("input.queuesize must be a size integer") as usize);
     let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(queue_size);
     let arx = Arc::new(Mutex::new(rx));
 
-    output.start(arx);
+    output.start(arx, merger);
     input.accept(tx, decoder, encoder);
 }

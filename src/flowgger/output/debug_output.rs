@@ -1,42 +1,37 @@
 use flowgger::config::Config;
+use flowgger::merger::Merger;
 use std::io::{stdout, Write};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use super::Output;
 
-const DEBUG_DEFAULT_LF: bool = true;
-
-pub struct DebugOutput {
-    lf: bool
-}
+pub struct DebugOutput;
 
 impl DebugOutput {
-    pub fn new(config: &Config) -> DebugOutput {
-        let lf = config.lookup("output.debug_lf").map_or(DEBUG_DEFAULT_LF, |x| x.as_bool().
-            expect("output.debug_lf must be a boolean") as bool);
-        DebugOutput {
-            lf: lf
-        }
+    pub fn new(_config: &Config) -> DebugOutput {
+        DebugOutput
     }
 }
 
 impl Output for DebugOutput {
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>) {
-        let lf = self.lf;
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
+        let merger = match merger {
+            Some(merger) => Some(merger.clone_boxed()),
+            None => None
+        };
         thread::spawn(move || {
             loop {
-                let bytes = match { arx.lock().unwrap().recv() } {
+                let mut bytes = match { arx.lock().unwrap().recv() } {
                     Ok(line) => line,
                     Err(_) => return
                 };
-                let out = String::from_utf8_lossy(&bytes);
-                if lf {
-                    println!("{}", out);
-                } else {
-                    print!("{}", out);
-                    let _ = stdout().flush();
+                if let Some(ref merger) = merger {
+                    merger.frame(&mut bytes);
                 }
+                let out = String::from_utf8_lossy(&bytes);
+                print!("{}", out);
+                let _ = stdout().flush();
             }
         });
     }
