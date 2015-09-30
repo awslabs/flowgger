@@ -103,9 +103,7 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
         ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
         if let Some(ca_file) = ca_file {
-            if ctx.set_CA_file(&ca_file).is_err() {
-                panic!("Unable to read the trusted CA file");
-            }
+            ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
         }
     }
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
@@ -114,9 +112,11 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
     }
     ctx.set_options(opts);
     set_fs(&mut ctx);
-    ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).unwrap();
-    ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).unwrap();
-    ctx.set_cipher_list(&ciphers).unwrap();
+    ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).
+        expect("Unable to read the TLS certificate");
+    ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).
+        expect("Unable to read the TLS key");
+    ctx.set_cipher_list(&ciphers).expect("Unsupported cipher suite");
     let arc_ctx = Arc::new(ctx);
     let tls_config = TlsConfig {
         framing: framing,

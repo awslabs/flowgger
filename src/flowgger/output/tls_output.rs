@@ -20,10 +20,8 @@ use std::thread;
 use std::time::Duration;
 use super::Output;
 
-const DEFAULT_CERT: &'static str = "flowgger.pem";
 const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
 const DEFAULT_COMPRESSION: bool = false;
-const DEFAULT_KEY: &'static str = "flowgger.pem";
 const DEFAULT_RECOVERY_DELAY_INIT: u32 = 1;
 const DEFAULT_RECOVERY_DELAY_MAX: u32 = 10_000;
 const DEFAULT_RECOVERY_PROBE_TIME: u32 = 30_000;
@@ -210,10 +208,10 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         as_slice().expect("output.connect must be a list").to_vec();
     let mut connect: Vec<String> = connect.iter().map(|x| x.as_str().
         expect("output.connect must be a list of strings").to_owned()).collect();
-    let cert = config.lookup("output.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
-        expect("output.tls_cert must be a path to a .pem file")).to_owned();
-    let key = config.lookup("output.tls_key").map_or(DEFAULT_KEY, |x| x.as_str().
-        expect("output.tls_key must be a path to a .pem file")).to_owned();
+    let cert: Option<PathBuf> = config.lookup("output.tls_cert").map_or(None, |x|
+        Some(PathBuf::from(x.as_str().expect("output.tls_cert must be a path to a .pem file"))));
+    let key: Option<PathBuf> = config.lookup("output.tls_key").map_or(None, |x|
+        Some(PathBuf::from(x.as_str().expect("output.tls_key must be a path to a .pem file"))));
     let ciphers = config.lookup("output.tls_ciphers").map_or(DEFAULT_CIPHERS, |x| x.as_str().
         expect("output.tls_ciphers must be a string with a cipher suite")).to_owned();
     let tls_method = match config.lookup("output.tls_method").map_or(DEFAULT_TLS_METHOD, |x| x.as_str().
@@ -253,9 +251,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
         ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
         if let Some(ca_file) = ca_file {
-            if ctx.set_CA_file(&ca_file).is_err() {
-                panic!("Unable to read the trusted CA file");
-            }
+            ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
         }
     }
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
@@ -264,9 +260,15 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     }
     ctx.set_options(opts);
     set_fs(&mut ctx);
-    ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).unwrap();
-    ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).unwrap();
-    ctx.set_cipher_list(&ciphers).unwrap();
+    if let Some(cert) = cert {
+        ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).
+            expect("Unable to read the TLS certificate");
+    }
+    if let Some(key) = key {
+        ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).
+            expect("Unable to read the TLS key");
+    }
+    ctx.set_cipher_list(&ciphers).expect("Unsupported cipher suite");
     let arc_ctx = Arc::new(ctx);
     rand::thread_rng().shuffle(&mut connect);
     let cluster = Cluster {
