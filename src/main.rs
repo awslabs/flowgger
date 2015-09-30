@@ -17,7 +17,7 @@ mod flowgger;
 pub use flowgger::record_capnp;
 
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
-const FLOWGGER_VERSION_STRING: &'static str = "0.1.7";
+const FLOWGGER_VERSION_STRING: &'static str = "0.1.8";
 
 fn main() {
     println!("Flowgger v{}", FLOWGGER_VERSION_STRING);
