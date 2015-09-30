@@ -90,7 +90,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.1.3"
-source = "git+https://github.com/zonyitoo/coio-rs#e2f6912c9cab18722314c0a4d5d854cf5eeb2c9d"
+source = "git+https://github.com/zonyitoo/coio-rs#07fff30e7e454e41f5af5dde47d75317cb35db64"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "context 0.1.2 (git+https://github.com/zonyitoo/context-rs.git)",
