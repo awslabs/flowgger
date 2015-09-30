@@ -39,7 +39,6 @@ pub struct TlsOutput {
     threads: u32
 }
 
-#[derive(Clone)]
 struct Cluster {
     connect: Vec<String>,
     idx: usize
@@ -209,7 +208,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         expect("output.tls_threads must be a 32-bit integer") as u32);
     let connect = config.lookup("output.connect").expect("output.connect is required").
         as_slice().expect("output.connect must be a list").to_vec();
-    let connect: Vec<String> = connect.iter().map(|x| x.as_str().
+    let mut connect: Vec<String> = connect.iter().map(|x| x.as_str().
         expect("output.connect must be a list of strings").to_owned()).collect();
     let cert = config.lookup("output.tls_cert").map_or(DEFAULT_CERT, |x| x.as_str().
         expect("output.tls_cert must be a path to a .pem file")).to_owned();
@@ -269,6 +268,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).unwrap();
     ctx.set_cipher_list(&ciphers).unwrap();
     let arc_ctx = Arc::new(ctx);
+    rand::thread_rng().shuffle(&mut connect);
     let cluster = Cluster {
         connect: connect,
         idx: 0
