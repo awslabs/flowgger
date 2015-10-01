@@ -28,7 +28,7 @@ impl Input for TcpCoInput {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         let tcp_config = self.tcp_config.clone();
         let threads = tcp_config.threads;
-        let _ = Scheduler::new().with_workers(threads).run(move|| {
+        Scheduler::new().with_workers(threads).run(move|| {
             for client in listener.incoming() {
                 match client {
                     Ok((client, _addr)) => {
@@ -42,7 +42,7 @@ impl Input for TcpCoInput {
                     Err(_) => { }
                 }
             }
-        });
+        }).unwrap();
     }
 }
 

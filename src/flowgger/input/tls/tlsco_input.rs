@@ -29,7 +29,7 @@ impl Input for TlsCoInput {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         let tls_config = self.tls_config.clone();
         let threads = tls_config.threads;
-        let _ = Scheduler::new().with_workers(threads).run(move|| {
+        Scheduler::new().with_workers(threads).run(move|| {
             for client in listener.incoming() {
                 match client {
                     Ok((client, _addr)) => {
@@ -43,7 +43,7 @@ impl Input for TlsCoInput {
                     Err(_) => { }
                 }
             }
-        });
+        }).unwrap();
     }
 }
 
