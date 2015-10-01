@@ -2,7 +2,7 @@ use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
-use coio;
+use coio::Scheduler;
 use coio::net::{TcpListener, TcpStream};
 use std::io::BufReader;
 use std::sync::mpsc::SyncSender;
@@ -28,14 +28,14 @@ impl Input for TcpCoInput {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         let tcp_config = self.tcp_config.clone();
         let threads = tcp_config.threads;
-        coio::spawn(move|| {
+        let _ = Scheduler::new().with_workers(threads).run(move|| {
             for client in listener.incoming() {
                 match client {
                     Ok((client, _addr)) => {
                         let tx = tx.clone();
                         let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                         let tcp_config = tcp_config.clone();
-                        coio::spawn(move|| {
+                        Scheduler::spawn(move|| {
                             handle_client(client, tx, decoder, encoder, tcp_config);
                         });
                     }
@@ -43,7 +43,6 @@ impl Input for TcpCoInput {
                 }
             }
         });
-        coio::run(threads);
     }
 }
 
