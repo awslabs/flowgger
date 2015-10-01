@@ -57,7 +57,7 @@ impl Decoder for GelfDecoder {
                         Value::Null => SDValue::Null,
                         _ => return Err("Invalid value type in structured data")
                     };
-                    let name = if name.starts_with("_") {
+                    let name = if name.starts_with('_') {
                         name.to_owned()
                     } else {
                         format!("_{}", name)

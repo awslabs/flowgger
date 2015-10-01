@@ -1,8 +1,10 @@
 mod capnp_encoder;
 mod gelf_encoder;
+mod ltsv_encoder;
 
 pub use self::capnp_encoder::CapnpEncoder;
 pub use self::gelf_encoder::GelfEncoder;
+pub use self::ltsv_encoder::LTSVEncoder;
 
 use flowgger::record::Record;
 

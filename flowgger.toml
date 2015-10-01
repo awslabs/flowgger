@@ -109,6 +109,14 @@ format = "gelf"
 # x-header1 = "x-header1 value"
 # x-header2 = "x-header2 value"
 
+### LTSV
+# format = "ltsv"
+# framing = "line"
+# [output.ltsv_extra]
+# x-header1 = "x-header1 value"
+# x-header2 = "x-header2 value"
+
 ### Cap'n Proto
 # format = "capnp"
 # framing = "noop"
+

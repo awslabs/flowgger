@@ -55,7 +55,7 @@ enum BOM {
 
 impl BOM {
     fn parse<'a>(line: &'a str, sep: &str) -> Result<(BOM, &'a str), &'static str> {
-        if line.starts_with("\u{feff}") {
+        if line.starts_with('\u{feff}') {
             Ok((BOM::UTF8, &line[3..]))
         } else if line.starts_with(sep) {
             Ok((BOM::NONE, line))
@@ -66,7 +66,7 @@ impl BOM {
 }
 
 fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
-    if ! line.starts_with("<") {
+    if ! line.starts_with('<') {
         return Err("The priority should be inside brackets")
     }
     let mut parts = line[1..].splitn(2, '>');

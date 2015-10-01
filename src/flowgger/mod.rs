@@ -11,7 +11,7 @@ pub mod record_capnp;
 
 use self::config::Config;
 use self::decoder::{Decoder, GelfDecoder, InvalidDecoder, LTSVDecoder, RFC5424Decoder};
-use self::encoder::{Encoder, CapnpEncoder, GelfEncoder};
+use self::encoder::{Encoder, CapnpEncoder, GelfEncoder, LTSVEncoder};
 use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 #[cfg(feature = "coroutines")]
 use self::input::{TcpCoInput, TlsCoInput};
@@ -83,6 +83,7 @@ pub fn start(config_file: &str) {
     let encoder = match output_format {
         "capnp" => Box::new(CapnpEncoder::new(&config)) as Box<Encoder + Send>,
         "gelf" | "json" => Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>,
+        "ltsv" => Box::new(LTSVEncoder::new(&config)) as Box<Encoder + Send>,
         _ => panic!("Unknown output format: {}", output_format)
     };
     let output_type = config.lookup("output.type").
@@ -97,7 +98,7 @@ pub fn start(config_file: &str) {
         Some(framing) => framing.as_str().expect("output.framing must be a string"),
         None => match (output_format, output_type) {
             ("capnp", _) | (_, "kafka") => "noop",
-            (_, "debug") => "line",
+            (_, "debug") | ("ltsv", _) => "line",
             ("gelf", _) => "nul",
             _ => DEFAULT_OUTPUT_FRAMING
         }
