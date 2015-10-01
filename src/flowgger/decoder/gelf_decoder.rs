@@ -1,3 +1,4 @@
+use chrono::UTC;
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue, SEVERITY_MAX};
 use serde_json::de;
@@ -67,7 +68,7 @@ impl Decoder for GelfDecoder {
             }
         }
         let record = Record {
-            ts: try!(ts.ok_or("Missing timestamp")),
+            ts: ts.unwrap_or_else(|| UTC::now().timestamp()),
             hostname: try!(hostname.ok_or("Missing hostname")),
             facility: None,
             severity: severity,
