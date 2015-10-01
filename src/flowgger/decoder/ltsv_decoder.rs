@@ -170,8 +170,15 @@ fn english_time_to_unix(et: &str) -> Result<i64, &'static str> {
     }
 }
 
+fn unix_strtime_to_unix(et: &str) -> Result<i64, &'static str> {
+    match et.parse::<i64>() {
+        Ok(ts) => Ok(ts),
+        Err(_) => Err("Unable to parse the date")
+    }
+}
+
 fn parse_ts(line: &str) -> Result<i64, &'static str> {
-    rfc3339_to_unix(line).or(english_time_to_unix(line))
+    rfc3339_to_unix(line).or(unix_strtime_to_unix(line)).or(english_time_to_unix(line))
 }
 
 #[test]
