@@ -1,6 +1,6 @@
 [package]
 name = "flowgger"
-version = "0.1.8"
+version = "0.1.9"
 authors = ["Frank Denis <github@pureftpd.org>"]
 build = "build.rs"
 
