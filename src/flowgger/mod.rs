@@ -17,6 +17,7 @@ use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{Merger, LineMerger, NulMerger, SyslenMerger};
 use self::output::{Output, DebugOutput, KafkaOutput, TlsOutput};
+use std::error::Error;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
 
@@ -63,7 +64,7 @@ fn get_input(input_type: &str, config: &Config) -> Box<Input> {
 pub fn start(config_file: &str) {
     let config = match Config::from_path(config_file) {
         Ok(config) => config,
-        Err(_) => panic!("Unable to read the config file [{}]", config_file)
+        Err(e) => panic!("Unable to read the config file [{}]: {}", config_file, e.description())
     };
     let input_format = config.lookup("input.format").
         map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().expect("input.format must be a string"));

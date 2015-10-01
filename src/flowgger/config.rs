@@ -20,7 +20,8 @@ impl Config {
     pub fn from_string(toml: &str) -> Result<Config, Error> {
         let config = match toml.parse() {
             Ok(config) => config,
-            Err(_) => return Err(Error::new(ErrorKind::InvalidData, "Syntax error"))
+            Err(_) => return Err(Error::new(ErrorKind::InvalidData,
+                "Syntax error - config file is not valid TOML"))
         };
         Ok(Config {
             config: config
