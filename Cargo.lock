@@ -1,11 +1,11 @@
 [root]
 name = "flowgger"
-version = "0.1.8"
+version = "0.1.9"
 dependencies = [
  "capnp 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "capnpc 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "clippy 0.0.17 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy 0.0.18 (git+https://github.com/Manishearth/rust-clippy)",
  "coio 0.1.3 (git+https://github.com/zonyitoo/coio-rs)",
  "kafka 0.1.6 (git+https://github.com/jedisct1/kafka-rust.git)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -73,8 +73,8 @@ dependencies = [
 
 [[package]]
 name = "clippy"
-version = "0.0.17"
-source = "git+https://github.com/Manishearth/rust-clippy#7eb08962716abc83226dfa7d3f4ac1bc48f39ba0"
+version = "0.0.18"
+source = "git+https://github.com/Manishearth/rust-clippy#147d3f5dffc2fb0b252ff72bbeb31c062f4ce87f"
 dependencies = [
  "unicode-normalization 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
