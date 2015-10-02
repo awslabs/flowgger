@@ -19,7 +19,7 @@ RUN set -x && \
     tar xzf libressl.tar.gz && \
     rm -f libressl.tar.gz && \
     cd libressl-${LIBRESSL_VERSION} && \
-    ./configure --disable-dependency-tracking --prefix=/opt/libressl && \
+    ./configure --disable-shared --with-pic --disable-dependency-tracking --prefix=/opt/libressl && \
     make check && make install && \
     rm -fr /opt/libressl/share/man && \
     echo /opt/libressl/lib > /etc/ld.so.conf.d/libressl.conf && ldconfig && \
@@ -36,11 +36,6 @@ RUN set -x && \
     mkdir -p /opt/flowgger/etc /opt/flowgger/bin && \
     mv target/release/flowgger /opt/flowgger/bin/ && \
     rm -fr /tmp/flowgger
-
-COPY 10-keepalive.conf /etc/sysctl.d/
-
-RUN set -x && \
-    service procps start
 
 COPY flowgger.sh /etc/service/flowgger/run
 
