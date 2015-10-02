@@ -34,6 +34,7 @@ RUN set -x && \
     cd flowgger && \
     cargo build --release --features='ecdh coroutines' && \
     mkdir -p /opt/flowgger/etc /opt/flowgger/bin && \
+    strip target/release/flowgger && \
     mv target/release/flowgger /opt/flowgger/bin/ && \
     rm -fr /tmp/flowgger
 
