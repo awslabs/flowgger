@@ -90,7 +90,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.1.3"
-source = "git+https://github.com/zonyitoo/coio-rs#cca24925160c728cfabbd4bf2cb07eb4e2d3e28f"
+source = "git+https://github.com/zonyitoo/coio-rs#d027b8f66c4361032818881101ad74dba4d725ff"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "context 0.1.2 (git+https://github.com/zonyitoo/context-rs.git)",
@@ -104,7 +104,7 @@ dependencies = [
 [[package]]
 name = "context"
 version = "0.1.2"
-source = "git+https://github.com/zonyitoo/context-rs.git#a594f1e142f71270670c972523116f1b0d578c8c"
+source = "git+https://github.com/zonyitoo/context-rs.git#013a0c31d3a12e0c7cac34426d1862bb8f7c2022"
 dependencies = [
  "gcc 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -213,7 +213,7 @@ dependencies = [
 [[package]]
 name = "mio"
 version = "0.5.0-pre"
-source = "git+https://github.com/carllerche/mio.git#e3ac615bc4dce781a73d58345e934c8d046eb41a"
+source = "git+https://github.com/carllerche/mio.git#629141abde2b8bafcd5f89e67a9e426f442983c6"
 dependencies = [
  "bytes 0.2.10 (git+https://github.com/carllerche/bytes?rev=7edb577d0a)",
  "clock_ticks 0.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
