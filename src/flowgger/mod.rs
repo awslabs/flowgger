@@ -16,7 +16,9 @@ use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 #[cfg(feature = "coroutines")]
 use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{Merger, LineMerger, NulMerger, SyslenMerger};
-use self::output::{Output, DebugOutput, KafkaOutput, TlsOutput};
+use self::output::{Output, DebugOutput, TlsOutput};
+#[cfg(not(feature = "without_kafka"))]
+use self::output::KafkaOutput;
 use std::error::Error;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
 use std::sync::{Arc, Mutex};
@@ -25,7 +27,10 @@ const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_OUTPUT_FORMAT: &'static str = "gelf";
 const DEFAULT_OUTPUT_FRAMING: &'static str = "noop";
+#[cfg(not(feature = "without_kafka"))]
 const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
+#[cfg(feature = "without_kafka")]
+const DEFAULT_OUTPUT_TYPE: &'static str = "tls";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
 #[cfg(feature = "coroutines")]
@@ -61,6 +66,25 @@ fn get_input(input_type: &str, config: &Config) -> Box<Input> {
     }
 }
 
+#[cfg(not(feature = "without_kafka"))]
+fn get_output_kafka(config: &Config) -> Box<Output> {
+    Box::new(KafkaOutput::new(&config)) as Box<Output>
+}
+
+#[cfg(feature = "without_kafka")]
+fn get_output_kafka(_config: &Config) -> ! {
+    panic!("Support for Kafka hasn't been compiled in")
+}
+
+fn get_output(output_type: &str, config: &Config) -> Box<Output> {
+    match output_type {
+        "stdout" | "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
+        "kafka" => get_output_kafka(&config),
+        "tls" | "syslog-tls" => Box::new(TlsOutput::new(&config)) as Box<Output>,
+        _ => panic!("Invalid output type: {}", output_type)
+    }
+}
+
 pub fn start(config_file: &str) {
     let config = match Config::from_path(config_file) {
         Ok(config) => config,
@@ -89,12 +113,7 @@ pub fn start(config_file: &str) {
     };
     let output_type = config.lookup("output.type").
         map_or(DEFAULT_OUTPUT_TYPE, |x| x.as_str().expect("output.type must be a string"));
-    let output = match output_type {
-        "stdout" | "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
-        "kafka" => Box::new(KafkaOutput::new(&config)) as Box<Output>,
-        "tls" | "syslog-tls" => Box::new(TlsOutput::new(&config)) as Box<Output>,
-        _ => panic!("Invalid output type: {}", output_type)
-    };
+    let output = get_output(output_type, &config);
     let output_framing = match config.lookup("output.framing") {
         Some(framing) => framing.as_str().expect("output.framing must be a string"),
         None => match (output_format, output_type) {

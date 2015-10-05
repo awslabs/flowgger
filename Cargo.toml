@@ -9,6 +9,7 @@ capnp-recompile = ["capnpc"]
 cargo-clippy = ["clippy"]
 coroutines = ["coio"]
 ecdh = ["openssl/ecdh_auto"]
+without_kafka = [ ]
 
 [build-dependencies.capnpc]
 version = "*"
