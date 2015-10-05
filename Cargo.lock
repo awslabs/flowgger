@@ -142,7 +142,7 @@ dependencies = [
 [[package]]
 name = "kafka"
 version = "0.1.6"
-source = "git+https://github.com/jedisct1/kafka-rust.git#c20e2d91f464b1509262c620f59e550bca481bce"
+source = "git+https://github.com/jedisct1/kafka-rust.git#99273b2d1e1c1999d980c5b0b0b3c63ae5be5cf5"
 dependencies = [
  "byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",
