@@ -1,5 +1,6 @@
 use flowgger::config::Config;
 use flowgger::merger::Merger;
+use kafka::compression::Compression;
 use kafka::client::KafkaClient;
 use kafka::utils::ProduceMessage;
 use std::io::{stderr, Write};
@@ -11,6 +12,7 @@ use super::Output;
 
 const KAFKA_DEFAULT_ACKS: i16 = 0;
 const KAFKA_DEFAULT_COALESCE: usize = 1;
+const KAFKA_DEFAULT_COMPRESSION: &'static str = "none";
 const KAFKA_DEFAULT_THREADS: u32 = 1;
 const KAFKA_DEFAULT_TIMEOUT: i32 = 60000;
 
@@ -25,7 +27,8 @@ struct KafkaConfig {
     brokers: Vec<String>,
     topic: String,
     timeout: i32,
-    coalesce: usize
+    coalesce: usize,
+    compression: Compression
 }
 
 struct KafkaWorker {
@@ -45,6 +48,7 @@ impl KafkaWorker {
                 exit(1);
             }
         }
+        client.set_compression(config.compression);
         let queue = Vec::with_capacity(config.coalesce);
         KafkaWorker {
             arx: arx,
@@ -125,12 +129,21 @@ impl KafkaOutput {
         let coalesce = config.lookup("output.kafka_coalesce").
             map_or(KAFKA_DEFAULT_COALESCE, |x| x.as_integer().
                 expect("output.kafka_coalesce must be a size integer") as usize);
+        let compression = match config.lookup("output.kafka_compression").
+            map_or(KAFKA_DEFAULT_COMPRESSION, |x| x.as_str().
+            expect("output.kafka_compresion must be a string")).to_lowercase().as_ref() {
+            "none" => Compression::NONE,
+            "gzip" => Compression::GZIP,
+            "snappy" => Compression::SNAPPY,
+            _ => panic!("Unsupported compression method")
+        };
         let kafka_config = KafkaConfig {
             acks: acks,
             brokers: brokers,
             topic: topic,
             timeout: timeout,
-            coalesce: coalesce
+            coalesce: coalesce,
+            compression: compression
         };
         KafkaOutput {
             config: kafka_config,

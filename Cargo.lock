@@ -90,7 +90,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.1.3"
-source = "git+https://github.com/zonyitoo/coio-rs#d027b8f66c4361032818881101ad74dba4d725ff"
+source = "git+https://github.com/zonyitoo/coio-rs#21d9aaaaaa842a44c012c012fad776ddecc07692"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "context 0.1.2 (git+https://github.com/zonyitoo/context-rs.git)",
@@ -142,7 +142,7 @@ dependencies = [
 [[package]]
 name = "kafka"
 version = "0.1.6"
-source = "git+https://github.com/jedisct1/kafka-rust.git#99273b2d1e1c1999d980c5b0b0b3c63ae5be5cf5"
+source = "git+https://github.com/jedisct1/kafka-rust.git#dd2219ce8b4c5a3396873856cf476c53fad174a0"
 dependencies = [
  "byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)",

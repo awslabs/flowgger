@@ -80,6 +80,7 @@ type = "stdout"
 # kafka_coalesce = 1000
 # kafka_timeout = 60000
 # kafka_acks = 0
+# kafka_compression = "none"
 
 ### TLS output
 # type = "tls"
