@@ -102,7 +102,7 @@ impl RedisWorker {
 impl Input for RedisInput {
     fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
         let mut jids = Vec::new();
-        for tid in (0..self.threads) {
+        for tid in 0..self.threads {
             let config = self.config.clone();
             let (encoder, decoder) = (encoder.clone_boxed(), decoder.clone_boxed());
             let tx = tx.clone();

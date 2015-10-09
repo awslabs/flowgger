@@ -74,7 +74,7 @@ dependencies = [
 [[package]]
 name = "clippy"
 version = "0.0.19"
-source = "git+https://github.com/Manishearth/rust-clippy#3e475e9588bbd0235a85b2b30b42e34b0bbdf36a"
+source = "git+https://github.com/Manishearth/rust-clippy#6f84e3551bc3b236c4800a026620a790dff95c21"
 dependencies = [
  "unicode-normalization 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -90,7 +90,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.1.3"
-source = "git+https://github.com/zonyitoo/coio-rs#8214a30d080599b4a27fe368a03de416052583ba"
+source = "git+https://github.com/zonyitoo/coio-rs#16dc8746cd2129aff513c1f41a92536fe70050c3"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "context 0.1.2 (git+https://github.com/zonyitoo/context-rs.git)",
@@ -106,7 +106,7 @@ name = "context"
 version = "0.1.2"
 source = "git+https://github.com/zonyitoo/context-rs.git#013a0c31d3a12e0c7cac34426d1862bb8f7c2022"
 dependencies = [
- "gcc 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "memmap 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -132,7 +132,7 @@ dependencies = [
 
 [[package]]
 name = "gcc"
-version = "0.3.17"
+version = "0.3.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "advapi32-sys 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -206,7 +206,7 @@ name = "miniz-sys"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "gcc 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -272,7 +272,7 @@ name = "openssl-sys"
 version = "0.6.6"
 source = "git+https://github.com/jedisct1/rust-openssl.git#8de77414a436d3bf18beb4a4c6ca8e4d5480b159"
 dependencies = [
- "gcc 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "libressl-pnacl-sys 2.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "pkg-config 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
