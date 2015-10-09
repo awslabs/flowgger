@@ -3,8 +3,10 @@ use openssl::bn::BigNum;
 use openssl::dh::DH;
 use openssl::ssl::*;
 use openssl::x509::X509FileType;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use openssl::x509::X509;
 
 pub mod tls_input;
 #[cfg(feature = "coroutines")]
@@ -86,6 +88,8 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         Some(PathBuf::from(x.as_str().expect("input.tls_ca_file must be a path to a file"))));
     let compression = config.lookup("input.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
         expect("input.tls_compression must be a boolean"));
+    let extra_chain_path: Option<PathBuf> = config.lookup("input.tls_cert_chain").map_or(None, |x|
+        Some(PathBuf::from(x.as_str().expect("input.tls_extra_chain_path must be a path to a file"))));
     let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
         expect("input.timeout must be an integer") as u64);
     let framing = if config.lookup("input.framed").map_or(false, |x| x.as_bool().
@@ -106,6 +110,14 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
         }
     }
+    if let Some(extra_chain_path) = extra_chain_path {
+         let mut extra_chain_file = File::open(extra_chain_path.as_path())
+             .ok()
+             .expect("Failed to open the extra chain cert file");
+         let extra_chain_cert = X509::from_pem(&mut extra_chain_file).ok().expect("unable to load the provided extra chain cert");
+         ctx.add_extra_chain_cert(&extra_chain_cert).expect("Unable to read the certificate chain");
+    }
+
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
     if compression == false {
         opts = opts | SSL_OP_NO_COMPRESSION;
