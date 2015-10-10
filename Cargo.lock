@@ -93,7 +93,7 @@ version = "0.1.3"
 source = "git+https://github.com/zonyitoo/coio-rs#16dc8746cd2129aff513c1f41a92536fe70050c3"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "context 0.1.2 (git+https://github.com/zonyitoo/context-rs.git)",
+ "context 0.1.3 (git+https://github.com/zonyitoo/context-rs.git)",
  "deque 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -103,14 +103,13 @@ dependencies = [
 
 [[package]]
 name = "context"
-version = "0.1.2"
-source = "git+https://github.com/zonyitoo/context-rs.git#013a0c31d3a12e0c7cac34426d1862bb8f7c2022"
+version = "0.1.3"
+source = "git+https://github.com/zonyitoo/context-rs.git#2300979d037805c300c242d28e3c84867ed4c916"
 dependencies = [
  "gcc 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "memmap 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "simd 0.1.0 (git+https://github.com/huonw/simd)",
 ]
 
 [[package]]
@@ -340,11 +339,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "byteorder 0.3.13 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "simd"
-version = "0.1.0"
-source = "git+https://github.com/huonw/simd#be4242121e081206d8769cc60a7d2fa8e23cdc68"
 
 [[package]]
 name = "slab"
