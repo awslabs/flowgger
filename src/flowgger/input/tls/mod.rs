@@ -88,8 +88,8 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         Some(PathBuf::from(x.as_str().expect("input.tls_ca_file must be a path to a file"))));
     let compression = config.lookup("input.tls_compression").map_or(DEFAULT_COMPRESSION, |x| x.as_bool().
         expect("input.tls_compression must be a boolean"));
-    let cert_chain_file_path: Option<PathBuf> = config.lookup("input.tls_cert_chain").map_or(None, |x|
-        Some(PathBuf::from(x.as_str().expect("input.tls_cert_chain must be a path to a file"))));
+    let extra_chain_path: Option<PathBuf> = config.lookup("input.tls_cert_chain").map_or(None, |x|
+        Some(PathBuf::from(x.as_str().expect("input.tls_extra_chain_path must be a path to a file"))));
     let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| x.as_integer().
         expect("input.timeout must be an integer") as u64);
     let framing = if config.lookup("input.framed").map_or(false, |x| x.as_bool().
@@ -106,16 +106,16 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
     } else {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
         ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
-    } 
-    if let Some(ca_file) = ca_file {
+        if let Some(ca_file) = ca_file {
             ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
+        }
     }
-    if let Some(cert_chain_file_path) = cert_chain_file_path {
-         let mut cert_chain_file = File::open(cert_chain_file_path.as_path())
+    if let Some(extra_chain_path) = extra_chain_path {
+         let mut extra_chain_file = File::open(extra_chain_path.as_path())
              .ok()
              .expect("Failed to open the extra chain cert file");
-         let cert_chain_x509 = X509::from_pem(&mut cert_chain_file).ok().expect("unable to load the provided extra chain cert");
-         ctx.add_extra_chain_cert(&cert_chain_x509).expect("Unable to read the certificate chain");
+         let extra_chain_cert = X509::from_pem(&mut extra_chain_file).ok().expect("unable to load the provided extra chain cert");
+         ctx.add_extra_chain_cert(&extra_chain_cert).expect("Unable to read the certificate chain");
     }
 
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
