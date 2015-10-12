@@ -97,14 +97,14 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
     let framing = config.lookup("input.framing").map_or(framing, |x| x.as_str().
         expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)).to_owned();
     let mut ctx = SslContext::new(tls_method).unwrap();
+    if let Some(ca_file) = ca_file {
+        ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
+    }
     if verify_peer == false {
         ctx.set_verify(SSL_VERIFY_NONE, None);
     } else {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
         ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
-        if let Some(ca_file) = ca_file {
-            ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
-        }
     }
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
     if compression == false {
@@ -112,8 +112,8 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
     }
     ctx.set_options(opts);
     set_fs(&mut ctx);
-    ctx.set_certificate_file(&Path::new(&cert), X509FileType::PEM).
-        expect("Unable to read the TLS certificate");
+    ctx.set_certificate_chain_file(&Path::new(&cert), X509FileType::PEM).
+        expect("Unable to read the TLS certificate chain");
     ctx.set_private_key_file(&Path::new(&key), X509FileType::PEM).
         expect("Unable to read the TLS key");
     ctx.set_cipher_list(&ciphers).expect("Unsupported cipher suite");
