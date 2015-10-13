@@ -37,7 +37,7 @@ optional = true
 git = "https://github.com/jedisct1/kafka-rust.git"
 
 [dependencies.openssl]
-git = "https://github.com/jedisct1/rust-openssl.git"
+git = "https://github.com/sfackler/rust-openssl.git"
 features = ["tlsv1_2", "tlsv1_1"]
 
 [profile.dev]
