@@ -10,7 +10,7 @@ the result into a remote data store.
 Flowgger is designed to be:
 - Paranoid: it carefully validates input data to prevent injection of
 malformed/incomplete records down the chain.
-- Safe: written in Rust, without any `unsafe` code (or ![nearly](https://github.com/jedisct1/flowgger/blob/master/src/flowgger/merger/syslen_merger.rs#L20)).
+- Safe: written in Rust, without any `unsafe` code (or [nearly](https://github.com/jedisct1/flowgger/blob/master/src/flowgger/merger/syslen_merger.rs#L20)).
 - Fast: even though messages are systematically parsed and validated, Flowgger
 is orders of magnitude faster than Logstash and Fluentd.
 - Standalone: it comes as a single executable file, and doesn't require a JVM.
