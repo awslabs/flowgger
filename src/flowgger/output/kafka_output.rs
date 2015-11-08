@@ -1,7 +1,6 @@
 use flowgger::config::Config;
 use flowgger::merger::Merger;
-use kafka::compression::Compression;
-use kafka::client::KafkaClient;
+use kafka::client::{Compression, KafkaClient};
 use kafka::utils::ProduceMessage;
 use std::io::{stderr, Write};
 use std::process::exit;
