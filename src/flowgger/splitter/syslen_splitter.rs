@@ -1,6 +1,6 @@
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use std::io::{stderr, ErrorKind, Read, Write, BufRead, BufReader};
+use std::io::{stderr, Read, Write, BufRead, BufReader};
 use std::str;
 use std::sync::mpsc::SyncSender;
 use super::Splitter;
@@ -11,28 +11,24 @@ impl<T: Read> Splitter<T> for SyslenSplitter {
     fn run(&self, buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) {
         let mut buf_reader = buf_reader;
         loop {
-            if let Err(e) = read_msglen(&mut buf_reader) {
+            let size = match read_msglen(&mut buf_reader) {
+                Ok(size) => size,
+                Err(_) => {
+                    let _ = writeln!(stderr(), "Can't read message's length");
+                    return
+                },
+            };
+            println!("{}", size);
+            let mut buffer = vec![0; size];
+            if let Err(e) = buf_reader.read_exact(&mut buffer) {
                 let _ = writeln!(stderr(), "{}", e);
                 return;
             }
-            let mut line = String::new();
-            match buf_reader.read_line(&mut line) {
-                Ok(_) => { },
-                Err(e) => match e.kind() {
-                    ErrorKind::Interrupted => continue,
-                    ErrorKind::InvalidInput | ErrorKind::InvalidData => {
-                        let _ = writeln!(stderr(), "Invalid UTF-8 input");
-                        continue;
-                    },
-                    ErrorKind::WouldBlock => {
-                        let _ = writeln!(stderr(), "Client hasn't sent any data for a while - Closing idle connection");
-                        return
-                    },
-                    _ => return
-                }
-            }
-            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
-                let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
+
+            let buffer = String::from_utf8(buffer).unwrap();
+
+            if let Err(e) = handle_line(&buffer, &tx, &decoder, &encoder) {
+                let _ = writeln!(stderr(), "{}: [{}]", e, buffer.trim());
             }
         }
     }
