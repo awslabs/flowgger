@@ -18,7 +18,6 @@ impl<T: Read> Splitter<T> for SyslenSplitter {
                     return
                 },
             };
-            println!("{}", size);
             let mut buffer = vec![0; size];
             if let Err(e) = buf_reader.read_exact(&mut buffer) {
                 let _ = writeln!(stderr(), "{}", e);
