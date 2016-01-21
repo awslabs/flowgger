@@ -1,4 +1,3 @@
-#![feature(read_exact)]
 #[macro_use]
 
 extern crate capnp;
