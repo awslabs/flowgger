@@ -12,7 +12,6 @@ use rand;
 use rand::Rng;
 use rand::distributions::{IndependentSample, Range};
 
-use std::error::Error;
 use std::io;
 use std::io::{stderr, BufWriter, ErrorKind, Write};
 use std::net::TcpStream;
