@@ -6,6 +6,7 @@ use flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_M
 use record_capnp;
 use std::io::{stderr, ErrorKind, Read, Write, BufReader};
 use std::sync::mpsc::SyncSender;
+use std::thread;
 use super::Splitter;
 
 pub struct CapnpSplitter;
@@ -15,18 +16,20 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
         let mut buf_reader = buf_reader;
         loop {
             let message_reader = match capnp::serialize::read_message(&mut buf_reader, ReaderOptions::new()) {
-                Err(capnp::Error::Decode { description, detail: _ }) => {
-                    let _ = writeln!(stderr(), "Capnp decoding error: {}", description);
-                    break;
-                }
-                Err(capnp::Error::Io(e)) => {
-                    match e.kind() {
-                        ErrorKind::Interrupted => continue,
-                        ErrorKind::WouldBlock => {
+                Err(e) => {
+                    match e.kind {
+                        capnp::ErrorKind::Failed | capnp::ErrorKind::Unimplemented => {
+                            let _ = writeln!(stderr(), "Capnp decoding error: {}", e.description);
+                            return
+                        }
+                        capnp::ErrorKind::Overloaded => {
+                            thread::sleep_ms(250);
+                            continue
+                        }
+                        capnp::ErrorKind::Disconnected => {
                             let _ = writeln!(stderr(), "Client hasn't sent any data for a while - Closing idle connection");
                             return
-                        },
-                        _ => return
+                        }
                     }
                 }
                 Ok(message_reader) => message_reader

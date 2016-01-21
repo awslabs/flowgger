@@ -3,7 +3,10 @@ use flowgger::config::Config;
 use flowgger::merger::Merger;
 use openssl::bn::BigNum;
 use openssl::dh::DH;
-use openssl::ssl::*;
+use openssl::ssl::{SslContext, SslStream, SslMethod, SSL_VERIFY_NONE,
+                   SSL_VERIFY_PEER, SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
+                   SSL_OP_NO_COMPRESSION, SSL_OP_CIPHER_SERVER_PREFERENCE,
+                   SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION};
 use openssl::x509::X509FileType;
 use rand;
 use rand::Rng;
