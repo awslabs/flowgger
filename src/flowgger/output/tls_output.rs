@@ -140,7 +140,7 @@ impl TlsWorker {
                 let mut rng = rand::thread_rng();
                 recovery_delay += between.ind_sample(&mut rng);
             }
-            thread::sleep_ms(recovery_delay.round() as u32);
+            thread::sleep(Duration::from_millis(recovery_delay.round() as u64));
             let _ = writeln!(stderr(), "Attempting to reconnect");
         }
     }

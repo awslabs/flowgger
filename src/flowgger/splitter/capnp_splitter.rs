@@ -7,6 +7,7 @@ use record_capnp;
 use std::io::{stderr, Read, Write, BufReader};
 use std::sync::mpsc::SyncSender;
 use std::thread;
+use std::time::Duration;
 use super::Splitter;
 
 pub struct CapnpSplitter;
@@ -23,7 +24,7 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
                             return
                         }
                         capnp::ErrorKind::Overloaded => {
-                            thread::sleep_ms(250);
+                            thread::sleep(Duration::from_millis(250));
                             continue
                         }
                         capnp::ErrorKind::Disconnected => {
