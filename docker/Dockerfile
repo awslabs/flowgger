@@ -7,8 +7,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get install -y \
     libsnappy-dev
 
-ENV LIBRESSL_VERSION 2.2.5
-ENV LIBRESSL_SHA256 e3caded0469d8dc64f4ca2fe8e499ada4dd014e84d1c5a71818d39e54e6c914b
+ENV LIBRESSL_VERSION 2.2.6
+ENV LIBRESSL_SHA256 1ee19994cffd047d40f63ba149115dba18a681b0cc923beec301bf424b58d64f
 ENV LIBRESSL_DOWNLOAD_URL http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz
 
 RUN set -x && \
