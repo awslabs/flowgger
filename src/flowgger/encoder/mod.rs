@@ -13,7 +13,9 @@ pub trait CloneBoxedEncoder {
 }
 
 impl<T: Encoder + Clone + Send> CloneBoxedEncoder for T {
-    fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a> where Self: 'a {
+    fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a>
+        where Self: 'a
+    {
         Box::new(self.clone())
     }
 }
@@ -24,6 +26,6 @@ impl Clone for Box<Encoder> {
     }
 }
 
-pub trait Encoder : CloneBoxedEncoder {
+pub trait Encoder: CloneBoxedEncoder {
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str>;
 }

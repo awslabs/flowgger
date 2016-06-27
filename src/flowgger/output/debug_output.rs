@@ -18,13 +18,15 @@ impl Output for DebugOutput {
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
         let merger = match merger {
             Some(merger) => Some(merger.clone_boxed()),
-            None => None
+            None => None,
         };
         thread::spawn(move || {
             loop {
-                let mut bytes = match { arx.lock().unwrap().recv() } {
+                let mut bytes = match {
+                    arx.lock().unwrap().recv()
+                } {
                     Ok(line) => line,
-                    Err(_) => return
+                    Err(_) => return,
                 };
                 if let Some(ref merger) = merger {
                     merger.frame(&mut bytes);

@@ -12,7 +12,7 @@ use super::*;
 pub struct TcpInput {
     listen: String,
     tcp_config: TcpConfig,
-    timeout: Option<Duration>
+    timeout: Option<Duration>,
 }
 
 impl TcpInput {
@@ -21,13 +21,16 @@ impl TcpInput {
         TcpInput {
             listen: listen,
             tcp_config: tcp_config,
-            timeout: Some(Duration::from_secs(timeout))
+            timeout: Some(Duration::from_secs(timeout)),
         }
     }
 }
 
 impl Input for TcpInput {
-    fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
+    fn accept(&self,
+              tx: SyncSender<Vec<u8>>,
+              decoder: Box<Decoder + Send>,
+              encoder: Box<Encoder + Send>) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
@@ -36,17 +39,21 @@ impl Input for TcpInput {
                     let tx = tx.clone();
                     let tcp_config = self.tcp_config.clone();
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                    thread::spawn(move|| {
+                    thread::spawn(move || {
                         handle_client(client, tx, decoder, encoder, tcp_config);
                     });
                 }
-                Err(_) => { }
+                Err(_) => {}
             }
         }
     }
 }
 
-fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tcp_config: TcpConfig) {
+fn handle_client(client: TcpStream,
+                 tx: SyncSender<Vec<u8>>,
+                 decoder: Box<Decoder>,
+                 encoder: Box<Encoder>,
+                 tcp_config: TcpConfig) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TCP from [{}]", peer_addr);
     }
@@ -56,7 +63,7 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
         "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
         "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,
-        _ => panic!("Unsupported framing scheme")
+        _ => panic!("Unsupported framing scheme"),
     };
     splitter.run(reader, tx, decoder, encoder);
 }

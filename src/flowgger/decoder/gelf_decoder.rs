@@ -23,31 +23,41 @@ impl Decoder for GelfDecoder {
         let mut full_msg = None;
         let mut severity = None;
 
-        let obj: Value = try!(de::from_str(line).or(Err("Invalid GELF input, unable to parse as a JSON object")));
+        let obj: Value = try!(de::from_str(line)
+            .or(Err("Invalid GELF input, unable to parse as a JSON object")));
         let obj = try!(obj.as_object().ok_or("Empty GELF input"));
         for (key, value) in obj {
             match key.as_ref() {
-                "timestamp" =>
-                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")) as i64),
-                "host" =>
-                    hostname = Some(try!(value.as_string().ok_or("GELF host name must be a string")).to_owned()),
-                "short_message" =>
-                    msg = Some(try!(value.as_string().ok_or("GELF short message must be a string")).to_owned()),
-                "full_message" =>
-                    full_msg = Some(try!(value.as_string().ok_or("GELF full message must be a string")).to_owned()),
+                "timestamp" => {
+                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")) as i64)
+                }
+                "host" => {
+                    hostname = Some(try!(value.as_string()
+                            .ok_or("GELF host name must be a string"))
+                        .to_owned())
+                }
+                "short_message" => {
+                    msg = Some(try!(value.as_string().ok_or("GELF short message must be a string"))
+                        .to_owned())
+                }
+                "full_message" => {
+                    full_msg = Some(try!(value.as_string()
+                            .ok_or("GELF full message must be a string"))
+                        .to_owned())
+                }
                 "version" => {
                     match try!(value.as_string().ok_or("GELF version must be a string")) {
-                        "1.0" | "1.1" => { }
-                        _ => return Err("Unsupported GELF version")
+                        "1.0" | "1.1" => {}
+                        _ => return Err("Unsupported GELF version"),
                     }
                 }
                 "level" => {
                     let severity_given = try!(value.as_u64().ok_or("Invalid severity level"));
                     if severity_given > SEVERITY_MAX as u64 {
-                        return Err("Invalid severity level (too high)")
+                        return Err("Invalid severity level (too high)");
                     }
                     severity = Some(severity_given as u8)
-                },
+                }
                 name => {
                     let sd_value: SDValue = match *value {
                         Value::String(ref value) => SDValue::String(value.to_owned()),
@@ -56,7 +66,7 @@ impl Decoder for GelfDecoder {
                         Value::I64(value) => SDValue::I64(value),
                         Value::U64(value) => SDValue::U64(value),
                         Value::Null => SDValue::Null,
-                        _ => return Err("Invalid value type in structured data")
+                        _ => return Err("Invalid value type in structured data"),
                     };
                     let name = if name.starts_with('_') {
                         name.to_owned()
@@ -77,7 +87,7 @@ impl Decoder for GelfDecoder {
             msgid: None,
             sd: if sd.pairs.is_empty() { None } else { Some(sd) },
             msg: msg,
-            full_msg: full_msg
+            full_msg: full_msg,
         };
         Ok(record)
     }
@@ -95,13 +105,19 @@ fn test_gelf() {
 
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(pairs.iter().cloned().any(|(k, v)|
-        if let SDValue::U64(v) = v { k == "_user_id" && v == 9001 } else { false }
-    ));
-    assert!(pairs.iter().cloned().any(|(k, v)|
-        if let SDValue::String(v) = v { k == "_some_info" && v == "foo" } else { false }
-    ));
-    assert!(pairs.iter().cloned().any(|(k, v)|
-        if let SDValue::String(v) = v { k == "_some_env_var" && v == "bar" } else { false }
-    ));
+    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::U64(v) = v {
+        k == "_user_id" && v == 9001
+    } else {
+        false
+    }));
+    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
+        k == "_some_info" && v == "foo"
+    } else {
+        false
+    }));
+    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
+        k == "_some_env_var" && v == "bar"
+    } else {
+        false
+    }));
 }

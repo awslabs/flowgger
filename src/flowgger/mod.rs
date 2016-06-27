@@ -62,7 +62,7 @@ fn get_input(input_type: &str, config: &Config) -> Box<Input> {
         "tls" | "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
         "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(&config),
         "udp" => Box::new(UdpInput::new(&config)) as Box<Input>,
-        _ => panic!("Invalid input type: {}", input_type)
+        _ => panic!("Invalid input type: {}", input_type),
     }
 }
 
@@ -81,46 +81,58 @@ fn get_output(output_type: &str, config: &Config) -> Box<Output> {
         "stdout" | "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
         "kafka" => get_output_kafka(&config),
         "tls" | "syslog-tls" => Box::new(TlsOutput::new(&config)) as Box<Output>,
-        _ => panic!("Invalid output type: {}", output_type)
+        _ => panic!("Invalid output type: {}", output_type),
     }
 }
 
 pub fn start(config_file: &str) {
     let config = match Config::from_path(config_file) {
         Ok(config) => config,
-        Err(e) => panic!("Unable to read the config file [{}]: {}", config_file, e.description())
+        Err(e) => {
+            panic!("Unable to read the config file [{}]: {}",
+                   config_file,
+                   e.description())
+        }
     };
-    let input_format = config.lookup("input.format").
-        map_or(DEFAULT_INPUT_FORMAT, |x| x.as_str().expect("input.format must be a string"));
-    let input_type = config.lookup("input.type").
-        map_or(DEFAULT_INPUT_TYPE, |x| x.as_str().expect("input.type must be a string"));
+    let input_format = config.lookup("input.format").map_or(DEFAULT_INPUT_FORMAT, |x| {
+        x.as_str().expect("input.format must be a string")
+    });
+    let input_type = config.lookup("input.type").map_or(DEFAULT_INPUT_TYPE, |x| {
+        x.as_str().expect("input.type must be a string")
+    });
     let input = get_input(input_type, &config);
     let decoder = match input_format {
-        _ if input_format == "capnp" => Box::new(InvalidDecoder::new(&config)) as Box<Decoder + Send>,
+        _ if input_format == "capnp" => {
+            Box::new(InvalidDecoder::new(&config)) as Box<Decoder + Send>
+        }
         "gelf" => Box::new(GelfDecoder::new(&config)) as Box<Decoder + Send>,
         "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
         "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
-        _ => panic!("Unknown input format: {}", input_format)
+        _ => panic!("Unknown input format: {}", input_format),
     };
 
-    let output_format = config.lookup("output.format").
-        map_or(DEFAULT_OUTPUT_FORMAT, |x| x.as_str().expect("output.format must be a string"));
+    let output_format = config.lookup("output.format").map_or(DEFAULT_OUTPUT_FORMAT, |x| {
+        x.as_str().expect("output.format must be a string")
+    });
     let encoder = match output_format {
         "capnp" => Box::new(CapnpEncoder::new(&config)) as Box<Encoder + Send>,
         "gelf" | "json" => Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>,
         "ltsv" => Box::new(LTSVEncoder::new(&config)) as Box<Encoder + Send>,
-        _ => panic!("Unknown output format: {}", output_format)
+        _ => panic!("Unknown output format: {}", output_format),
     };
-    let output_type = config.lookup("output.type").
-        map_or(DEFAULT_OUTPUT_TYPE, |x| x.as_str().expect("output.type must be a string"));
+    let output_type = config.lookup("output.type").map_or(DEFAULT_OUTPUT_TYPE, |x| {
+        x.as_str().expect("output.type must be a string")
+    });
     let output = get_output(output_type, &config);
     let output_framing = match config.lookup("output.framing") {
         Some(framing) => framing.as_str().expect("output.framing must be a string"),
-        None => match (output_format, output_type) {
-            ("capnp", _) | (_, "kafka") => "noop",
-            (_, "debug") | ("ltsv", _) => "line",
-            ("gelf", _) => "nul",
-            _ => DEFAULT_OUTPUT_FRAMING
+        None => {
+            match (output_format, output_type) {
+                ("capnp", _) | (_, "kafka") => "noop",
+                (_, "debug") | ("ltsv", _) => "line",
+                ("gelf", _) => "nul",
+                _ => DEFAULT_OUTPUT_FRAMING,
+            }
         }
     };
     let merger: Option<Box<Merger>> = match output_framing {
@@ -129,11 +141,11 @@ pub fn start(config_file: &str) {
         "line" => Some(Box::new(LineMerger::new(&config)) as Box<Merger>),
         "nul" => Some(Box::new(NulMerger::new(&config)) as Box<Merger>),
         "syslen" => Some(Box::new(SyslenMerger::new(&config)) as Box<Merger>),
-        _ => panic!("Invalid framing type: {}", output_framing)
+        _ => panic!("Invalid framing type: {}", output_framing),
     };
-    let queue_size = config.lookup("input.queuesize").
-        map_or(DEFAULT_QUEUE_SIZE, |x| x.as_integer().
-        expect("input.queuesize must be a size integer") as usize);
+    let queue_size = config.lookup("input.queuesize").map_or(DEFAULT_QUEUE_SIZE, |x| {
+        x.as_integer().expect("input.queuesize must be a size integer") as usize
+    });
     let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(queue_size);
     let arx = Arc::new(Mutex::new(rx));
 

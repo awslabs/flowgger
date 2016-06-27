@@ -10,7 +10,7 @@ use super::*;
 
 pub struct TcpCoInput {
     listen: String,
-    tcp_config: TcpConfig
+    tcp_config: TcpConfig,
 }
 
 impl TcpCoInput {
@@ -18,35 +18,45 @@ impl TcpCoInput {
         let (tcp_config, listen, _timeout) = config_parse(&config);
         TcpCoInput {
             listen: listen,
-            tcp_config: tcp_config
+            tcp_config: tcp_config,
         }
     }
 }
 
 impl Input for TcpCoInput {
-    fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
+    fn accept(&self,
+              tx: SyncSender<Vec<u8>>,
+              decoder: Box<Decoder + Send>,
+              encoder: Box<Encoder + Send>) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         let tcp_config = self.tcp_config.clone();
         let threads = tcp_config.threads;
-        Scheduler::new().with_workers(threads).run(move|| {
-            for client in listener.incoming() {
-                match client {
-                    Ok((client, _addr)) => {
-                        let tx = tx.clone();
-                        let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                        let tcp_config = tcp_config.clone();
-                        Scheduler::spawn(move|| {
-                            handle_client(client, tx, decoder, encoder, tcp_config);
-                        });
+        Scheduler::new()
+            .with_workers(threads)
+            .run(move || {
+                for client in listener.incoming() {
+                    match client {
+                        Ok((client, _addr)) => {
+                            let tx = tx.clone();
+                            let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+                            let tcp_config = tcp_config.clone();
+                            Scheduler::spawn(move || {
+                                handle_client(client, tx, decoder, encoder, tcp_config);
+                            });
+                        }
+                        Err(_) => {}
                     }
-                    Err(_) => { }
                 }
-            }
-        }).unwrap();
+            })
+            .unwrap();
     }
 }
 
-fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tcp_config: TcpConfig) {
+fn handle_client(client: TcpStream,
+                 tx: SyncSender<Vec<u8>>,
+                 decoder: Box<Decoder>,
+                 encoder: Box<Encoder>,
+                 tcp_config: TcpConfig) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TCP from [{}]", peer_addr);
     }
@@ -56,7 +66,7 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
         "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
         "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,
-        _ => panic!("Unsupported framing scheme")
+        _ => panic!("Unsupported framing scheme"),
     };
     splitter.run(reader, tx, decoder, encoder);
 }

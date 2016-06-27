@@ -17,10 +17,11 @@ impl Decoder for RFC5424Decoder {
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
         let (_bom, line) = match BOM::parse(line, "<") {
             Ok(bom_line) => bom_line,
-            Err(err) => return Err(err)
+            Err(err) => return Err(err),
         };
         let mut parts = line.splitn(7, ' ');
-        let pri_version = try!(parse_pri_version(try!(parts.next().ok_or("Missing priority and version"))));
+        let pri_version = try!(parse_pri_version(try!(parts.next()
+            .ok_or("Missing priority and version"))));
         let ts = try!(parse_ts(try!(parts.next().ok_or("Missing timestamp"))));
         let hostname = try!(parts.next().ok_or("Missing hostname"));
         let appname = try!(parts.next().ok_or("Missing application name"));
@@ -37,7 +38,7 @@ impl Decoder for RFC5424Decoder {
             msgid: Some(msgid.to_owned()),
             sd: sd,
             msg: msg,
-            full_msg: None
+            full_msg: None,
         };
         Ok(record)
     }
@@ -45,12 +46,12 @@ impl Decoder for RFC5424Decoder {
 
 struct Pri {
     facility: u8,
-    severity: u8
+    severity: u8,
 }
 
 enum BOM {
     NONE,
-    UTF8
+    UTF8,
 }
 
 impl BOM {
@@ -66,25 +67,26 @@ impl BOM {
 }
 
 fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
-    if ! line.starts_with('<') {
-        return Err("The priority should be inside brackets")
+    if !line.starts_with('<') {
+        return Err("The priority should be inside brackets");
     }
     let mut parts = line[1..].splitn(2, '>');
-    let pri_encoded: u8 = try!(try!(parts.next().ok_or("Empty priority")).parse().or(Err("Invalid priority")));
+    let pri_encoded: u8 =
+        try!(try!(parts.next().ok_or("Empty priority")).parse().or(Err("Invalid priority")));
     let version = try!(parts.next().ok_or("Missing version"));
     if version != "1" {
         return Err("Unsupported version");
     }
     Ok(Pri {
         facility: pri_encoded >> 3,
-        severity: pri_encoded & 7
+        severity: pri_encoded & 7,
     })
 }
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<i64, &'static str> {
     match DateTime::parse_from_rfc3339(rfc3339) {
         Ok(date) => Ok(date.timestamp()),
-        Err(_) => Err("Unable to parse the date")
+        Err(_) => Err("Unable to parse the date"),
     }
 }
 
@@ -120,7 +122,7 @@ fn parse_msg(line: &str, offset: usize) -> Option<String> {
     } else {
         match line[offset..].trim() {
             "" => None,
-            m => Some(m.to_owned())
+            m => Some(m.to_owned()),
         }
     }
 }
@@ -130,8 +132,8 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
         '-' => {
             return Ok((None, parse_msg(line, 1)));
         }
-        '[' => { }
-        _ => return Err("Short message")
+        '[' => {}
+        _ => return Err("Short message"),
     };
     let mut parts = line[1..].splitn(2, ' ');
     let sd_id = try!(parts.next().ok_or("Missing structured data id"));
@@ -148,11 +150,13 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
     for (i, c) in sd.char_indices() {
         let is_sd_name = match c as u32 {
             32 | 34 | 61 | 93 => false,
-            33 ... 126 => true,
-            _ => false
+            33...126 => true,
+            _ => false,
         };
         match (c, esc, is_sd_name, in_name, name.is_some(), in_value) {
-            (' ', false, _, false, false, _) => { /* contextless spaces */ }
+            (' ', false, _, false, false, _) => {
+                // contextless spaces
+            }
             (']', false, _, false, false, _) => {
                 after_sd = Some(i + 1);
                 break;
@@ -161,9 +165,11 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
                 in_name = true;
                 name_start = i;
             }
-            (_, _, true, true, false, _) => { /* name */ }
+            (_, _, true, true, false, _) => {
+                // name
+            }
             ('=', false, _, true, _, _) => {
-                name = Some(&sd[name_start .. i]);
+                name = Some(&sd[name_start..i]);
                 in_name = false;
             }
             ('"', false, _, _, true, false) => {
@@ -173,21 +179,24 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
             ('\\', false, _, _, _, true) => esc = true,
             ('"', false, _, _, _, true) => {
                 in_value = false;
-                let value = unescape_sd_value(&sd[value_start .. i]);
-                let pair = ("_".to_owned() +
-                    name.expect("Name in structured data contains an invalid UTF-8 sequence"),
-                    SDValue::String(value));
+                let value = unescape_sd_value(&sd[value_start..i]);
+                let pair =
+                    ("_".to_owned() +
+                     name.expect("Name in structured data contains an invalid UTF-8 sequence"),
+                     SDValue::String(value));
                 sd_res.pairs.push(pair);
                 name = None;
             }
             (_, _, _, _, _, true) => esc = false,
-            ('"', false, _, false, false, _)  => { /* tolerate bogus entries with extra " */ },
-            _ => return Err("Format error in the structured data")
+            ('"', false, _, false, false, _) => {
+                // tolerate bogus entries with extra "
+            }
+            _ => return Err("Format error in the structured data"),
         }
     }
     match after_sd {
         None => Err("Missing ] after structured data"),
-        Some(offset) => Ok((Some(sd_res), parse_msg(sd, offset)))
+        Some(offset) => Ok((Some(sd_res), parse_msg(sd, offset))),
     }
 }
 
@@ -207,10 +216,14 @@ fn test_rfc5424() {
     assert!(sd.sd_id == Some("origin@123".to_owned()));
     let pairs = sd.pairs;
 
-    assert!(pairs.iter().cloned().any(|(k, v)|
-        if let SDValue::String(v) = v { k == "_software" && v == "te\\st sc\"ript" } else { false }
-    ));
-    assert!(pairs.iter().cloned().any(|(k, v)|
-        if let SDValue::String(v) = v { k == "_swVersion" && v == "0.0.1" } else { false }
-    ));
+    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
+        k == "_software" && v == "te\\st sc\"ript"
+    } else {
+        false
+    }));
+    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
+        k == "_swVersion" && v == "0.0.1"
+    } else {
+        false
+    }));
 }

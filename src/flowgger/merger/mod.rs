@@ -11,7 +11,9 @@ pub trait CloneBoxedMerger {
 }
 
 impl<T: Merger + Clone + Send> CloneBoxedMerger for T {
-    fn clone_boxed<'a>(&self) -> Box<Merger + Send + 'a> where Self: 'a {
+    fn clone_boxed<'a>(&self) -> Box<Merger + Send + 'a>
+        where Self: 'a
+    {
         Box::new(self.clone())
     }
 }
@@ -22,6 +24,6 @@ impl Clone for Box<Merger> {
     }
 }
 
-pub trait Merger : CloneBoxedMerger {
+pub trait Merger: CloneBoxedMerger {
     fn frame(&self, bytes: &mut Vec<u8>);
 }

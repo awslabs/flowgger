@@ -5,18 +5,22 @@ pub enum SDValue {
     F64(f64),
     I64(i64),
     U64(u64),
-    Null
+    Null,
 }
 
 #[derive(Debug, Clone)]
 pub enum SDValueType {
-    String, Bool, F64, I64, U64
+    String,
+    Bool,
+    F64,
+    I64,
+    U64,
 }
 
 #[derive(Debug)]
 pub struct StructuredData {
     pub sd_id: Option<String>,
-    pub pairs: Vec<(String, SDValue)>
+    pub pairs: Vec<(String, SDValue)>,
 }
 
 impl StructuredData {
@@ -24,9 +28,9 @@ impl StructuredData {
         StructuredData {
             sd_id: match sd_id {
                 Some(sd_id) => Some(sd_id.to_owned()),
-                None => None
+                None => None,
             },
-            pairs: Vec::new()
+            pairs: Vec::new(),
         }
     }
 }
@@ -42,7 +46,7 @@ pub struct Record {
     pub msgid: Option<String>,
     pub msg: Option<String>,
     pub full_msg: Option<String>,
-    pub sd: Option<StructuredData>
+    pub sd: Option<StructuredData>,
 }
 
 pub const FACILITY_MAX: u8 = 0xff >> 3;

@@ -5,30 +5,37 @@ use super::Encoder;
 
 #[derive(Clone)]
 pub struct LTSVEncoder {
-    extra: Vec<(String, String)>
+    extra: Vec<(String, String)>,
 }
 
 impl LTSVEncoder {
     pub fn new(config: &Config) -> LTSVEncoder {
         let extra = match config.lookup("output.ltsv_extra") {
             None => Vec::new(),
-            Some(extra) => extra.as_table().expect("output.ltsv_extra must be a list of key/value pairs").
-                into_iter().map(|(k, v)| (k.to_owned(), v.as_str().
-                expect("output.ltsv_extra values must be strings").to_owned())).collect()
+            Some(extra) => {
+                extra.as_table()
+                    .expect("output.ltsv_extra must be a list of key/value pairs")
+                    .into_iter()
+                    .map(|(k, v)| {
+                        (k.to_owned(),
+                         v.as_str()
+                            .expect("output.ltsv_extra values must be strings")
+                            .to_owned())
+                    })
+                    .collect()
+            }
         };
         LTSVEncoder { extra: extra }
     }
 }
 
 struct LTSVString {
-    out: String
+    out: String,
 }
 
 impl LTSVString {
     pub fn new() -> LTSVString {
-        LTSVString {
-            out: String::new()
-        }
+        LTSVString { out: String::new() }
     }
 
     pub fn insert(&mut self, key: &str, value: &str) {
@@ -71,7 +78,7 @@ impl Encoder for LTSVEncoder {
                     SDValue::F64(ref value) => res.insert(&name, &value.to_string()),
                     SDValue::I64(ref value) => res.insert(&name, &value.to_string()),
                     SDValue::U64(ref value) => res.insert(&name, &value.to_string()),
-                    SDValue::Null => res.insert(&name, "")
+                    SDValue::Null => res.insert(&name, ""),
                 }
             }
         }

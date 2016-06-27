@@ -13,7 +13,7 @@ use super::*;
 pub struct TlsInput {
     listen: String,
     timeout: Option<Duration>,
-    tls_config: TlsConfig
+    tls_config: TlsConfig,
 }
 
 impl TlsInput {
@@ -22,13 +22,16 @@ impl TlsInput {
         TlsInput {
             listen: listen,
             tls_config: tls_config,
-            timeout: Some(Duration::from_secs(timeout))
+            timeout: Some(Duration::from_secs(timeout)),
         }
     }
 }
 
 impl Input for TlsInput {
-    fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>) {
+    fn accept(&self,
+              tx: SyncSender<Vec<u8>>,
+              decoder: Box<Decoder + Send>,
+              encoder: Box<Encoder + Send>) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
@@ -37,26 +40,30 @@ impl Input for TlsInput {
                     let tx = tx.clone();
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     let tls_config = self.tls_config.clone();
-                    thread::spawn(move|| {
+                    thread::spawn(move || {
                         handle_client(client, tx, decoder, encoder, tls_config);
                     });
                 }
-                Err(_) => { }
+                Err(_) => {}
             }
         }
     }
 }
 
-fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>, tls_config: TlsConfig) {
+fn handle_client(client: TcpStream,
+                 tx: SyncSender<Vec<u8>>,
+                 decoder: Box<Decoder>,
+                 encoder: Box<Encoder>,
+                 tls_config: TlsConfig) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS from [{}]", peer_addr);
     }
     let sslclient = match SslStream::accept(&*tls_config.arc_ctx, client) {
         Err(_) => {
             let _ = writeln!(stderr(), "SSL handshake aborted by the client");
-            return
+            return;
         }
-        Ok(sslclient) => sslclient
+        Ok(sslclient) => sslclient,
     };
     let reader = BufReader::new(sslclient);
     let splitter = match &tls_config.framing as &str {
@@ -64,7 +71,7 @@ fn handle_client(client: TcpStream, tx: SyncSender<Vec<u8>>, decoder: Box<Decode
         "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
         "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
         "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,
-        _ => panic!("Unsupported framing scheme")
+        _ => panic!("Unsupported framing scheme"),
     };
     splitter.run(reader, tx, decoder, encoder);
 }

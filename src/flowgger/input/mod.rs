@@ -19,5 +19,8 @@ use flowgger::encoder::Encoder;
 use std::sync::mpsc::SyncSender;
 
 pub trait Input {
-    fn accept(&self, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder + Send>, encoder: Box<Encoder + Send>);
+    fn accept(&self,
+              tx: SyncSender<Vec<u8>>,
+              decoder: Box<Decoder + Send>,
+              encoder: Box<Encoder + Send>);
 }

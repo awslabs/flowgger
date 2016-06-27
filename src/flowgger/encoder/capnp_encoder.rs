@@ -19,8 +19,8 @@ impl Encoder for CapnpEncoder {
         let mut record_msg = Builder::new_default();
         build_record(&mut record_msg, record);
         let mut bytes = Vec::new();
-        try!(capnp::serialize::write_message(&mut bytes, &record_msg).
-            or(Err("Unable to serialize to Cap'n Proto format")));
+        try!(capnp::serialize::write_message(&mut bytes, &record_msg)
+            .or(Err("Unable to serialize to Cap'n Proto format")));
         Ok(bytes)
     }
 }
@@ -31,11 +31,11 @@ fn build_record<T: Allocator>(record_msg: &mut capnp::message::Builder<T>, recor
     root.set_hostname(&record.hostname);
     match record.facility {
         Some(facility) => root.set_facility(facility),
-        _ => root.set_facility(FACILITY_MISSING)
+        _ => root.set_facility(FACILITY_MISSING),
     };
     match record.severity {
         Some(severity) => root.set_severity(severity),
-        _ => root.set_severity(SEVERITY_MISSING)
+        _ => root.set_severity(SEVERITY_MISSING),
     };
     if let Some(appname) = record.appname {
         root.set_appname(&appname);
@@ -69,7 +69,7 @@ fn build_record<T: Allocator>(record_msg: &mut capnp::message::Builder<T>, recor
                     SDValue::F64(value) => v.set_f64(value),
                     SDValue::I64(value) => v.set_i64(value),
                     SDValue::U64(value) => v.set_u64(value),
-                    SDValue::Null => v.set_null(())
+                    SDValue::Null => v.set_null(()),
                 };
             }
         }

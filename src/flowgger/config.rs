@@ -6,7 +6,7 @@ use toml;
 
 #[derive(Clone)]
 pub struct Config {
-    config: toml::Value
+    config: toml::Value,
 }
 
 impl Config {
@@ -20,12 +20,12 @@ impl Config {
     pub fn from_string(toml: &str) -> Result<Config, Error> {
         let config = match toml.parse() {
             Ok(config) => config,
-            Err(_) => return Err(Error::new(ErrorKind::InvalidData,
-                "Syntax error - config file is not valid TOML"))
+            Err(_) => {
+                return Err(Error::new(ErrorKind::InvalidData,
+                                      "Syntax error - config file is not valid TOML"))
+            }
         };
-        Ok(Config {
-            config: config
-        })
+        Ok(Config { config: config })
     }
 
     pub fn lookup<'a>(&'a self, path: &'a str) -> Option<&'a toml::Value> {

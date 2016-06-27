@@ -8,17 +8,25 @@ use super::Splitter;
 pub struct NulSplitter;
 
 impl<T: Read> Splitter<T> for NulSplitter {
-    fn run(&self, buf_reader: BufReader<T>, tx: SyncSender<Vec<u8>>, decoder: Box<Decoder>, encoder: Box<Encoder>) {
+    fn run(&self,
+           buf_reader: BufReader<T>,
+           tx: SyncSender<Vec<u8>>,
+           decoder: Box<Decoder>,
+           encoder: Box<Encoder>) {
         for line in buf_reader.split(0) {
             let line = match line {
                 Ok(line) => line,
-                Err(e) => match e.kind() {
-                    ErrorKind::Interrupted => continue,
-                    ErrorKind::WouldBlock => {
-                        let _ = writeln!(stderr(), "Client hasn't sent any data for a while - Closing idle connection");
-                        return
-                    },
-                    _ => return
+                Err(e) => {
+                    match e.kind() {
+                        ErrorKind::Interrupted => continue,
+                        ErrorKind::WouldBlock => {
+                            let _ = writeln!(stderr(),
+                                             "Client hasn't sent any data for a while - Closing \
+                                              idle connection");
+                            return;
+                        }
+                        _ => return,
+                    }
                 }
             };
             let line = match str::from_utf8(&line) {
@@ -26,7 +34,7 @@ impl<T: Read> Splitter<T> for NulSplitter {
                     let _ = writeln!(stderr(), "Invalid UTF-8 input");
                     continue;
                 }
-                Ok(line) => line
+                Ok(line) => line,
             };
             if let Err(e) = handle_line(line, &tx, &decoder, &encoder) {
                 let line = line.trim();
@@ -38,7 +46,11 @@ impl<T: Read> Splitter<T> for NulSplitter {
     }
 }
 
-fn handle_line(line: &str, tx: &SyncSender<Vec<u8>>, decoder: &Box<Decoder>, encoder: &Box<Encoder>) -> Result<(), &'static str> {
+fn handle_line(line: &str,
+               tx: &SyncSender<Vec<u8>>,
+               decoder: &Box<Decoder>,
+               encoder: &Box<Encoder>)
+               -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();

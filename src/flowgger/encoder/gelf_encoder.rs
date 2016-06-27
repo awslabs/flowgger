@@ -7,16 +7,25 @@ use super::Encoder;
 
 #[derive(Clone)]
 pub struct GelfEncoder {
-    extra: Vec<(String, String)>
+    extra: Vec<(String, String)>,
 }
 
 impl GelfEncoder {
     pub fn new(config: &Config) -> GelfEncoder {
         let extra = match config.lookup("output.gelf_extra") {
             None => Vec::new(),
-            Some(extra) => extra.as_table().expect("output.gelf_extra must be a list of key/value pairs").
-                into_iter().map(|(k, v)| (k.to_owned(), v.as_str().
-                expect("output.gelf_extra values must be strings").to_owned())).collect()
+            Some(extra) => {
+                extra.as_table()
+                    .expect("output.gelf_extra must be a list of key/value pairs")
+                    .into_iter()
+                    .map(|(k, v)| {
+                        (k.to_owned(),
+                         v.as_str()
+                            .expect("output.gelf_extra values must be strings")
+                            .to_owned())
+                    })
+                    .collect()
+            }
         };
         GelfEncoder { extra: extra }
     }
@@ -24,11 +33,12 @@ impl GelfEncoder {
 
 impl Encoder for GelfEncoder {
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
-        let mut map = ObjectBuilder::new().
-            insert("version".to_owned(), Value::String("1.1".to_owned())).
-            insert("host".to_owned(), Value::String(record.hostname)).
-            insert("short_message".to_owned(), Value::String(record.msg.unwrap_or("-".to_owned()))).
-            insert("timestamp".to_owned(), Value::I64(record.ts));
+        let mut map = ObjectBuilder::new()
+            .insert("version".to_owned(), Value::String("1.1".to_owned()))
+            .insert("host".to_owned(), Value::String(record.hostname))
+            .insert("short_message".to_owned(),
+                    Value::String(record.msg.unwrap_or("-".to_owned())))
+            .insert("timestamp".to_owned(), Value::I64(record.ts));
         if let Some(severity) = record.severity {
             map = map.insert("level".to_owned(), Value::U64(severity as u64));
         }
@@ -49,7 +59,7 @@ impl Encoder for GelfEncoder {
                     SDValue::F64(value) => Value::F64(value),
                     SDValue::I64(value) => Value::I64(value),
                     SDValue::U64(value) => Value::U64(value),
-                    SDValue::Null => Value::Null
+                    SDValue::Null => Value::Null,
                 };
                 map = map.insert(name, value);
             }
