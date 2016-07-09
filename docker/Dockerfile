@@ -8,6 +8,7 @@ ENV BUILD_DEPS \
     autoconf \
     file \
     gcc \
+    git \
     libc-dev \
     make \
     pkg-config
