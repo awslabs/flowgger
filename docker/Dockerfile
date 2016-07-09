@@ -4,8 +4,21 @@ ENV SERIAL 1
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get install -y \
-    libsnappy-dev
+ENV BUILD_DEPS \
+    autoconf \
+    file \
+    gcc \
+    libc-dev \
+    make \
+    pkg-config
+
+RUN set -x && \
+    apt-get install -y \
+        $BUILD_DEPS \
+        libsnappy-dev \
+        --no-install-recommends && \
+    apt-get clean && \
+    rm -fr /tmp/* /var/tmp/*
 
 ENV LIBRESSL_VERSION 2.4.1
 ENV LIBRESSL_SHA256 121922b13169cd47a85e3e77f0bc129f8d04247193b42491cb1fab9074e80477
