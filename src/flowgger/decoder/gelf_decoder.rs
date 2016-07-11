@@ -28,9 +28,7 @@ impl Decoder for GelfDecoder {
         let obj = try!(obj.as_object().ok_or("Empty GELF input"));
         for (key, value) in obj {
             match key.as_ref() {
-                "timestamp" => {
-                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")))
-                }
+                "timestamp" => ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp"))),
                 "host" => {
                     hostname = Some(try!(value.as_string()
                             .ok_or("GELF host name must be a string"))
