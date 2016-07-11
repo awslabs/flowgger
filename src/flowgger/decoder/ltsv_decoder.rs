@@ -194,7 +194,7 @@ fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
 }
 
 fn english_time_to_unix(et: &str) -> Result<f64, &'static str> {
-    match DateTime::parse_from_str(et, "%e/%b/%Y:%H:%M:%S %z") {
+    match DateTime::parse_from_str(et, "%e/%b/%Y:%H:%M:%S%.f %z") {
         Ok(date) => Ok(date.timestamp() as f64),
         Err(_) => Err("Unable to parse the date"),
     }
