@@ -189,14 +189,14 @@ impl Decoder for LTSVDecoder {
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(utils::datetime_f64(date)),
+        Ok(date) => Ok(utils::PreciseTimestamp::from_datetime(date).as_f64()),
         Err(_) => Err("Unable to parse the date"),
     }
 }
 
 fn english_time_to_unix(et: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_str(et, "%e/%b/%Y:%H:%M:%S%.f %z") {
-        Ok(date) => Ok(utils::datetime_f64(date)),
+        Ok(date) => Ok(utils::PreciseTimestamp::from_datetime(date).as_f64()),
         Err(_) => Err("Unable to parse the date"),
     }
 }

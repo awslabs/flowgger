@@ -86,7 +86,7 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(utils::datetime_f64(date)),
+        Ok(date) => Ok(utils::PreciseTimestamp::from_datetime(date).as_f64()),
         Err(_) => Err("Unable to parse the date"),
     }
 }
