@@ -37,7 +37,7 @@ impl StructuredData {
 
 #[derive(Debug)]
 pub struct Record {
-    pub ts: i64,
+    pub ts: f64,
     pub hostname: String,
     pub facility: Option<u8>,
     pub severity: Option<u8>,

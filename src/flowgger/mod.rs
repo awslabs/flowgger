@@ -6,6 +6,7 @@ mod merger;
 mod output;
 mod record;
 mod splitter;
+mod utils;
 
 pub mod record_capnp;
 

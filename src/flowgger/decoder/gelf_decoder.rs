@@ -1,6 +1,6 @@
-use chrono::UTC;
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue, SEVERITY_MAX};
+use flowgger::utils;
 use serde_json::de;
 use serde_json::value::Value;
 use super::Decoder;
@@ -29,7 +29,7 @@ impl Decoder for GelfDecoder {
         for (key, value) in obj {
             match key.as_ref() {
                 "timestamp" => {
-                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")) as i64)
+                    ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp")))
                 }
                 "host" => {
                     hostname = Some(try!(value.as_string()
@@ -78,7 +78,7 @@ impl Decoder for GelfDecoder {
             }
         }
         let record = Record {
-            ts: ts.unwrap_or_else(|| UTC::now().timestamp()),
+            ts: ts.unwrap_or_else(|| utils::now_f64()),
             hostname: try!(hostname.ok_or("Missing hostname")),
             facility: None,
             severity: severity,
@@ -95,9 +95,9 @@ impl Decoder for GelfDecoder {
 
 #[test]
 fn test_gelf() {
-    let msg = r#"{"version":"1.1", "host": "example.org", "short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}"#;
+    let msg = r#"{"version":"1.1", "host": "example.org","short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}"#;
     let res = GelfDecoder.decode(msg).unwrap();
-    assert!(res.ts == 1385053862);
+    assert!(res.ts as i64 == 1385053862);
     assert!(res.hostname == "example.org");
     assert!(res.msg.unwrap() == "A short message that helps you identify what is going on");
     assert!(res.full_msg.unwrap() == "Backtrace here\n\nmore stuff");

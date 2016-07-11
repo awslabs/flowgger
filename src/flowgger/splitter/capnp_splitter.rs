@@ -108,7 +108,7 @@ fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData
 
 fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'static str> {
     let ts = message.get_ts();
-    if ts <= 0 {
+    if ts.is_nan() || ts <= 0.0 {
         return Err("Missing timestamp");
     }
     let hostname = try!(message.get_hostname()

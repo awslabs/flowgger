@@ -1,4 +1,3 @@
-use chrono::{TimeZone, UTC};
 use flowgger::config::Config;
 use flowgger::record::{Record, SDValue};
 use super::Encoder;
@@ -91,8 +90,7 @@ impl Encoder for LTSVEncoder {
             res.insert(name, value);
         }
         res.insert("host", &record.hostname);
-        let ts = UTC.timestamp(record.ts, 0).to_rfc3339();
-        res.insert("time", &format!("[{}]", ts));
+        res.insert("time", &record.ts.to_string());
         if let Some(msg) = record.msg {
             res.insert("message", &msg);
         }

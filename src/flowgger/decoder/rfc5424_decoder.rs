@@ -83,14 +83,14 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
     })
 }
 
-fn rfc3339_to_unix(rfc3339: &str) -> Result<i64, &'static str> {
+fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(date.timestamp()),
+        Ok(date) => Ok(date.timestamp() as f64),
         Err(_) => Err("Unable to parse the date"),
     }
 }
 
-fn parse_ts(line: &str) -> Result<i64, &'static str> {
+fn parse_ts(line: &str) -> Result<f64, &'static str> {
     rfc3339_to_unix(line)
 }
 
@@ -206,7 +206,7 @@ fn test_rfc5424() {
     let res = RFC5424Decoder.decode(msg).unwrap();
     assert!(res.facility.unwrap() == 2);
     assert!(res.severity.unwrap() == 7);
-    assert!(res.ts == 1438790025);
+    assert!(res.ts as i64 == 1438790025);
     assert!(res.hostname == "testhostname");
     assert!(res.appname == Some("appname".to_owned()));
     assert!(res.procid == Some("69".to_owned()));

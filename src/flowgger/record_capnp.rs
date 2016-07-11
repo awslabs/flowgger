@@ -48,6 +48,12 @@ pub mod record {
         }
     }
 
+    impl<'a> ::capnp::traits::Imbue<'a> for Reader<'a> {
+        fn imbue(&mut self, cap_table: &'a ::capnp::private::layout::CapTable) {
+            self.reader.imbue(::capnp::private::layout::CapTableReader::Plain(cap_table))
+        }
+    }
+
     impl<'a> Reader<'a> {
         pub fn borrow<'b>(&'b self) -> Reader<'b> {
             Reader { ..*self }
@@ -57,8 +63,8 @@ pub mod record {
             self.reader.total_size()
         }
         #[inline]
-        pub fn get_ts(self) -> i64 {
-            self.reader.get_data_field::<i64>(0)
+        pub fn get_ts(self) -> f64 {
+            self.reader.get_data_field::<f64>(0)
         }
         #[inline]
         pub fn get_hostname(self) -> Result<text::Reader<'a>> {
@@ -147,6 +153,12 @@ pub mod record {
         }
     }
 
+    impl<'a> ::capnp::traits::ImbueMut<'a> for Builder<'a> {
+        fn imbue_mut(&mut self, cap_table: &'a mut ::capnp::private::layout::CapTable) {
+            self.builder.imbue(::capnp::private::layout::CapTableBuilder::Plain(cap_table))
+        }
+    }
+
     impl<'a> ::capnp::traits::FromPointerBuilder<'a> for Builder<'a> {
         fn init_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,
                         _size: u32)
@@ -182,12 +194,12 @@ pub mod record {
             self.builder.as_reader().total_size()
         }
         #[inline]
-        pub fn get_ts(self) -> i64 {
-            self.builder.get_data_field::<i64>(0)
+        pub fn get_ts(self) -> f64 {
+            self.builder.get_data_field::<f64>(0)
         }
         #[inline]
-        pub fn set_ts(&mut self, value: i64) {
-            self.builder.set_data_field::<i64>(0, value);
+        pub fn set_ts(&mut self, value: f64) {
+            self.builder.set_data_field::<f64>(0, value);
         }
         #[inline]
         pub fn get_hostname(self) -> Result<text::Builder<'a>> {
@@ -398,6 +410,12 @@ pub mod pair {
         }
     }
 
+    impl<'a> ::capnp::traits::Imbue<'a> for Reader<'a> {
+        fn imbue(&mut self, cap_table: &'a ::capnp::private::layout::CapTable) {
+            self.reader.imbue(::capnp::private::layout::CapTableReader::Plain(cap_table))
+        }
+    }
+
     impl<'a> Reader<'a> {
         pub fn borrow<'b>(&'b self) -> Reader<'b> {
             Reader { ..*self }
@@ -437,6 +455,12 @@ pub mod pair {
     impl<'a> ::capnp::traits::FromStructBuilder<'a> for Builder<'a> {
         fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a> {
             Builder { builder: builder }
+        }
+    }
+
+    impl<'a> ::capnp::traits::ImbueMut<'a> for Builder<'a> {
+        fn imbue_mut(&mut self, cap_table: &'a mut ::capnp::private::layout::CapTable) {
+            self.builder.imbue(::capnp::private::layout::CapTableBuilder::Plain(cap_table))
         }
     }
 
@@ -574,6 +598,12 @@ pub mod pair {
             }
         }
 
+        impl<'a> ::capnp::traits::Imbue<'a> for Reader<'a> {
+            fn imbue(&mut self, cap_table: &'a ::capnp::private::layout::CapTable) {
+                self.reader.imbue(::capnp::private::layout::CapTableReader::Plain(cap_table))
+            }
+        }
+
         impl<'a> Reader<'a> {
             pub fn borrow<'b>(&'b self) -> Reader<'b> {
                 Reader { ..*self }
@@ -634,6 +664,12 @@ pub mod pair {
         impl<'a> ::capnp::traits::FromStructBuilder<'a> for Builder<'a> {
             fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a> {
                 Builder { builder: builder }
+            }
+        }
+
+        impl<'a> ::capnp::traits::ImbueMut<'a> for Builder<'a> {
+            fn imbue_mut(&mut self, cap_table: &'a mut ::capnp::private::layout::CapTable) {
+                self.builder.imbue(::capnp::private::layout::CapTableBuilder::Plain(cap_table))
             }
         }
 

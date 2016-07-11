@@ -1,7 +1,7 @@
 @0xac72eb7464d85e40;
 
 struct Record {
-    ts        @0 :Int64;
+    ts        @0 :Float64;
     hostname  @1 :Text;
     facility  @2 :UInt8;
     severity  @3 :UInt8;
