@@ -208,7 +208,7 @@ fn unix_strtime_to_unix(et: &str) -> Result<f64, &'static str> {
 }
 
 fn parse_ts(line: &str) -> Result<f64, &'static str> {
-    rfc3339_to_unix(line).or(unix_strtime_to_unix(line)).or(english_time_to_unix(line))
+    unix_strtime_to_unix(line).or(rfc3339_to_unix(line)).or(english_time_to_unix(line))
 }
 
 #[test]
