@@ -1,5 +1,6 @@
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue, SDValueType};
+use flowgger::utils;
 use chrono::DateTime;
 use std::collections::HashMap;
 use super::Decoder;
@@ -188,14 +189,14 @@ impl Decoder for LTSVDecoder {
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(date.timestamp() as f64),
+        Ok(date) => Ok(utils::datetime_f64(date)),
         Err(_) => Err("Unable to parse the date"),
     }
 }
 
 fn english_time_to_unix(et: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_str(et, "%e/%b/%Y:%H:%M:%S%.f %z") {
-        Ok(date) => Ok(date.timestamp() as f64),
+        Ok(date) => Ok(utils::datetime_f64(date)),
         Err(_) => Err("Unable to parse the date"),
     }
 }
@@ -287,10 +288,10 @@ fn test_ltsv() {
     let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter = \"u64\"\nscore = \
                                       \"i64\"\nmean = \"f64\"\ndone = \"bool\"\n");
     let ltsv_decoder = LTSVDecoder::new(&config.unwrap());
-    let msg = "time:1438790025\thost:testhostname\tname1:value1\tname 2: value \
+    let msg = "time:1438790025.99\thost:testhostname\tname1:value1\tname 2: value \
                2\tn3:v3";
     let res = ltsv_decoder.decode(msg).unwrap();
-    assert!(res.ts as i64 == 1438790025);
+    assert!(res.ts == 1438790025.99);
 }
 
 #[test]
@@ -301,7 +302,8 @@ fn test_ltsv2() {
     let msg = "time:[2015-08-05T15:53:45.637824Z]\thost:testhostname\tname1:value1\tname 2: value \
                2\tn3:v3";
     let res = ltsv_decoder.decode(msg).unwrap();
-    assert!(res.ts as i64 == 1438790025);
+    println!("{}", res.ts);
+    assert!(res.ts == 1438790025.637824);
 }
 
 #[test]
@@ -309,11 +311,11 @@ fn test_ltsv_3() {
     let config = Config::from_string("[input]\n[input.ltsv_schema]\ncounter = \"u64\"\nscore = \
                                       \"i64\"\nmean = \"f64\"\ndone = \"bool\"\n");
     let ltsv_decoder = LTSVDecoder::new(&config.unwrap());
-    let msg = "time:[10/Oct/2000:13:55:36 \
+    let msg = "time:[10/Oct/2000:13:55:36.3 \
                -0700]\tdone:true\tscore:-1\tmean:0.42\tcounter:42\tlevel:3\thost:\
                testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = ltsv_decoder.decode(msg).unwrap();
-    assert!(res.ts as i64 == 971211336);
+    assert!(res.ts == 971211336.3);
     assert!(res.severity.unwrap() == 3);
 
     assert!(res.hostname == "testhostname");

@@ -1,6 +1,7 @@
 use chrono::DateTime;
 use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue};
+use flowgger::utils;
 use super::Decoder;
 
 #[derive(Clone)]
@@ -85,7 +86,7 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(date.timestamp() as f64),
+        Ok(date) => Ok(utils::datetime_f64(date)),
         Err(_) => Err("Unable to parse the date"),
     }
 }
@@ -206,7 +207,7 @@ fn test_rfc5424() {
     let res = RFC5424Decoder.decode(msg).unwrap();
     assert!(res.facility.unwrap() == 2);
     assert!(res.severity.unwrap() == 7);
-    assert!(res.ts as i64 == 1438790025);
+    assert!(res.ts == 1438790025.637824);
     assert!(res.hostname == "testhostname");
     assert!(res.appname == Some("appname".to_owned()));
     assert!(res.procid == Some("69".to_owned()));
