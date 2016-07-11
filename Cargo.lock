@@ -5,14 +5,14 @@ dependencies = [
  "capnp 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "capnpc 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.2.22 (registry+https://github.com/rust-lang/crates.io-index)",
- "clippy 0.0.78 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy 0.0.79 (git+https://github.com/Manishearth/rust-clippy)",
  "coio 0.2.0 (git+https://github.com/zonyitoo/coio-rs)",
  "kafka 0.1.6 (git+https://github.com/jedisct1/kafka-rust.git)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.7.14 (git+https://github.com/sfackler/rust-openssl.git)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "redis 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.30 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -79,20 +79,20 @@ dependencies = [
 
 [[package]]
 name = "clippy"
-version = "0.0.78"
-source = "git+https://github.com/Manishearth/rust-clippy#65d27b49f53506b98d01e48c8be5be3a1d0c1c2c"
+version = "0.0.79"
+source = "git+https://github.com/Manishearth/rust-clippy#b14114f2537b06731b3be4ecbeea1e4c47d3eb12"
 dependencies = [
- "clippy_lints 0.0.78 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy_lints 0.0.79 (git+https://github.com/Manishearth/rust-clippy)",
 ]
 
 [[package]]
 name = "clippy_lints"
-version = "0.0.78"
-source = "git+https://github.com/Manishearth/rust-clippy#65d27b49f53506b98d01e48c8be5be3a1d0c1c2c"
+version = "0.0.79"
+source = "git+https://github.com/Manishearth/rust-clippy#b14114f2537b06731b3be4ecbeea1e4c47d3eb12"
 dependencies = [
  "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "quine-mc_cluskey 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "regex-syntax 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex-syntax 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "semver 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.30 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -102,7 +102,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.2.0"
-source = "git+https://github.com/zonyitoo/coio-rs#f375dbcfc016895c3ef0df3c75ffee8c49febbd7"
+source = "git+https://github.com/zonyitoo/coio-rs#e6eb5f2071f0985d27283bf2ba68affa2be1bf8e"
 dependencies = [
  "context 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "deque 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -432,7 +432,7 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.3.3"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -450,7 +450,7 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "0.7.13"
+version = "0.7.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -460,7 +460,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "itoa 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
