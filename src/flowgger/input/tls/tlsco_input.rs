@@ -6,6 +6,7 @@ use openssl::ssl::*;
 use coio::Scheduler;
 use coio::net::{TcpListener, TcpStream};
 use std::io::{stderr, Write, BufReader};
+use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
 use super::*;
 
@@ -29,12 +30,13 @@ impl Input for TlsCoInput {
               tx: SyncSender<Vec<u8>>,
               decoder: Box<Decoder + Send>,
               encoder: Box<Encoder + Send>) {
-        let listener = TcpListener::bind(&self.listen as &str).unwrap();
         let tls_config = self.tls_config.clone();
         let threads = tls_config.threads;
+        let listen: SocketAddr = self.listen.parse().unwrap();
         Scheduler::new()
             .with_workers(threads)
             .run(move || {
+                let listener = TcpListener::bind(listen).unwrap();
                 for client in listener.incoming() {
                     match client {
                         Ok((client, _addr)) => {

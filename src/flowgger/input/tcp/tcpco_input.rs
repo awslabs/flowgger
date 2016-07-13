@@ -5,6 +5,7 @@ use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, Sys
 use coio::Scheduler;
 use coio::net::{TcpListener, TcpStream};
 use std::io::BufReader;
+use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
 use super::*;
 
@@ -28,12 +29,13 @@ impl Input for TcpCoInput {
               tx: SyncSender<Vec<u8>>,
               decoder: Box<Decoder + Send>,
               encoder: Box<Encoder + Send>) {
-        let listener = TcpListener::bind(&self.listen as &str).unwrap();
         let tcp_config = self.tcp_config.clone();
         let threads = tcp_config.threads;
+        let listen: SocketAddr = self.listen.parse().unwrap();
         Scheduler::new()
             .with_workers(threads)
             .run(move || {
+                let listener = TcpListener::bind(listen).unwrap();
                 for client in listener.incoming() {
                     match client {
                         Ok((client, _addr)) => {
