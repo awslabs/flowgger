@@ -361,7 +361,7 @@ pub mod record {
             data: 2,
             pointers: 8,
         };
-        pub const TYPE_ID: u64 = 0xff99ba646e037d20;
+        pub const TYPE_ID: u64 = 0xe1068a6aee02baba;
     }
 }
 
@@ -548,7 +548,7 @@ pub mod pair {
             data: 2,
             pointers: 2,
         };
-        pub const TYPE_ID: u64 = 0xf3980b784d305367;
+        pub const TYPE_ID: u64 = 0xb4a68d38a716233d;
     }
 
     pub mod value {
@@ -793,7 +793,7 @@ pub mod pair {
                 data: 2,
                 pointers: 2,
             };
-            pub const TYPE_ID: u64 = 0xc960eefdd10a29b3;
+            pub const TYPE_ID: u64 = 0x8a994a2aad4d9204;
         }
         pub enum Which<A0> {
             String(A0),
