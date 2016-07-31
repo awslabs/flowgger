@@ -1,7 +1,6 @@
 use flowgger::config::Config;
 use flowgger::merger::Merger;
-use kafka::client::{Compression, KafkaClient};
-use kafka::utils::ProduceMessage;
+use kafka::producer::{Compression, Producer, Record, RequiredAcks};
 use std::io::{stderr, Write};
 use std::process::exit;
 use std::sync::mpsc::Receiver;
@@ -30,34 +29,42 @@ struct KafkaConfig {
     compression: Compression,
 }
 
-struct KafkaWorker {
+struct KafkaWorker<'a> {
     arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-    client: KafkaClient,
+    producer: Producer,
     config: KafkaConfig,
-    queue: Vec<ProduceMessage>,
+    queue: Vec<Record<'a, (), Vec<u8>>>,
 }
 
-impl KafkaWorker {
-    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: KafkaConfig) -> KafkaWorker {
-        let mut client = KafkaClient::new(config.brokers.clone());
-        match client.load_metadata_all() {
-            Ok(_) => {}
+impl<'a> KafkaWorker<'a> {
+    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>, config: KafkaConfig) -> KafkaWorker<'a> {
+        let acks = match config.acks {
+            -1 => RequiredAcks::All,
+            0 => RequiredAcks::None,
+            1 => RequiredAcks::One,
+            _ => panic!("Unsupported value for kafka_acks"),
+        };
+        let producer = Producer::from_hosts(config.brokers.clone())
+            .with_required_acks(acks)
+            .with_ack_timeout(config.timeout)
+            .with_compression(config.compression);
+        let producer = match producer.create() {
+            Ok(producer) => producer,
             Err(e) => {
                 println!("Unable to connect to Kafka: [{}]", e);
                 exit(1);
             }
-        }
-        client.set_compression(config.compression);
+        };
         let queue = Vec::with_capacity(config.coalesce);
         KafkaWorker {
             arx: arx,
-            client: client,
+            producer: producer,
             config: config,
             queue: queue,
         }
     }
 
-    fn run_nocoalesce(mut self) {
+    fn run_nocoalesce(&'a mut self) {
         loop {
             let bytes = match {
                 self.arx.lock().unwrap().recv()
@@ -65,10 +72,7 @@ impl KafkaWorker {
                 Ok(line) => line,
                 Err(_) => return,
             };
-            match self.client.send_message(self.config.acks,
-                                           self.config.timeout,
-                                           self.config.topic.clone(),
-                                           bytes) {
+            match self.producer.send(&Record::from_value(&self.config.topic, bytes)) {
                 Ok(_) => {}
                 Err(e) => {
                     println!("Kafka not responsive: [{}]", e);
@@ -78,7 +82,7 @@ impl KafkaWorker {
         }
     }
 
-    fn run_coalesce(mut self) {
+    fn run_coalesce(&'a mut self) {
         loop {
             let bytes = match {
                 self.arx.lock().unwrap().recv()
@@ -86,15 +90,16 @@ impl KafkaWorker {
                 Ok(line) => line,
                 Err(_) => return,
             };
-            let message = ProduceMessage {
-                topic: self.config.topic.clone(),
-                message: bytes,
+            let message = Record {
+                key: (),
+                partition: -1,
+                topic: &self.config.topic,
+                value: bytes,
             };
             let mut queue = &mut self.queue;
             queue.push(message);
             if queue.len() >= self.config.coalesce {
-                match self.client
-                    .send_messages(self.config.acks, self.config.timeout, queue.clone()) {
+                match self.producer.send_all(queue) {
                     Ok(_) => {}
                     Err(e) => {
                         println!("Kafka not responsive: [{}]", e);
@@ -106,7 +111,7 @@ impl KafkaWorker {
         }
     }
 
-    fn run(self) {
+    fn run(&'a mut self) {
         if self.config.coalesce <= 1 {
             self.run_nocoalesce()
         } else {
@@ -180,7 +185,7 @@ impl Output for KafkaOutput {
             let arx = arx.clone();
             let config = self.config.clone();
             thread::spawn(move || {
-                let worker = KafkaWorker::new(arx, config);
+                let mut worker = KafkaWorker::new(arx, config);
                 worker.run();
             });
         }
