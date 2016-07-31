@@ -34,10 +34,10 @@ git = "https://github.com/zonyitoo/coio-rs"
 optional = true
 
 [dependencies.kafka]
-git = "https://github.com/jedisct1/kafka-rust.git"
+git = "https://github.com/jedisct1/kafka-rust"
 
 [dependencies.openssl]
-git = "https://github.com/sfackler/rust-openssl.git"
+version = "*"
 features = ["tlsv1_2", "tlsv1_1"]
 
 [profile.dev]
