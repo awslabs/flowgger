@@ -21,8 +21,8 @@ chrono = "*"
 log = "*"
 rand = "*"
 redis = "*"
-serde = "*"
-serde_json = "*"
+serde = "~0.7"
+serde_json = "~0.7"
 toml = "*"
 
 [dependencies.clippy]
