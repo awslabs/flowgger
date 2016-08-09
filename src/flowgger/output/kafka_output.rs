@@ -6,13 +6,14 @@ use std::process::exit;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::time::Duration;
 use super::Output;
 
 const KAFKA_DEFAULT_ACKS: i16 = 0;
 const KAFKA_DEFAULT_COALESCE: usize = 1;
 const KAFKA_DEFAULT_COMPRESSION: &'static str = "none";
 const KAFKA_DEFAULT_THREADS: u32 = 1;
-const KAFKA_DEFAULT_TIMEOUT: i32 = 60000;
+const KAFKA_DEFAULT_TIMEOUT: u64 = 60000;
 
 pub struct KafkaOutput {
     config: KafkaConfig,
@@ -24,7 +25,7 @@ struct KafkaConfig {
     acks: i16,
     brokers: Vec<String>,
     topic: String,
-    timeout: i32,
+    timeout: Duration,
     coalesce: usize,
     compression: Compression,
 }
@@ -142,9 +143,11 @@ impl KafkaOutput {
             .as_str()
             .expect("output.kafka_topic must be a string")
             .to_owned();
-        let timeout = config.lookup("output.kafka_timeout").map_or(KAFKA_DEFAULT_TIMEOUT, |x| {
-            x.as_integer().expect("output.kafka_timeout must be a 32-bit integer") as i32
-        });
+        let timeout = Duration::from_millis(config.lookup("output.kafka_timeout")
+            .map_or(KAFKA_DEFAULT_TIMEOUT, |x| {
+                x.as_integer()
+                    .expect("output.kafka_timeout must be a 64-bit integer") as u64
+            }));
         let threads = config.lookup("output.kafka_threads").map_or(KAFKA_DEFAULT_THREADS, |x| {
             x.as_integer().expect("output.kafka_threads must be a 32-bit integer") as u32
         });
