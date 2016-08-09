@@ -2,6 +2,8 @@ use flowgger::config::Config;
 use flowgger::record::{Record, StructuredData, SDValue, SEVERITY_MAX};
 use flowgger::utils;
 use serde_json::de;
+use serde_json::error::ErrorCode;
+use serde_json::error::Error::Syntax;
 use serde_json::value::Value;
 use super::Decoder;
 
@@ -23,9 +25,14 @@ impl Decoder for GelfDecoder {
         let mut full_msg = None;
         let mut severity = None;
 
-        let obj: Value = try!(de::from_str(line)
-            .or(de::from_str(&line.replace('\n', r"\n")))
-            .or(Err("Invalid GELF input, unable to parse as a JSON object")));
+        let obj = match de::from_str(line) {
+            x @ Ok(_) => x,
+            Err(Syntax(ErrorCode::InvalidUnicodeCodePoint, _, _)) => {
+                de::from_str(&line.replace('\n', r"\n"))
+            }
+            x @ _ => x,
+        };
+        let obj: Value = try!(obj.or(Err("Invalid GELF input, unable to parse as a JSON object")));
         let obj = try!(obj.as_object().ok_or("Empty GELF input"));
         for (key, value) in obj {
             match key.as_ref() {
