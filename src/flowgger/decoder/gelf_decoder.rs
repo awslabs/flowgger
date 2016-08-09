@@ -30,21 +30,21 @@ impl Decoder for GelfDecoder {
             match key.as_ref() {
                 "timestamp" => ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp"))),
                 "host" => {
-                    hostname = Some(try!(value.as_string()
+                    hostname = Some(try!(value.as_str()
                             .ok_or("GELF host name must be a string"))
                         .to_owned())
                 }
                 "short_message" => {
-                    msg = Some(try!(value.as_string().ok_or("GELF short message must be a string"))
+                    msg = Some(try!(value.as_str().ok_or("GELF short message must be a string"))
                         .to_owned())
                 }
                 "full_message" => {
-                    full_msg = Some(try!(value.as_string()
+                    full_msg = Some(try!(value.as_str()
                             .ok_or("GELF full message must be a string"))
                         .to_owned())
                 }
                 "version" => {
-                    match try!(value.as_string().ok_or("GELF version must be a string")) {
+                    match try!(value.as_str().ok_or("GELF version must be a string")) {
                         "1.0" | "1.1" => {}
                         _ => return Err("Unsupported GELF version"),
                     }

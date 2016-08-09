@@ -64,7 +64,7 @@ impl Encoder for GelfEncoder {
                 map = map.insert(name, value);
             }
         }
-        let json = try!(serde_json::to_vec(&map.unwrap()).or(Err("Unable to serialize to JSON")));
+        let json = try!(serde_json::to_vec(&map.build()).or(Err("Unable to serialize to JSON")));
         Ok(json)
     }
 }
