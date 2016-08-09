@@ -24,6 +24,7 @@ impl Decoder for GelfDecoder {
         let mut severity = None;
 
         let obj: Value = try!(de::from_str(line)
+            .or(de::from_str(&line.replace('\n', r"\n")))
             .or(Err("Invalid GELF input, unable to parse as a JSON object")));
         let obj = try!(obj.as_object().ok_or("Empty GELF input"));
         for (key, value) in obj {
