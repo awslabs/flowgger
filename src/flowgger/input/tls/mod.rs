@@ -56,7 +56,7 @@ fn set_fs(ctx: &mut SslContext) {
     let q = BigNum::from_hex_str("8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3")
         .unwrap();
     let dh = DH::from_params(p, g, q).unwrap();
-    ctx.set_tmp_dh(dh).unwrap();
+    ctx.set_tmp_dh(&dh).unwrap();
     set_ecdh(ctx);
 }
 
@@ -130,10 +130,10 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
     }
     if verify_peer == false {
-        ctx.set_verify(SSL_VERIFY_NONE, None);
+        ctx.set_verify(SSL_VERIFY_NONE);
     } else {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
-        ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
+        ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
     }
     let mut opts = SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
     if compression == false {

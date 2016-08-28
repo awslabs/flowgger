@@ -225,7 +225,7 @@ fn set_fs(ctx: &mut SslContext) {
     let q = BigNum::from_hex_str("8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3")
         .unwrap();
     let dh = DH::from_params(p, g, q).unwrap();
-    ctx.set_tmp_dh(dh).unwrap();
+    ctx.set_tmp_dh(&dh).unwrap();
     set_ecdh(ctx);
 }
 
@@ -298,10 +298,10 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     }
     let mut ctx = SslContext::new(tls_method).unwrap();
     if verify_peer == false {
-        ctx.set_verify(SSL_VERIFY_NONE, None);
+        ctx.set_verify(SSL_VERIFY_NONE);
     } else {
         ctx.set_verify_depth(TLS_VERIFY_DEPTH);
-        ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, None);
+        ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
         if let Some(ca_file) = ca_file {
             ctx.set_CA_file(&ca_file).expect("Unable to read the trusted CA file");
         }
