@@ -36,6 +36,7 @@ optional = true
 [dependencies.kafka]
 git = "https://github.com/jedisct1/kafka-rust"
 branch = "openssl-0.8"
+features = ["snappy", "gzip"]
 
 [dependencies.openssl]
 version = "0.8"
