@@ -63,7 +63,7 @@ fn handle_client(client: TcpStream,
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS<coroutines> from [{}]", peer_addr);
     }
-    let sslclient = match SslStream::accept_generic(&*tls_config.arc_ctx, client) {
+    let sslclient = match SslStream::accept(&*tls_config.arc_ctx, client) {
         Err(_) => {
             let _ = writeln!(stderr(), "SSL handshake aborted by the client");
             return;
