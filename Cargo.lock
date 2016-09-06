@@ -5,14 +5,14 @@ dependencies = [
  "capnp 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "capnpc 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "clippy 0.0.87 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy 0.0.89 (git+https://github.com/Manishearth/rust-clippy)",
  "coio 0.2.0 (git+https://github.com/zonyitoo/coio-rs)",
  "kafka 0.5.0 (git+https://github.com/jedisct1/kafka-rust?branch=openssl-0.8)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "redis 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.8.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.8.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -74,20 +74,20 @@ dependencies = [
 
 [[package]]
 name = "clippy"
-version = "0.0.87"
-source = "git+https://github.com/Manishearth/rust-clippy#9c736dc23f53f52a9c0e13e98f2f9341b80b4771"
+version = "0.0.89"
+source = "git+https://github.com/Manishearth/rust-clippy#7e12546a600fb51369ac36b8d7e309c1d92fe8bb"
 dependencies = [
- "clippy_lints 0.0.87 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy_lints 0.0.89 (git+https://github.com/Manishearth/rust-clippy)",
 ]
 
 [[package]]
 name = "clippy_lints"
-version = "0.0.87"
-source = "git+https://github.com/Manishearth/rust-clippy#9c736dc23f53f52a9c0e13e98f2f9341b80b4771"
+version = "0.0.89"
+source = "git+https://github.com/Manishearth/rust-clippy#7e12546a600fb51369ac36b8d7e309c1d92fe8bb"
 dependencies = [
  "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "quine-mc_cluskey 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "regex-syntax 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex-syntax 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "semver 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.1.30 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -196,7 +196,7 @@ dependencies = [
  "fnv 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "ref_slice 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ref_slice 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "snappy 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -397,12 +397,12 @@ dependencies = [
 
 [[package]]
 name = "ref_slice"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "regex-syntax"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -420,7 +420,7 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "0.8.6"
+version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -431,7 +431,7 @@ dependencies = [
  "dtoa 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itoa 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.8.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.8.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
