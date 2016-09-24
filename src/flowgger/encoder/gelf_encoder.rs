@@ -21,8 +21,8 @@ impl GelfEncoder {
                     .map(|(k, v)| {
                         (k.to_owned(),
                          v.as_str()
-                            .expect("output.gelf_extra values must be strings")
-                            .to_owned())
+                             .expect("output.gelf_extra values must be strings")
+                             .to_owned())
                     })
                     .collect()
             }

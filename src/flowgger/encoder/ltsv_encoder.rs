@@ -18,8 +18,8 @@ impl LTSVEncoder {
                     .map(|(k, v)| {
                         (k.to_owned(),
                          v.as_str()
-                            .expect("output.ltsv_extra values must be strings")
-                            .to_owned())
+                             .expect("output.ltsv_extra values must be strings")
+                             .to_owned())
                     })
                     .collect()
             }

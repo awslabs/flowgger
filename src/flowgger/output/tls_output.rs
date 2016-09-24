@@ -285,10 +285,11 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         .map_or(DEFAULT_RECOVERY_DELAY_INIT, |x| {
             x.as_integer().expect("output.tls_recovery_delay_init must be an integer") as u32
         });
-    let recovery_delay_max = config.lookup("output.tls_recovery_delay_max")
-        .map_or(DEFAULT_RECOVERY_DELAY_MAX, |x| {
-            x.as_integer().expect("output.tls_recovery_delay_max must be an integer") as u32
-        });
+    let recovery_delay_max =
+        config.lookup("output.tls_recovery_delay_max")
+            .map_or(DEFAULT_RECOVERY_DELAY_MAX, |x| {
+                x.as_integer().expect("output.tls_recovery_delay_max must be an integer") as u32
+            });
     let recovery_probe_time = config.lookup("output.tls_recovery_probe_time")
         .map_or(DEFAULT_RECOVERY_PROBE_TIME, |x| {
             x.as_integer().expect("output.tls_recovery_probe_time must be an integer") as u32

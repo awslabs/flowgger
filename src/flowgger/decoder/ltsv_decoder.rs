@@ -113,7 +113,7 @@ impl Decoder for LTSVDecoder {
                 }
                 name => {
                     let (final_name, value): (String, SDValue) = if let Some(ref schema) =
-                                                                        self.schema {
+                        self.schema {
                         match schema.get(name) {
                             None |
                             Some(&SDValueType::String) => {
@@ -128,7 +128,7 @@ impl Decoder for LTSVDecoder {
                                 };
                                 (final_name,
                                  SDValue::Bool(try!(value.parse::<bool>()
-                                    .or(Err("Type error; boolean was expected")))))
+                                     .or(Err("Type error; boolean was expected")))))
                             }
                             Some(&SDValueType::F64) => {
                                 let final_name = match self.suffixes.s_f64 {
@@ -139,7 +139,7 @@ impl Decoder for LTSVDecoder {
                                 };
                                 (final_name,
                                  SDValue::F64(try!(value.parse::<f64>()
-                                    .or(Err("Type error; f64 was expected")))))
+                                     .or(Err("Type error; f64 was expected")))))
                             }
                             Some(&SDValueType::I64) => {
                                 let final_name = match self.suffixes.s_i64 {
@@ -150,7 +150,7 @@ impl Decoder for LTSVDecoder {
                                 };
                                 (final_name,
                                  SDValue::I64(try!(value.parse::<i64>()
-                                    .or(Err("Type error; i64 was expected")))))
+                                     .or(Err("Type error; i64 was expected")))))
                             }
                             Some(&SDValueType::U64) => {
                                 let final_name = match self.suffixes.s_u64 {
@@ -161,7 +161,7 @@ impl Decoder for LTSVDecoder {
                                 };
                                 (final_name,
                                  SDValue::U64(try!(value.parse::<u64>()
-                                    .or(Err("Type error; u64 was expected")))))
+                                     .or(Err("Type error; u64 was expected")))))
                             }
                         }
                     } else {
