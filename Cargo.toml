@@ -11,6 +11,8 @@ coroutines = ["coio"]
 ecdh = ["openssl/ecdh_auto"]
 without_kafka = [ ]
 
+default = ["kafka"]
+
 [build-dependencies.capnpc]
 version = "*"
 optional = true
@@ -37,6 +39,7 @@ optional = true
 git = "https://github.com/jedisct1/kafka-rust"
 branch = "openssl-0.8"
 features = ["snappy", "gzip"]
+optional = true
 
 [dependencies.openssl]
 version = "0.8"
