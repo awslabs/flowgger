@@ -5,14 +5,14 @@ dependencies = [
  "capnp 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "capnpc 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "clippy 0.0.90 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy 0.0.91 (git+https://github.com/Manishearth/rust-clippy)",
  "coio 0.2.0 (git+https://github.com/zonyitoo/coio-rs)",
  "kafka 0.5.0 (git+https://github.com/jedisct1/kafka-rust?branch=openssl-0.8)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.3.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "redis 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.8.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.8.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -74,16 +74,16 @@ dependencies = [
 
 [[package]]
 name = "clippy"
-version = "0.0.90"
-source = "git+https://github.com/Manishearth/rust-clippy#6361c875094a98cbf2b93898d8de326478277d53"
+version = "0.0.91"
+source = "git+https://github.com/Manishearth/rust-clippy#fe27ac5fd236abe0dc59e8cba65d18f438557216"
 dependencies = [
- "clippy_lints 0.0.90 (git+https://github.com/Manishearth/rust-clippy)",
+ "clippy_lints 0.0.91 (git+https://github.com/Manishearth/rust-clippy)",
 ]
 
 [[package]]
 name = "clippy_lints"
-version = "0.0.90"
-source = "git+https://github.com/Manishearth/rust-clippy#6361c875094a98cbf2b93898d8de326478277d53"
+version = "0.0.91"
+source = "git+https://github.com/Manishearth/rust-clippy#fe27ac5fd236abe0dc59e8cba65d18f438557216"
 dependencies = [
  "matches 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "quine-mc_cluskey 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -392,7 +392,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "sha1 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "url 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "url 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -420,7 +420,7 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "0.8.9"
+version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -431,7 +431,7 @@ dependencies = [
  "dtoa 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "itoa 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.8.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.8.10 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -507,7 +507,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "url"
-version = "1.2.0"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "idna 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -552,8 +552,8 @@ dependencies = [
 "checksum capnpc 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "8088d62962beb3d04a389245654fdbe49940e0a5e30b35a8c22e4e03911e62b6"
 "checksum cfg-if 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "de1e760d7b6535af4241fca8bd8adf68e2e7edacc6b29f5d399050c5e48cf88c"
 "checksum chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)" = "9213f7cd7c27e95c2b57c49f0e69b1ea65b27138da84a170133fd21b07659c00"
-"checksum clippy 0.0.90 (git+https://github.com/Manishearth/rust-clippy)" = "<none>"
-"checksum clippy_lints 0.0.90 (git+https://github.com/Manishearth/rust-clippy)" = "<none>"
+"checksum clippy 0.0.91 (git+https://github.com/Manishearth/rust-clippy)" = "<none>"
+"checksum clippy_lints 0.0.91 (git+https://github.com/Manishearth/rust-clippy)" = "<none>"
 "checksum coio 0.2.0 (git+https://github.com/zonyitoo/coio-rs)" = "<none>"
 "checksum context 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "32079bad06e056de0007a408d217fd37d9b0835a655beb8813d49eca50dbb7c0"
 "checksum crc 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2a3f9159e74024e2cdb6f574e9117cdc2e91523a890930a022823d17abedc90a"
@@ -594,7 +594,7 @@ dependencies = [
 "checksum regex-syntax 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "279401017ae31cf4e15344aa3f085d0e2e5c1e70067289ef906906fdbe92c8fd"
 "checksum rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)" = "6159e4e6e559c81bd706afe9c8fd68f547d3e851ce12e76b1de7914bab61691b"
 "checksum semver 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "2d5b7638a1f03815d94e88cb3b3c08e87f0db4d683ef499d1836aaf70a45623f"
-"checksum serde 0.8.9 (registry+https://github.com/rust-lang/crates.io-index)" = "addfcab8c811b4e016a78d8699fc48cbdb41f90829ce66bf5fa700cfc746e96e"
+"checksum serde 0.8.10 (registry+https://github.com/rust-lang/crates.io-index)" = "7a1687e7258b35aa6117cb52d65aa8f289d544fdad0c7a31822973b4465e4066"
 "checksum serde_json 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e5b3bb42fa42265df8a1822b3db2090bc8f9e17e8142599c76a5b854bc4e7b5b"
 "checksum sha1 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cc30b1e1e8c40c121ca33b86c23308a090d19974ef001b4bf6e61fd1a0fb095c"
 "checksum slab 0.1.3 (git+https://github.com/carllerche/slab.git?rev=44f9f41a1680e69db7d370d1912898fb0f90b1f8)" = "<none>"
@@ -606,7 +606,7 @@ dependencies = [
 "checksum toml 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "736b60249cb25337bc196faa43ee12c705e426f3d55c214d73a4e7be06f92cb4"
 "checksum unicode-bidi 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "c1f7ceb96afdfeedee42bade65a0d585a6a0106f681b6749c8ff4daa8df30b3f"
 "checksum unicode-normalization 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "26643a2f83bac55f1976fb716c10234485f9202dcd65cfbdf9da49867b271172"
-"checksum url 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "afe9ec54bc4db14bc8744b7fed060d785ac756791450959b2248443319d5b119"
+"checksum url 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "8527c62d9869a08325c38272b3f85668df22a65890c61a639d233dc0ed0b23a2"
 "checksum user32-sys 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4ef4711d107b21b410a3a974b1204d9accc8b10dad75d8324b5d755de1617d47"
 "checksum winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "167dc9d6949a9b857f3451275e911c3f44255842c1f7a76f33c55103a909087a"
 "checksum winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2d315eee3b34aca4797b2da6b13ed88266e6d612562a0c46390af8299fc699bc"
