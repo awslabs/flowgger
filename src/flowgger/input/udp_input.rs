@@ -40,18 +40,18 @@ impl Input for UdpInput {
                 Err(_) => continue,
             };
             let line = &buf[..length];
-            if let Err(e) = handle_line(&line, &tx, &decoder, &encoder) {
+            if let Err(e) = handle_record(&line, &tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}", e);
             }
         }
     }
 }
 
-fn handle_line(line: &[u8],
-               tx: &SyncSender<Vec<u8>>,
-               decoder: &Box<Decoder>,
-               encoder: &Box<Encoder>)
-               -> Result<(), &'static str> {
+fn handle_record(line: &[u8],
+                 tx: &SyncSender<Vec<u8>>,
+                 decoder: &Box<Decoder>,
+                 encoder: &Box<Encoder>)
+                 -> Result<(), &'static str> {
     let line = match str::from_utf8(&line) {
         Err(_) => return Err("Invalid UTF-8 input"),
         Ok(line) => line,

@@ -108,7 +108,7 @@ impl RedisWorker {
                 Err(e) => return Err(format!("Redis protocol error in BRPOPLPUSH: [{}]", e)),
                 Ok(line) => line,
             };
-            if let Err(e) = handle_line(&line, &self.tx, &decoder, &encoder) {
+            if let Err(e) = handle_record(&line, &self.tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
             let res: RedisResult<u8> = redis_cnx.lrem(queue_key_tmp as &str, 1, line as String);
@@ -146,11 +146,11 @@ impl Input for RedisInput {
     }
 }
 
-fn handle_line(line: &String,
-               tx: &SyncSender<Vec<u8>>,
-               decoder: &Box<Decoder>,
-               encoder: &Box<Encoder>)
-               -> Result<(), &'static str> {
+fn handle_record(line: &String,
+                 tx: &SyncSender<Vec<u8>>,
+                 decoder: &Box<Decoder>,
+                 encoder: &Box<Encoder>)
+                 -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(&line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();
