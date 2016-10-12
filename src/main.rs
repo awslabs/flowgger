@@ -4,6 +4,7 @@ extern crate capnp;
 extern crate chrono;
 #[cfg(feature = "coroutines")]
 extern crate coio;
+extern crate flate2;
 #[cfg(not(feature = "without_kafka"))]
 extern crate kafka;
 extern crate log;
