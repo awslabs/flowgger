@@ -26,6 +26,7 @@ redis = "*"
 serde = "*"
 serde_json = "*"
 toml = "*"
+inflate = "*"
 
 [dependencies.clippy]
 git = "https://github.com/Manishearth/rust-clippy"
