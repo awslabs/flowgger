@@ -59,7 +59,8 @@ fn handle_record_maybe_compressed(line: &[u8],
        (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda) {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
         match Decompress::new(true).decompress_vec(line, &mut decompressed, Flush::Finish) {
-            Ok(Status::Ok) => handle_record(&decompressed, tx, decoder, encoder),
+            Ok(Status::Ok) |
+            Ok(Status::StreamEnd) => handle_record(&decompressed, tx, decoder, encoder),
             _ => return Err("Corrupted compressed record"),
         }
     } else {
