@@ -25,6 +25,7 @@ matrix:
             # App-specific
             - libsnappy-dev
             - libssl-dev
+            - pkg-config
     - os: linux
       rust: nightly
       env: TARGET=armv7-unknown-linux-gnueabihf
@@ -43,6 +44,7 @@ matrix:
             # App-specific
             - libsnappy-dev
             - libssl-dev
+            - pkg-config
     - os: linux
       rust: nightly
       env: TARGET=i686-unknown-linux-gnu
@@ -54,6 +56,7 @@ matrix:
             # App-specific
             - libsnappy-dev
             - libssl-dev
+            - pkg-config
     - os: linux
       rust: nightly
       env: TARGET=i686-unknown-linux-musl
@@ -68,6 +71,7 @@ matrix:
           # App-specific
           - libsnappy-dev
           - libssl-dev
+          - pkg-config
     - os: osx
       rust: nightly
       env: TARGET=x86_64-apple-darwin
