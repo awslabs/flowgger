@@ -20,21 +20,6 @@ matrix:
            - libssl-dev
 
     - os: linux
-      rust: nightly
-      env: TARGET=x86_64-unknown-linux-musl
-      dist: trusty
-      sudo: required
-      addons:
-       apt:
-         packages: &musl_packages
-         - musl
-         - musl-dev
-         - musl-tools
-         # App-specific
-         - libsnappy-dev
-         - libssl-dev
-
-    - os: linux
       rust: stable
       env: TARGET=x86_64-unknown-linux-gnu
       addons:
