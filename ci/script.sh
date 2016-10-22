@@ -27,7 +27,7 @@ run_test_suite() {
     fi
 
     cargo build --target $TARGET --features="coroutines ecdh" --verbose
-    cargo test --target --features="coroutines ecdh" $TARGET
+    cargo test  --target $TARGET --features="coroutines ecdh"
 
     # sanity check the file type
     file target/$TARGET/debug/flowgger
