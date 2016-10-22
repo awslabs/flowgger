@@ -1,8 +1,152 @@
 language: rust
 
-rust:
-- nightly
-- beta
+env:
+  global:
+    - PROJECT_NAME=flowgger
+    - MAKE_DEB=yes
+    - DEB_MAINTAINER="Frank Denis <github@pureftpd.org>"
+    - DEB_DESCRIPTION="A high performance DNS cache"
 
-before_script:
- - sudo apt-get install -y libsnappy-dev libssl-dev
+matrix:
+  include:
+    - os: linux
+      rust: nightly
+      env: TARGET=aarch64-unknown-linux-gnu
+      # need Trusty because the glibc in Precise is too old and doesn't support 64-bit arm
+      dist: trusty
+      sudo: required
+      # Extra packages only for this job
+      addons:
+        apt:
+          packages: &aarch64_unknown_linux_gnu
+            # Transparent emulation
+            - qemu-user-static
+            - binfmt-support
+            # App-specific
+            - libsnappy-dev
+            - libssl-dev
+    - os: linux
+      rust: nightly
+      env: TARGET=armv7-unknown-linux-gnueabihf
+      # sudo is needed for binfmt_misc, which is needed for transparent user qemu emulation
+      sudo: required
+      addons:
+        apt:
+          packages: &armv7_unknown_linux_gnueabihf
+            # Cross compiler and cross compiled C libraries
+            - gcc-arm-linux-gnueabihf
+            - libc6-armhf-cross
+            - libc6-dev-armhf-cross
+            # Transparent emulation
+            - qemu-user-static
+            - binfmt-support
+            # App-specific
+            - libsnappy-dev
+            - libssl-dev
+    - os: linux
+      rust: nightly
+      env: TARGET=i686-unknown-linux-gnu
+      addons:
+        apt:
+          packages: &i686_unknown_linux_gnu
+            # Cross compiler and cross compiled C libraries
+            - gcc-multilib
+            # App-specific
+            - libsnappy-dev
+            - libssl-dev
+    - os: linux
+      rust: nightly
+      env: TARGET=i686-unknown-linux-musl
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages: &musl_packages
+          - musl
+          - musl-dev
+          - musl-tools
+          # App-specific
+          - libsnappy-dev
+          - libssl-dev
+    - os: osx
+      rust: nightly
+      env: TARGET=x86_64-apple-darwin
+    - os: linux
+      rust: nightly
+      env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      rust: nightly
+      env: TARGET=x86_64-unknown-linux-musl
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages: *musl_packages
+
+    - os: linux
+      rust: stable
+      env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      rust: stable
+      env: TARGET=x86_64-unknown-linux-musl
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages: *musl_packages
+    - os: linux
+      rust: beta
+      env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      rust: beta
+      env: TARGET=x86_64-unknown-linux-musl
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages: *musl_packages
+
+  allow_failures:
+    - os: linux
+      rust: stable
+      env: TARGET=x86_64-unknown-linux-gnu
+    - os: linux
+      rust: stable
+      env: TARGET=x86_64-unknown-linux-musl
+
+before_install:
+  - export PATH="$PATH:$HOME/.cargo/bin"
+
+install:
+  - bash ci/install.sh
+
+script:
+  - bash ci/script.sh
+
+before_deploy:
+  - bash ci/before_deploy.sh
+
+deploy:
+  provider: releases
+  api_key:
+    secure: 0Y8ZXOJaNJJ5/0IRcXyNIOJK4EICQDRtaB/E+pboNUchJn9fThGMQc2QtZaGddBNrnuHsftBFM7mWXJvZ2H9YGgbBl1N6Z2y33vawSPgzTnfz0CZRJfX1Gl6IdtDH9zvlblHI1aE4eJ6lAu0q8VQ874CBPxoIlzU9jArOTdvyPT+8t64Y0K240trfqrm0NHloUbZtm+HeRJqoK1RKE4kdrpESIVMyyq67fM9T0VqLg+x3OHeQ/itFnZpjqtVtj9WhZeKM6iTNLQT+vLpRAvq8w6sv1WeCMYAqdXUL7jQnVaI+MiepC9z8OoF0ZAYes0I+3aaNsgMHiuwkW+nDUcQp5XLDW3oCq/uST4pN2ki/AJPy4UUUx++xb8SgtKE4wzBGbT0u5yO9JkIPxJZRLy+E0IvTlqVEZL/tvnI09JQQmzgDdP1hCcxpxBBm4xLi/2qSHIJIMUbb92DRwOrTii34+C0oa1UZKh2P/ceCtLNOlOCmFAcWE9uAxjEGP903mmgbixj8xBbyuROedHIMxag0Jr9Tdoi0hsVdhOEss4JjNKf7ayjepRIw5lNFjxk+jgB+Om0J3vQ+i83LxX1a0b9YV+KJUtWz/CV43mwYhF+jh2GAMe0/cvNCbFT4au0SW2FKDvV/00AJ5tPGimVXNe0e+AUqjbJ2sRpylIQw1Mfl6Y=
+  file_glob: true
+  file: ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}.*
+  # don't delete the artifacts from previous phases
+  skip_cleanup: true
+  # deploy when a new tag is pushed
+  on:
+    condition: $TRAVIS_RUST_VERSION = nightly
+    tags: true
+
+branches:
+  only:
+    # Pushes and PR to the master branch
+    - master
+    # IMPORTANT Ruby regex to match tags. Required, or travis won't trigger deploys when a new tag
+    # is pushed. This regex matches semantic versions like v1.2.3-rc4+2016.02.22
+    - /^\d+\.\d+\.\d+.*$/
+
+notifications:
+  email:
+    on_success: change
