@@ -46,10 +46,6 @@ optional = true
 version = "0.8"
 features = ["tlsv1_2", "tlsv1_1", "dh_from_params"]
 
-[profile.dev]
-codegen-units = 8
-debug = true
-
 [profile.release]
 opt-level = 3
 debug = false
