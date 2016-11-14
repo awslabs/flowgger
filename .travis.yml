@@ -18,9 +18,9 @@ matrix:
       sudo: required
       addons:
         apt:
-         packages: &std_unknown_linux_gnu
-           - libsnappy-dev
-           - libssl-dev
+          packages: &std_unknown_linux_gnu
+            - libsnappy-dev
+            - libssl-dev
 
     - os: linux
       rust: stable
