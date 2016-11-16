@@ -1,9 +1,0 @@
-name: flowgger
-version: "0.2.3"
-author: Frank Denis <https://twitter.com/jedisct1>
-about: flowgger is a fast, simple and lightweight data collector written in Rust.
-args:
-    - INPUT:
-        help: Sets the input file to use
-        required: true
-        index: 1
