@@ -20,14 +20,14 @@ optional = true
 [dependencies]
 capnp = "*"
 chrono = "*"
+clap = "*"
+flate2 = "*"
 log = "*"
 rand = "*"
 redis = "*"
 serde = "*"
 serde_json = "*"
 toml = "*"
-flate2 = "*"
-clap = "*"
 
 [dependencies.clippy]
 git = "https://github.com/Manishearth/rust-clippy"
