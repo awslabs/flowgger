@@ -1,7 +1,7 @@
-#[macro_use]
-
 extern crate capnp;
 extern crate chrono;
+#[macro_use]
+extern crate clap;
 #[cfg(feature = "coroutines")]
 extern crate coio;
 extern crate flate2;
@@ -15,12 +15,10 @@ extern crate serde;
 extern crate serde_json;
 extern crate toml;
 
-#[macro_use]
-extern crate clap;
-use clap::{Arg, App};
-
 mod flowgger;
 pub use flowgger::record_capnp;
+
+use clap::{Arg, App};
 
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
 const FLOWGGER_VERSION_STRING: &'static str = "0.2.3";
