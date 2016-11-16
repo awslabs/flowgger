@@ -3,7 +3,7 @@ name = "flowgger"
 version = "0.2.3"
 dependencies = [
  "capnp 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "capnpc 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "capnpc 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clippy 0.0.98 (git+https://github.com/Manishearth/rust-clippy)",
@@ -54,7 +54,7 @@ dependencies = [
 
 [[package]]
 name = "capnpc"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "capnp 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -115,7 +115,7 @@ dependencies = [
 [[package]]
 name = "coio"
 version = "0.2.0"
-source = "git+https://github.com/zonyitoo/coio-rs#5ab6000eee3570e690a18e243c54fab28056459e"
+source = "git+https://github.com/zonyitoo/coio-rs#34ab9209b50669a167892de6e5a87aa8514741ce"
 dependencies = [
  "context 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "deque 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -624,7 +624,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum byteorder 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "96c8b41881888cc08af32d47ac4edd52bc7fa27fef774be47a92443756451304"
 "checksum byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "0fc10e8cc6b2580fda3f36eb6dc5316657f812a3df879a44a66fc9f0fdbc4855"
 "checksum capnp 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)" = "476c6a1bba39763a198092e54dec50113c48478dbe031385acfecbae70bac1bd"
-"checksum capnpc 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "8088d62962beb3d04a389245654fdbe49940e0a5e30b35a8c22e4e03911e62b6"
+"checksum capnpc 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)" = "b78cf9a8fde3feddace002ff41c95ed9f08ff84829c6fbc2d36624934e3af743"
 "checksum cfg-if 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "de1e760d7b6535af4241fca8bd8adf68e2e7edacc6b29f5d399050c5e48cf88c"
 "checksum chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)" = "9213f7cd7c27e95c2b57c49f0e69b1ea65b27138da84a170133fd21b07659c00"
 "checksum clap 2.18.0 (registry+https://github.com/rust-lang/crates.io-index)" = "40046b8a004bf3ba43b9078bf4b9b6d1708406a234848f925dbd7160a374c8a8"
