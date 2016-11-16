@@ -27,6 +27,7 @@ serde = "*"
 serde_json = "*"
 toml = "*"
 flate2 = "*"
+clap = {version = "2", features = ["yaml"]}
 
 [dependencies.clippy]
 git = "https://github.com/Manishearth/rust-clippy"
