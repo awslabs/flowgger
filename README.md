@@ -1,6 +1,8 @@
 
 ![Flowgger](https://raw.github.com/jedisct1/flowgger/master/flowgger.png)
 
+[![Build Status](https://travis-ci.org/jedisct1/flowgger.svg?branch=master)](https://travis-ci.org/jedisct1/flowgger) [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://github.com/jedisct1/flowgger/blob/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/mashape/kong.svg)](https://hub.docker.com/r/jedisct1/flowgger)
+
 Flowgger is a fast, simple and lightweight data collector written in Rust.
 
 It reads log entries over a given protocol, extracts them, decodes them using a
