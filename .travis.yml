@@ -14,6 +14,7 @@ matrix:
     - os: linux
       rust: nightly
       env: TARGET=x86_64-unknown-linux-gnu
+      env: FEATURES="coroutines ecdh"
       dist: trusty
       sudo: required
       addons:
@@ -27,6 +28,7 @@ matrix:
       dist: trusty
       sudo: required
       env: TARGET=x86_64-unknown-linux-gnu
+      env: FEATURES="ecdh"
       addons:
         apt:
           packages: *std_unknown_linux_gnu
@@ -37,6 +39,7 @@ matrix:
       dist: trusty
       sudo: required
       env: TARGET=x86_64-unknown-linux-gnu
+      env: FEATURES="ecdh"
 
 before_install:
   - export PATH="$PATH:$HOME/.cargo/bin"

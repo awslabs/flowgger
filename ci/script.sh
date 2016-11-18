@@ -26,8 +26,8 @@ run_test_suite() {
         export RUST_TEST_THREADS=1
     fi
 
-    cargo build --target $TARGET --features="coroutines ecdh" --verbose
-    cargo test  --target $TARGET --features="coroutines ecdh"
+    cargo build --target $TARGET --features="$FEATURES" --verbose
+    cargo test  --target $TARGET --features="$FEATURES"
 
     # sanity check the file type
     file target/$TARGET/debug/flowgger
