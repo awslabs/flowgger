@@ -5,7 +5,7 @@ dependencies = [
  "capnp 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "capnpc 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "clap 2.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "clap 2.19.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "clippy 0.0.100 (git+https://github.com/Manishearth/rust-clippy)",
  "coio 0.2.0 (git+https://github.com/zonyitoo/coio-rs)",
  "flate2 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -76,13 +76,13 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "2.18.0"
+version = "2.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "ansi_term 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.17 (registry+https://github.com/rust-lang/crates.io-index)",
- "strsim 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "strsim 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "term_size 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "unicode-segmentation 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "unicode-width 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -92,7 +92,7 @@ dependencies = [
 [[package]]
 name = "clippy"
 version = "0.0.100"
-source = "git+https://github.com/Manishearth/rust-clippy#e2908dfc82ee26dc448b2a1b1e1a252708d5555c"
+source = "git+https://github.com/Manishearth/rust-clippy#530083c3b925829e4d2211057444510a7177f3b4"
 dependencies = [
  "clippy_lints 0.0.100 (git+https://github.com/Manishearth/rust-clippy)",
 ]
@@ -100,7 +100,7 @@ dependencies = [
 [[package]]
 name = "clippy_lints"
 version = "0.0.100"
-source = "git+https://github.com/Manishearth/rust-clippy#e2908dfc82ee26dc448b2a1b1e1a252708d5555c"
+source = "git+https://github.com/Manishearth/rust-clippy#530083c3b925829e4d2211057444510a7177f3b4"
 dependencies = [
  "matches 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "quine-mc_cluskey 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -494,7 +494,7 @@ dependencies = [
 
 [[package]]
 name = "strsim"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -621,7 +621,7 @@ dependencies = [
 "checksum capnpc 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)" = "06222b49e8872abb16e61de18a4f175760f188e754f61b53b30cf7c656711d3d"
 "checksum cfg-if 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "de1e760d7b6535af4241fca8bd8adf68e2e7edacc6b29f5d399050c5e48cf88c"
 "checksum chrono 0.2.25 (registry+https://github.com/rust-lang/crates.io-index)" = "9213f7cd7c27e95c2b57c49f0e69b1ea65b27138da84a170133fd21b07659c00"
-"checksum clap 2.18.0 (registry+https://github.com/rust-lang/crates.io-index)" = "40046b8a004bf3ba43b9078bf4b9b6d1708406a234848f925dbd7160a374c8a8"
+"checksum clap 2.19.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ef87e92396a3d29bf7e611c8a595be35ae90d9cb844a3571425900eaca4f51c8"
 "checksum clippy 0.0.100 (git+https://github.com/Manishearth/rust-clippy)" = "<none>"
 "checksum clippy_lints 0.0.100 (git+https://github.com/Manishearth/rust-clippy)" = "<none>"
 "checksum coio 0.2.0 (git+https://github.com/zonyitoo/coio-rs)" = "<none>"
@@ -672,7 +672,7 @@ dependencies = [
 "checksum sha1 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "cc30b1e1e8c40c121ca33b86c23308a090d19974ef001b4bf6e61fd1a0fb095c"
 "checksum slab 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "17b4fcaed89ab08ef143da37bc52adbcc04d4a69014f4c1208d6b51f0c47bc23"
 "checksum snappy 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "17d70c85c3299944adf664d5c8690cc854780180391a38866856b7187da28a2f"
-"checksum strsim 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "50c069df92e4b01425a8bf3576d5d417943a6a7272fbabaf5bd80b1aaa76442e"
+"checksum strsim 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "67f84c44fbb2f91db7fef94554e6b2ac05909c9c0b0bc23bb98d3a1aebfe7f7c"
 "checksum tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "87974a6f5c1dfb344d733055601650059a3363de2a6104819293baff662132d6"
 "checksum term_size 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3f7f5f3f71b0040cecc71af239414c23fd3c73570f5ff54cf50e03cef637f2a0"
 "checksum time 0.1.35 (registry+https://github.com/rust-lang/crates.io-index)" = "3c7ec6d62a20df54e07ab3b78b9a3932972f4b7981de295563686849eb3989af"
