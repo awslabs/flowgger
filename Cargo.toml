@@ -38,9 +38,8 @@ git = "https://github.com/zonyitoo/coio-rs"
 optional = true
 
 [dependencies.kafka]
-git = "https://github.com/jedisct1/kafka-rust"
-branch = "openssl-0.8"
-features = ["snappy", "gzip"]
+git = "https://github.com/spicavigo/kafka-rust"
+features = ["snappy", "gzip", "security"]
 optional = true
 
 [dependencies.openssl]
