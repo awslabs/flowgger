@@ -130,6 +130,13 @@ pub mod record {
         pub fn has_pairs(&self) -> bool {
             !self.reader.get_pointer_field(7).is_null()
         }
+        #[inline]
+        pub fn get_extra(self) -> Result<struct_list::Reader<'a, ::record_capnp::pair::Owned>> {
+            ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(8))
+        }
+        pub fn has_extra(&self) -> bool {
+            !self.reader.get_pointer_field(8).is_null()
+        }
     }
 
     pub struct Builder<'a> {
@@ -343,6 +350,28 @@ pub mod record {
         }
         pub fn has_pairs(&self) -> bool {
             !self.builder.get_pointer_field(7).is_null()
+        }
+
+        #[inline]
+        pub fn get_extra(self) -> Result<struct_list::Builder<'a, ::record_capnp::pair::Owned>> {
+            ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(8))
+        }
+        #[inline]
+        pub fn set_extra(&mut self,
+                         value: struct_list::Reader<'a, ::record_capnp::pair::Owned>)
+                         -> Result<()> {
+            ::capnp::traits::SetPointerBuilder::set_pointer_builder(self.builder.get_pointer_field(8),
+                                                                    value)
+        }
+        #[inline]
+        pub fn init_extra(self,
+                          size: u32)
+                          -> struct_list::Builder<'a, ::record_capnp::pair::Owned> {
+            ::capnp::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(8),
+                                                              size)
+        }
+        pub fn has_extra(&self) -> bool {
+            !self.builder.get_pointer_field(8).is_null()
         }
     }
 
