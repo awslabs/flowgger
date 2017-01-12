@@ -1,6 +1,6 @@
 [package]
 name = "flowgger"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["Frank Denis <github@pureftpd.org>"]
 build = "build.rs"
 
@@ -43,7 +43,7 @@ features = ["snappy", "gzip", "security"]
 optional = true
 
 [dependencies.openssl]
-version = "0.8"
+version = "~0.8"
 features = ["tlsv1_2", "tlsv1_1", "dh_from_params"]
 
 [profile.release]
