@@ -19,6 +19,7 @@ mod flowgger;
 pub use flowgger::record_capnp;
 
 use clap::{Arg, App};
+use std::io::{stderr, Write};
 
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
 const FLOWGGER_VERSION_STRING: &'static str = "0.2.3";
@@ -30,6 +31,6 @@ fn main() {
         .arg(Arg::with_name("config_file").help("Configuration file").value_name("FILE").index(1))
         .get_matches();
     let config_file = matches.value_of("config_file").unwrap_or(DEFAULT_CONFIG_FILE);
-    println!("Flowgger {}", FLOWGGER_VERSION_STRING);
+    let _ = writeln!(stderr(), "Flowgger {}", FLOWGGER_VERSION_STRING);
     flowgger::start(config_file)
 }
