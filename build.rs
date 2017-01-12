@@ -3,8 +3,12 @@ extern crate capnpc;
 
 #[cfg(feature = "capnp-recompile")]
 fn main() {
-    ::capnpc::compile("src", &["record.capnp"]).unwrap();
+    ::capnpc::CompilerCommand::new()
+        .src_prefix("src/flowgger")
+        .file("record.capnp")
+        .run()
+        .expect("schema compiled comand");
 }
 
 #[cfg(not(feature = "capnp-recompile"))]
-fn main() { }
+fn main() {}
