@@ -61,44 +61,60 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
     }
 }
 
-fn get_pairs(message_pairs: capnp::struct_list::Reader<record_capnp::pair::Owned>)
+fn get_pairs(message_pairs: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
+             message_extra: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>)
              -> Vec<(String, SDValue)> {
-    let mut pairs = Vec::with_capacity(message_pairs.len() as usize);
-    for message_pair in message_pairs.iter() {
-        let name = match message_pair.get_key() {
-            Ok(name) => {
-                if name.starts_with('_') {
-                    name.to_owned()
-                } else {
-                    format!("_{}", name)
+    let pairs_count = message_pairs.and_then(|x| Some(x.len())).or(Some(0)).unwrap() as usize +
+                      message_extra.and_then(|x| Some(x.len())).or(Some(0)).unwrap() as usize;
+    let mut pairs = Vec::with_capacity(pairs_count);
+    if let Some(message_pairs) = message_pairs {
+        for message_pair in message_pairs.iter() {
+            let name = match message_pair.get_key() {
+                Ok(name) => {
+                    if name.starts_with('_') {
+                        name.to_owned()
+                    } else {
+                        format!("_{}", name)
+                    }
                 }
+                _ => continue,
+            };
+            let value = match message_pair.get_value().which() {
+                Ok(record_capnp::pair::value::String(Ok(x))) => SDValue::String(x.to_owned()),
+                Ok(record_capnp::pair::value::Bool(x)) => SDValue::Bool(x),
+                Ok(record_capnp::pair::value::F64(x)) => SDValue::F64(x),
+                Ok(record_capnp::pair::value::I64(x)) => SDValue::I64(x),
+                Ok(record_capnp::pair::value::U64(x)) => SDValue::U64(x),
+                Ok(record_capnp::pair::value::Null(())) => SDValue::Null,
+                _ => continue,
+            };
+            pairs.push((name, value));
+        }
+    }
+    if let Some(message_extra) = message_extra {
+        for message_pair in message_extra.iter() {
+            match (message_pair.get_key(), message_pair.get_value().which()) {
+                (Ok(name), Ok(record_capnp::pair::value::String(Ok(value)))) => {
+                    pairs.push((name.to_owned(), SDValue::String(value.to_owned())))
+                }
+                _ => continue,
             }
-            _ => continue,
-        };
-        let value = match message_pair.get_value().which() {
-            Ok(record_capnp::pair::value::String(Ok(x))) => SDValue::String(x.to_owned()),
-            Ok(record_capnp::pair::value::Bool(x)) => SDValue::Bool(x),
-            Ok(record_capnp::pair::value::F64(x)) => SDValue::F64(x),
-            Ok(record_capnp::pair::value::I64(x)) => SDValue::I64(x),
-            Ok(record_capnp::pair::value::U64(x)) => SDValue::U64(x),
-            Ok(record_capnp::pair::value::Null(())) => SDValue::Null,
-            _ => continue,
-        };
-        pairs.push((name, value));
+        }
     }
     pairs
 }
 
 fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData>, &'static str> {
     let sd_id = message.get_sd_id().and_then(|x| Ok(x.to_owned())).ok();
-    let pairs = match message.get_pairs() {
-        Err(_) => {
-            if sd_id.is_none() {
-                return Ok(None);
-            }
-            Vec::new()
+    let pairs = message.get_pairs().ok();
+    let extra = message.get_extra().ok();
+    let pairs = if pairs.is_none() && extra.is_none() {
+        if sd_id.is_none() {
+            return Ok(None);
         }
-        Ok(message_pairs) => get_pairs(message_pairs),
+        Vec::new()
+    } else {
+        get_pairs(pairs, extra)
     };
     Ok(Some(StructuredData {
         sd_id: sd_id,

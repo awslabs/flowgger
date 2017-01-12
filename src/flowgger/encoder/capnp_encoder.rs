@@ -71,20 +71,9 @@ fn build_record<T: Allocator>(record_msg: &mut capnp::message::Builder<T>,
     if let Some(full_msg) = record.full_msg {
         root.set_full_msg(&full_msg);
     }
-    if record.sd.is_none() && extra.is_empty() {
-        return;
-    }
-    let sd_pairs_len = match record.sd {
-        Some(ref sd) => sd.pairs.len(),
-        None => 0,
-    };
-    let pairs_count = sd_pairs_len + extra.len();
-    record.sd
-        .as_ref()
-        .and_then(|x| x.sd_id.as_ref())
-        .and_then(|sd_id| Some(root.set_sd_id(sd_id)));
-    let mut pairs = root.init_pairs(pairs_count as u32);
     if let Some(sd) = record.sd {
+        sd.sd_id.as_ref().and_then(|sd_id| Some(root.set_sd_id(sd_id)));
+        let mut pairs = root.borrow().init_pairs(sd.pairs.len() as u32);
         for (i, (name, value)) in sd.pairs.into_iter().enumerate() {
             let mut pair = pairs.borrow().get(i as u32);
             pair.set_key(&name);
@@ -99,10 +88,13 @@ fn build_record<T: Allocator>(record_msg: &mut capnp::message::Builder<T>,
             };
         }
     }
-    for (i, &(ref name, ref value)) in extra.into_iter().enumerate() {
-        let mut pair = pairs.borrow().get((sd_pairs_len + i) as u32);
-        pair.set_key(&name);
-        let mut v = pair.init_value();
-        v.set_string(&value)
+    if !extra.is_empty() {
+        let mut pairs = root.init_extra(extra.len() as u32);
+        for (i, &(ref name, ref value)) in extra.into_iter().enumerate() {
+            let mut pair = pairs.borrow().get((i) as u32);
+            pair.set_key(&name);
+            let mut v = pair.init_value();
+            v.set_string(&value)
+        }
     }
 }
