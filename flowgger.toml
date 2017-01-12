@@ -32,7 +32,7 @@ timeout = 3600
 # tls_method = "any"
 # tls_verify_peer = false
 # tls_compression = false
-# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
+# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;"
 
 ### TLS, using coroutines
 # type = "tls_co"
@@ -45,7 +45,7 @@ timeout = 3600
 # tls_method = "any"
 # tls_verify_peer = false
 # tls_compression = false
-# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
+# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;"
 
 ### Redis client
 # type = "redis"
@@ -93,7 +93,7 @@ type = "stdout"
 # tls_method = "any"
 # tls_verify_peer = false
 # tls_compression = false
-# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;";
+# tls_ciphers = "EECDH+AES128:EECDH+CHACHA20:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;"
 # tls_async = false
 # tls_recovery_delay_init = 1
 # tls_recovery_delay_max = 10000
