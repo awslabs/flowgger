@@ -119,5 +119,7 @@ format = "gelf"
 
 ### Cap'n Proto
 # format = "capnp"
-# framing = "noop"
-
+# framing = "capnp"
+# [output.capnp_extra]
+# x-header1 = "x-header1 value"
+# x-header2 = "x-header2 value"

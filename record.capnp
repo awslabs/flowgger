@@ -12,6 +12,7 @@ struct Record {
     fullMsg   @8 :Text;
     sdId      @9 :Text;
     pairs    @10 :List(Pair);
+    extra    @11 :List(Pair);
 }
 
 struct Pair {
