@@ -7,7 +7,7 @@ main() {
     cross build --target $TARGET --no-default-features
     cross build --target $TARGET --release --no-default-features
 
-    if [ -n $DISABLE_TESTS ]; then
+    if [ ! -z $DISABLE_TESTS ]; then
         return
     fi
 

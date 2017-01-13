@@ -5,7 +5,7 @@ environment:
   global:
   # TODO This is the Rust channel that build jobs will use by default but can be
   # overridden on a case by case basis down below
-    RUST_VERSION: nightly
+    RUST_VERSION: stable
 
     # TODO Update this to match the name of your project.
     CRATE_NAME: flowgger
@@ -23,9 +23,9 @@ environment:
 
     # Testing other channels
     - TARGET: x86_64-pc-windows-gnu
-      RUST_VERSION: stable
+      RUST_VERSION: nightly
     - TARGET: x86_64-pc-windows-msvc
-      RUST_VERSION: stable
+      RUST_VERSION: nightly
 
 install:
   - ps: >-
@@ -54,7 +54,7 @@ test_script:
 
 before_deploy:
   # TODO Update this to build the artifacts that matter to you
-  - cargo rustc --target %TARGET% --release --bin edgedns -- -C lto
+  - cargo rustc --target %TARGET% --release --bin flowgger -- -C lto
   - ps: ci\before_deploy.ps1
 
 deploy:
@@ -71,7 +71,7 @@ deploy:
     # In this example, there are some targets that are tested using the stable
     # and nightly channels. This condition makes sure there is only one release
     # for such targets and that's generated using the stable channel
-    RUST_VERSION: nightly
+    RUST_VERSION: stable
     appveyor_repo_tag: true
   provider: GitHub
 
