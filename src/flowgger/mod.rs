@@ -18,7 +18,7 @@ use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{Merger, LineMerger, NulMerger, SyslenMerger};
 use self::output::{Output, DebugOutput, TlsOutput};
-#[cfg(not(feature = "without_kafka"))]
+#[cfg(feature = "kafka")]
 use self::output::KafkaOutput;
 use std::error::Error;
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
@@ -28,9 +28,9 @@ const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
 const DEFAULT_OUTPUT_FORMAT: &'static str = "gelf";
 const DEFAULT_OUTPUT_FRAMING: &'static str = "noop";
-#[cfg(not(feature = "without_kafka"))]
+#[cfg(feature = "kafka")]
 const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
-#[cfg(feature = "without_kafka")]
+#[cfg(not(feature = "kafka"))]
 const DEFAULT_OUTPUT_TYPE: &'static str = "tls";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
@@ -67,12 +67,12 @@ fn get_input(input_type: &str, config: &Config) -> Box<Input> {
     }
 }
 
-#[cfg(not(feature = "without_kafka"))]
+#[cfg(feature = "kafka")]
 fn get_output_kafka(config: &Config) -> Box<Output> {
     Box::new(KafkaOutput::new(&config)) as Box<Output>
 }
 
-#[cfg(feature = "without_kafka")]
+#[cfg(not(feature = "kafka"))]
 fn get_output_kafka(_config: &Config) -> ! {
     panic!("Support for Kafka hasn't been compiled in")
 }

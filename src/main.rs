@@ -5,7 +5,7 @@ extern crate clap;
 #[cfg(feature = "coroutines")]
 extern crate coio;
 extern crate flate2;
-#[cfg(not(feature = "without_kafka"))]
+#[cfg(feature = "kafka")]
 extern crate kafka;
 extern crate log;
 extern crate openssl;

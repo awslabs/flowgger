@@ -1,10 +1,10 @@
 mod debug_output;
-#[cfg(not(feature = "without_kafka"))]
+#[cfg(feature = "kafka")]
 mod kafka_output;
 mod tls_output;
 
 pub use self::debug_output::DebugOutput;
-#[cfg(not(feature = "without_kafka"))]
+#[cfg(feature = "kafka")]
 pub use self::kafka_output::KafkaOutput;
 pub use self::tls_output::TlsOutput;
 
