@@ -14,6 +14,7 @@ env:
   global:
     # TODO Update this to match the name of your project.
     - CRATE_NAME=flowgger
+    - DISABLE_TESTS=1
 
     # default job
     - TARGET=x86_64-unknown-linux-gnu
