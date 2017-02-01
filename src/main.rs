@@ -1,6 +1,5 @@
 extern crate capnp;
 extern crate chrono;
-#[macro_use]
 extern crate clap;
 #[cfg(feature = "coroutines")]
 extern crate coio;

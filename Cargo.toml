@@ -24,8 +24,8 @@ flate2 = "*"
 log = "*"
 rand = "*"
 redis = "*"
-serde = "*"
-serde_json = "*"
+serde = "~0.8"
+serde_json = "~0.8"
 toml = "*"
 
 [dependencies.clippy]
