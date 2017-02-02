@@ -1,4 +1,4 @@
-FROM jedisct1/base-dev-rust-nightly:139d7412
+FROM jedisct1/base-dev-rust-nightly:b11c8f928370
 MAINTAINER Frank Denis
 ENV SERIAL 1
 
