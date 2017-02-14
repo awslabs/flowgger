@@ -157,7 +157,7 @@ impl TlsWorker {
                 }
             }
             let now = chrono::UTC::now();
-            if now - last_recovery >
+            if now.signed_duration_since(last_recovery) >
                chrono::Duration::milliseconds(tls_config.recovery_probe_time as i64) {
                 recovery_delay = tls_config.recovery_delay_init as f64;
             } else if recovery_delay < tls_config.recovery_delay_max as f64 {
