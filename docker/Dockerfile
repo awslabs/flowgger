@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ENV BUILD_DEPS \
     autoconf \
+    automake \
+    libtool \
     file \
     gcc \
     git \
