@@ -10,6 +10,7 @@ ENV BUILD_DEPS \
     libtool \
     file \
     gcc \
+    g++ \
     git \
     libc-dev \
     make \
