@@ -1,8 +1,8 @@
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flate2::{Decompress, Flush, Status};
-use std::io::{stderr, Write};
+use flate2::FlateReadExt;
+use std::io::{stderr, Read, Write};
 use std::net::UdpSocket;
 use std::str;
 use std::sync::mpsc::SyncSender;
@@ -55,13 +55,18 @@ fn handle_record_maybe_compressed(line: &[u8],
                                   decoder: &Box<Decoder>,
                                   encoder: &Box<Encoder>)
                                   -> Result<(), &'static str> {
-    if line.len() > 2 && line[0] == 0x78 &&
-       (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda) {
+    if line.len() > 2 &&
+       (line[0] == 0x78 && (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda)) {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
-        match Decompress::new(true).decompress_vec(line, &mut decompressed, Flush::Finish) {
-            Ok(Status::Ok) |
-            Ok(Status::StreamEnd) => handle_record(&decompressed, tx, decoder, encoder),
-            _ => return Err("Corrupted compressed record"),
+        match line.zlib_decode().read_to_end(&mut decompressed) {
+            Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
+            Err(_) => return Err("Corrupted compressed (zlib) record"),
+        }
+    } else if line.len() > 3 && (line[0] == 0x1f && line[1] == 0x8b && line[2] == 0x08) {
+        let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
+        match line.gz_decode().and_then(|mut x| x.read_to_end(&mut decompressed)) {
+            Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
+            Err(_) => return Err("Corrupted compressed (gzip) record"),
         }
     } else {
         handle_record(line, tx, decoder, encoder)
