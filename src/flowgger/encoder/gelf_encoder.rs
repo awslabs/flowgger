@@ -45,6 +45,12 @@ impl Encoder for GelfEncoder {
         if let Some(full_msg) = record.full_msg {
             map = map.insert("full_message".to_owned(), Value::String(full_msg));
         }
+        if let Some(appname) = record.appname {
+            map = map.insert("application_name".to_owned(), Value::String(appname));
+        }
+        if let Some(procid) = record.procid {
+            map = map.insert("process_id".to_owned(), Value::String(procid));
+        }
         for (name, value) in self.extra.iter().cloned() {
             map = map.insert(name, Value::String(value));
         }
