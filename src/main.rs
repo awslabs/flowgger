@@ -21,7 +21,7 @@ use clap::{Arg, App};
 use std::io::{stderr, Write};
 
 const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
-const FLOWGGER_VERSION_STRING: &'static str = "0.2.3";
+const FLOWGGER_VERSION_STRING: &'static str = "0.2.5";
 
 fn main() {
     let matches = App::new("Flowgger")
