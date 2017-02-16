@@ -1,6 +1,6 @@
 [root]
 name = "flowgger"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "capnp 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "capnpc 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
