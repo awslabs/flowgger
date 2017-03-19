@@ -13,8 +13,7 @@ pub mod tlsco_input;
 pub use super::Input;
 
 const DEFAULT_CERT: &'static str = "flowgger.pem";
-const DEFAULT_CIPHERS: &'static str =
-    "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
+const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
      ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
      ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:\
      ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:\
@@ -91,10 +90,11 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
                 |x| x.as_str().expect("input.tls_ciphers must be a string with a cipher suite"))
         .to_owned();
     let tls_method = match config.lookup("input.tls_method")
-        .map_or(DEFAULT_TLS_METHOD,
-                |x| x.as_str().expect("input.tls_method must be a string with the TLS method"))
-        .to_lowercase()
-        .as_ref() {
+              .map_or(DEFAULT_TLS_METHOD, |x| {
+        x.as_str().expect("input.tls_method must be a string with the TLS method")
+    })
+              .to_lowercase()
+              .as_ref() {
         "any" | "sslv23" => SslMethod::Sslv23,
         "tlsv1" | "tlsv1.0" => SslMethod::Tlsv1,
         "tlsv1.1" => SslMethod::Tlsv1_1,

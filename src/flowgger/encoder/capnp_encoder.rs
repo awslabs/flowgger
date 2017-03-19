@@ -19,11 +19,11 @@ impl CapnpEncoder {
                     .expect("output.capnp_extra must be a list of key/value pairs")
                     .into_iter()
                     .map(|(k, v)| {
-                        (k.to_owned(),
-                         v.as_str()
-                             .expect("output.capnp_extra values must be strings")
-                             .to_owned())
-                    })
+                             (k.to_owned(),
+                              v.as_str()
+                                  .expect("output.capnp_extra values must be strings")
+                                  .to_owned())
+                         })
                     .collect()
             }
         };

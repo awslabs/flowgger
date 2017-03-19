@@ -21,7 +21,7 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
         let mut buf_reader = buf_reader;
         loop {
             let message_reader = match capnp::serialize::read_message(&mut buf_reader,
-                                                                      ReaderOptions::new()) {
+                                                 ReaderOptions::new()) {
                 Err(e) => {
                     match e.kind {
                         capnp::ErrorKind::Failed |
@@ -117,9 +117,9 @@ fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData
         get_pairs(pairs, extra)
     };
     Ok(Some(StructuredData {
-        sd_id: sd_id,
-        pairs: pairs,
-    }))
+                sd_id: sd_id,
+                pairs: pairs,
+            }))
 }
 
 fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'static str> {
@@ -127,9 +127,8 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
     if ts.is_nan() || ts <= 0.0 {
         return Err("Missing timestamp");
     }
-    let hostname = try!(message.get_hostname()
-        .and_then(|x| Ok(x.to_owned()))
-        .or(Err("Missing host name")));
+    let hostname =
+        try!(message.get_hostname().and_then(|x| Ok(x.to_owned())).or(Err("Missing host name")));
     let facility = match message.get_facility() {
         facility if facility <= FACILITY_MAX => Some(facility),
         _ => None,
@@ -145,15 +144,15 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
     let full_msg = message.get_full_msg().and_then(|x| Ok(x.to_owned())).ok();
     let sd = try!(get_sd(message));
     Ok(Record {
-        ts: ts,
-        hostname: hostname,
-        facility: facility,
-        severity: severity,
-        appname: appname,
-        procid: procid,
-        msgid: msgid,
-        msg: msg,
-        full_msg: full_msg,
-        sd: sd,
-    })
+           ts: ts,
+           hostname: hostname,
+           facility: facility,
+           severity: severity,
+           appname: appname,
+           procid: procid,
+           msgid: msgid,
+           msg: msg,
+           full_msg: full_msg,
+           sd: sd,
+       })
 }

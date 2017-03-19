@@ -31,8 +31,9 @@ impl Input for UdpInput {
               tx: SyncSender<Vec<u8>>,
               decoder: Box<Decoder + Send>,
               encoder: Box<Encoder + Send>) {
-        let socket = UdpSocket::bind(&self.listen as &str)
-            .expect(&format!("Unable to listen to {}", self.listen));
+        let socket =
+            UdpSocket::bind(&self.listen as &str).expect(&format!("Unable to listen to {}",
+                                                                  self.listen));
         let tx = tx.clone();
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (decoder.clone_boxed(),
                                                                 encoder.clone_boxed());

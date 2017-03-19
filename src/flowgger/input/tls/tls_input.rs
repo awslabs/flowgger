@@ -41,8 +41,8 @@ impl Input for TlsInput {
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     let tls_config = self.tls_config.clone();
                     thread::spawn(move || {
-                        handle_client(client, tx, decoder, encoder, tls_config);
-                    });
+                                      handle_client(client, tx, decoder, encoder, tls_config);
+                                  });
                 }
                 Err(_) => {}
             }

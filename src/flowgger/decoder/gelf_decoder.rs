@@ -38,18 +38,17 @@ impl Decoder for GelfDecoder {
             match key.as_ref() {
                 "timestamp" => ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp"))),
                 "host" => {
-                    hostname = Some(try!(value.as_str()
-                            .ok_or("GELF host name must be a string"))
-                        .to_owned())
+                    hostname = Some(try!(value.as_str().ok_or("GELF host name must be a string"))
+                                        .to_owned())
                 }
                 "short_message" => {
                     msg = Some(try!(value.as_str().ok_or("GELF short message must be a string"))
-                        .to_owned())
+                                   .to_owned())
                 }
                 "full_message" => {
                     full_msg = Some(try!(value.as_str()
                             .ok_or("GELF full message must be a string"))
-                        .to_owned())
+                                            .to_owned())
                 }
                 "version" => {
                     match try!(value.as_str().ok_or("GELF version must be a string")) {
@@ -112,18 +111,18 @@ fn test_gelf() {
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
     assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::U64(v) = v {
-        k == "_user_id" && v == 9001
-    } else {
-        false
-    }));
+                                          k == "_user_id" && v == 9001
+                                      } else {
+                                          false
+                                      }));
     assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-        k == "_some_info" && v == "foo"
-    } else {
-        false
-    }));
+                                          k == "_some_info" && v == "foo"
+                                      } else {
+                                          false
+                                      }));
     assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-        k == "_some_env_var" && v == "bar"
-    } else {
-        false
-    }));
+                                          k == "_some_env_var" && v == "bar"
+                                      } else {
+                                          false
+                                      }));
 }

@@ -21,18 +21,18 @@ impl Output for DebugOutput {
             None => None,
         };
         thread::spawn(move || loop {
-            let mut bytes = match {
-                arx.lock().unwrap().recv()
-            } {
+                          let mut bytes = match {
+                      arx.lock().unwrap().recv()
+                  } {
                 Ok(line) => line,
                 Err(_) => return,
             };
-            if let Some(ref merger) = merger {
-                merger.frame(&mut bytes);
-            }
-            let out = String::from_utf8_lossy(&bytes);
-            print!("{}", out);
-            let _ = stdout().flush();
-        });
+                          if let Some(ref merger) = merger {
+                              merger.frame(&mut bytes);
+                          }
+                          let out = String::from_utf8_lossy(&bytes);
+                          print!("{}", out);
+                          let _ = stdout().flush();
+                      });
     }
 }

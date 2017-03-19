@@ -21,8 +21,7 @@ use std::thread;
 use std::time::Duration;
 use super::Output;
 
-const DEFAULT_CIPHERS: &'static str =
-    "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
+const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
      ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
      ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:\
      ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:\
@@ -95,8 +94,11 @@ impl TlsWorker {
         let merger = &self.merger;
         loop {
             let mut bytes = match {
-                self.arx.lock().unwrap().recv()
-            } {
+                      self.arx
+                          .lock()
+                          .unwrap()
+                          .recv()
+                  } {
                 Ok(line) => line,
                 Err(_) => {
                     return Err(io::Error::new(io::ErrorKind::Other,
@@ -202,9 +204,9 @@ impl Output for TlsOutput {
                 None => None,
             };
             thread::spawn(move || {
-                let worker = TlsWorker::new(arx, merger, config);
-                worker.run();
-            });
+                              let worker = TlsWorker::new(arx, merger, config);
+                              worker.run();
+                          });
         }
     }
 }
@@ -239,11 +241,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         .expect("output.connect must be a list")
         .to_vec();
     let mut connect: Vec<String> = connect.iter()
-        .map(|x| {
-            x.as_str()
-                .expect("output.connect must be a list of strings")
-                .to_owned()
-        })
+        .map(|x| x.as_str().expect("output.connect must be a list of strings").to_owned())
         .collect();
     let cert: Option<PathBuf> = config.lookup("output.tls_cert").map_or(None, |x| {
         Some(PathBuf::from(x.as_str().expect("output.tls_cert must be a path to a .pem file")))
@@ -256,10 +254,11 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
                 |x| x.as_str().expect("output.tls_ciphers must be a string with a cipher suite"))
         .to_owned();
     let tls_method = match config.lookup("output.tls_method")
-        .map_or(DEFAULT_TLS_METHOD,
-                |x| x.as_str().expect("output.tls_method must be a string with the TLS method"))
-        .to_lowercase()
-        .as_ref() {
+              .map_or(DEFAULT_TLS_METHOD, |x| {
+        x.as_str().expect("output.tls_method must be a string with the TLS method")
+    })
+              .to_lowercase()
+              .as_ref() {
         "any" | "sslv23" => SslMethod::Sslv23,
         "tlsv1" | "tlsv1.0" => SslMethod::Tlsv1,
         "tlsv1.1" => SslMethod::Tlsv1_1,
@@ -285,11 +284,10 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         .map_or(DEFAULT_RECOVERY_DELAY_INIT, |x| {
             x.as_integer().expect("output.tls_recovery_delay_init must be an integer") as u32
         });
-    let recovery_delay_max =
-        config.lookup("output.tls_recovery_delay_max")
-            .map_or(DEFAULT_RECOVERY_DELAY_MAX, |x| {
-                x.as_integer().expect("output.tls_recovery_delay_max must be an integer") as u32
-            });
+    let recovery_delay_max = config.lookup("output.tls_recovery_delay_max")
+        .map_or(DEFAULT_RECOVERY_DELAY_MAX, |x| {
+            x.as_integer().expect("output.tls_recovery_delay_max must be an integer") as u32
+        });
     let recovery_probe_time = config.lookup("output.tls_recovery_probe_time")
         .map_or(DEFAULT_RECOVERY_PROBE_TIME, |x| {
             x.as_integer().expect("output.tls_recovery_probe_time must be an integer") as u32

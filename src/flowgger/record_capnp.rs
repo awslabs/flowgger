@@ -789,15 +789,15 @@ pub mod pair {
                     }
                     2 => {
                         return ::std::result::Result::Ok(F64(self.builder
-                            .get_data_field::<f64>(1)));
+                                                                 .get_data_field::<f64>(1)));
                     }
                     3 => {
                         return ::std::result::Result::Ok(I64(self.builder
-                            .get_data_field::<i64>(1)));
+                                                                 .get_data_field::<i64>(1)));
                     }
                     4 => {
                         return ::std::result::Result::Ok(U64(self.builder
-                            .get_data_field::<u64>(1)));
+                                                                 .get_data_field::<u64>(1)));
                     }
                     5 => {
                         return ::std::result::Result::Ok(Null(()));

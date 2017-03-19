@@ -40,8 +40,8 @@ impl Input for TcpInput {
                     let tcp_config = self.tcp_config.clone();
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     thread::spawn(move || {
-                        handle_client(client, tx, decoder, encoder, tcp_config);
-                    });
+                                      handle_client(client, tx, decoder, encoder, tcp_config);
+                                  });
                 }
                 Err(_) => {}
             }

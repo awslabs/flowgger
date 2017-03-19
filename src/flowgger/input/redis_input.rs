@@ -65,7 +65,7 @@ impl RedisWorker {
            encoder: Box<Encoder + Send>)
            -> RedisWorker {
         let redis_cnx = match redis::Client::open(format!("redis://{}/", config.connect)
-            .as_ref()) {
+                                      .as_ref()) {
             Err(_) => {
                 panic!("Invalid connection string for the Redis server: [{}]",
                        config.connect)
@@ -98,10 +98,9 @@ impl RedisWorker {
                  self.config.connect,
                  queue_key);
         while {
-            let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
-            dummy.is_ok()
-        } {
-        }
+                  let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
+                  dummy.is_ok()
+              } {}
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (self.decoder, self.encoder);
         loop {
             let line: String = match redis_cnx.brpoplpush(queue_key, queue_key_tmp, 0) {

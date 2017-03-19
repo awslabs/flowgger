@@ -79,9 +79,9 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
         return Err("Unsupported version");
     }
     Ok(Pri {
-        facility: pri_encoded >> 3,
-        severity: pri_encoded & 7,
-    })
+           facility: pri_encoded >> 3,
+           severity: pri_encoded & 7,
+       })
 }
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
@@ -218,13 +218,13 @@ fn test_rfc5424() {
     let pairs = sd.pairs;
 
     assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-        k == "_software" && v == "te\\st sc\"ript"
-    } else {
-        false
-    }));
+                                          k == "_software" && v == "te\\st sc\"ript"
+                                      } else {
+                                          false
+                                      }));
     assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-        k == "_swVersion" && v == "0.0.1"
-    } else {
-        false
-    }));
+                                          k == "_swVersion" && v == "0.0.1"
+                                      } else {
+                                          false
+                                      }));
 }

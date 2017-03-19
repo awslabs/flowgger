@@ -68,8 +68,11 @@ impl<'a> KafkaWorker<'a> {
     fn run_nocoalesce(&'a mut self) {
         loop {
             let bytes = match {
-                self.arx.lock().unwrap().recv()
-            } {
+                      self.arx
+                          .lock()
+                          .unwrap()
+                          .recv()
+                  } {
                 Ok(line) => line,
                 Err(_) => return,
             };
@@ -86,8 +89,11 @@ impl<'a> KafkaWorker<'a> {
     fn run_coalesce(&'a mut self) {
         loop {
             let bytes = match {
-                self.arx.lock().unwrap().recv()
-            } {
+                      self.arx
+                          .lock()
+                          .unwrap()
+                          .recv()
+                  } {
                 Ok(line) => line,
                 Err(_) => return,
             };
@@ -133,10 +139,8 @@ impl KafkaOutput {
             .to_vec();
         let brokers = brokers.iter()
             .map(|x| {
-                x.as_str()
-                    .expect("output.kafka_brokers must be a list of strings")
-                    .to_owned()
-            })
+                     x.as_str().expect("output.kafka_brokers must be a list of strings").to_owned()
+                 })
             .collect();
         let topic = config.lookup("output.kafka_topic")
             .expect("output.kafka_topic must be a string")
@@ -144,10 +148,9 @@ impl KafkaOutput {
             .expect("output.kafka_topic must be a string")
             .to_owned();
         let timeout = Duration::from_millis(config.lookup("output.kafka_timeout")
-            .map_or(KAFKA_DEFAULT_TIMEOUT, |x| {
-                x.as_integer()
-                    .expect("output.kafka_timeout must be a 64-bit integer") as u64
-            }));
+                                                .map_or(KAFKA_DEFAULT_TIMEOUT, |x| {
+            x.as_integer().expect("output.kafka_timeout must be a 64-bit integer") as u64
+        }));
         let threads = config.lookup("output.kafka_threads").map_or(KAFKA_DEFAULT_THREADS, |x| {
             x.as_integer().expect("output.kafka_threads must be a 32-bit integer") as u32
         });
@@ -155,10 +158,11 @@ impl KafkaOutput {
             x.as_integer().expect("output.kafka_coalesce must be a size integer") as usize
         });
         let compression = match config.lookup("output.kafka_compression")
-            .map_or(KAFKA_DEFAULT_COMPRESSION,
-                    |x| x.as_str().expect("output.kafka_compresion must be a string"))
-            .to_lowercase()
-            .as_ref() {
+                  .map_or(KAFKA_DEFAULT_COMPRESSION, |x| {
+            x.as_str().expect("output.kafka_compresion must be a string")
+        })
+                  .to_lowercase()
+                  .as_ref() {
             "none" => Compression::NONE,
             "gzip" => Compression::GZIP,
             "snappy" => Compression::SNAPPY,
@@ -188,9 +192,9 @@ impl Output for KafkaOutput {
             let arx = arx.clone();
             let config = self.config.clone();
             thread::spawn(move || {
-                let mut worker = KafkaWorker::new(arx, config);
-                worker.run();
-            });
+                              let mut worker = KafkaWorker::new(arx, config);
+                              worker.run();
+                          });
         }
     }
 }
