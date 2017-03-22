@@ -8,11 +8,13 @@ use super::Splitter;
 pub struct SyslenSplitter;
 
 impl<T: Read> Splitter<T> for SyslenSplitter {
-    fn run(&self,
-           buf_reader: BufReader<T>,
-           tx: SyncSender<Vec<u8>>,
-           decoder: Box<Decoder>,
-           encoder: Box<Encoder>) {
+    fn run(
+        &self,
+        buf_reader: BufReader<T>,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder>,
+        encoder: Box<Encoder>,
+    ) {
         let mut buf_reader = buf_reader;
         loop {
             let size = match read_msglen(&mut buf_reader) {
@@ -54,11 +56,12 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
     Ok(nbytes)
 }
 
-fn handle_line(line: &String,
-               tx: &SyncSender<Vec<u8>>,
-               decoder: &Box<Decoder>,
-               encoder: &Box<Encoder>)
-               -> Result<(), &'static str> {
+fn handle_line(
+    line: &String,
+    tx: &SyncSender<Vec<u8>>,
+    decoder: &Box<Decoder>,
+    encoder: &Box<Encoder>,
+) -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();

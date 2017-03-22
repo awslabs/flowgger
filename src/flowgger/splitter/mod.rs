@@ -14,9 +14,11 @@ use std::io::BufReader;
 use std::sync::mpsc::SyncSender;
 
 pub trait Splitter<T> {
-    fn run(&self,
-           buf_reader: BufReader<T>,
-           tx: SyncSender<Vec<u8>>,
-           decoder: Box<Decoder>,
-           encoder: Box<Encoder>);
+    fn run(
+        &self,
+        buf_reader: BufReader<T>,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder>,
+        encoder: Box<Encoder>,
+    );
 }

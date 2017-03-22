@@ -7,11 +7,13 @@ use super::Splitter;
 pub struct LineSplitter;
 
 impl<T: Read> Splitter<T> for LineSplitter {
-    fn run(&self,
-           buf_reader: BufReader<T>,
-           tx: SyncSender<Vec<u8>>,
-           decoder: Box<Decoder>,
-           encoder: Box<Encoder>) {
+    fn run(
+        &self,
+        buf_reader: BufReader<T>,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder>,
+        encoder: Box<Encoder>,
+    ) {
         for line in buf_reader.lines() {
             let line = match line {
                 Ok(line) => line,
@@ -39,11 +41,12 @@ impl<T: Read> Splitter<T> for LineSplitter {
     }
 }
 
-fn handle_line(line: &String,
-               tx: &SyncSender<Vec<u8>>,
-               decoder: &Box<Decoder>,
-               encoder: &Box<Encoder>)
-               -> Result<(), &'static str> {
+fn handle_line(
+    line: &String,
+    tx: &SyncSender<Vec<u8>>,
+    decoder: &Box<Decoder>,
+    encoder: &Box<Encoder>,
+) -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();

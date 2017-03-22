@@ -28,10 +28,12 @@ impl TlsInput {
 }
 
 impl Input for TlsInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
@@ -50,11 +52,13 @@ impl Input for TlsInput {
     }
 }
 
-fn handle_client(client: TcpStream,
-                 tx: SyncSender<Vec<u8>>,
-                 decoder: Box<Decoder>,
-                 encoder: Box<Encoder>,
-                 tls_config: TlsConfig) {
+fn handle_client(
+    client: TcpStream,
+    tx: SyncSender<Vec<u8>>,
+    decoder: Box<Decoder>,
+    encoder: Box<Encoder>,
+    tls_config: TlsConfig,
+) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS from [{}]", peer_addr);
     }

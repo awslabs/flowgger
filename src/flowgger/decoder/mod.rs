@@ -11,12 +11,15 @@ pub use self::rfc5424_decoder::RFC5424Decoder;
 use flowgger::record::Record;
 
 pub trait CloneBoxedDecoder {
-    fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a> where Self: 'a;
+    fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a>
+    where
+        Self: 'a;
 }
 
 impl<T: Decoder + Clone + Send> CloneBoxedDecoder for T {
     fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a>
-        where Self: 'a
+    where
+        Self: 'a,
     {
         Box::new(self.clone())
     }

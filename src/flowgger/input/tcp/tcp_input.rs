@@ -27,10 +27,12 @@ impl TcpInput {
 }
 
 impl Input for TcpInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
             match client {
@@ -49,11 +51,13 @@ impl Input for TcpInput {
     }
 }
 
-fn handle_client(client: TcpStream,
-                 tx: SyncSender<Vec<u8>>,
-                 decoder: Box<Decoder>,
-                 encoder: Box<Encoder>,
-                 tcp_config: TcpConfig) {
+fn handle_client(
+    client: TcpStream,
+    tx: SyncSender<Vec<u8>>,
+    decoder: Box<Decoder>,
+    encoder: Box<Encoder>,
+    tcp_config: TcpConfig,
+) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TCP from [{}]", peer_addr);
     }

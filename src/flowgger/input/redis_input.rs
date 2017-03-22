@@ -58,14 +58,15 @@ impl RedisInput {
 }
 
 impl RedisWorker {
-    fn new(tid: u32,
-           config: RedisConfig,
-           tx: SyncSender<Vec<u8>>,
-           decoder: Box<Decoder + Send>,
-           encoder: Box<Encoder + Send>)
-           -> RedisWorker {
+    fn new(
+        tid: u32,
+        config: RedisConfig,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) -> RedisWorker {
         let redis_cnx = match redis::Client::open(format!("redis://{}/", config.connect)
-                                      .as_ref()) {
+                                                      .as_ref()) {
             Err(_) => {
                 panic!("Invalid connection string for the Redis server: [{}]",
                        config.connect)
@@ -120,10 +121,12 @@ impl RedisWorker {
 }
 
 impl Input for RedisInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let mut jids = Vec::new();
         for tid in 0..self.threads {
             let config = self.config.clone();
@@ -145,11 +148,12 @@ impl Input for RedisInput {
     }
 }
 
-fn handle_record(line: &String,
-                 tx: &SyncSender<Vec<u8>>,
-                 decoder: &Box<Decoder>,
-                 encoder: &Box<Encoder>)
-                 -> Result<(), &'static str> {
+fn handle_record(
+    line: &String,
+    tx: &SyncSender<Vec<u8>>,
+    decoder: &Box<Decoder>,
+    encoder: &Box<Encoder>,
+) -> Result<(), &'static str> {
     let decoded = try!(decoder.decode(&line));
     let reencoded = try!(encoder.encode(decoded));
     tx.send(reencoded).unwrap();

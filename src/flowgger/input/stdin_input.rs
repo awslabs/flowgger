@@ -31,10 +31,12 @@ impl StdinInput {
 }
 
 impl Input for StdinInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let reader = BufReader::new(stdin());
         let splitter = match &self.stdin_config.framing as &str {
             "capnp" => Box::new(CapnpSplitter) as Box<Splitter<_>>,

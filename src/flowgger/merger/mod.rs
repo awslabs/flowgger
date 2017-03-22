@@ -7,12 +7,15 @@ pub use self::nul_merger::NulMerger;
 pub use self::syslen_merger::SyslenMerger;
 
 pub trait CloneBoxedMerger {
-    fn clone_boxed<'a>(&self) -> Box<Merger + Send + 'a> where Self: 'a;
+    fn clone_boxed<'a>(&self) -> Box<Merger + Send + 'a>
+    where
+        Self: 'a;
 }
 
 impl<T: Merger + Clone + Send> CloneBoxedMerger for T {
     fn clone_boxed<'a>(&self) -> Box<Merger + Send + 'a>
-        where Self: 'a
+    where
+        Self: 'a,
     {
         Box::new(self.clone())
     }

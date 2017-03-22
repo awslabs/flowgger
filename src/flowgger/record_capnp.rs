@@ -42,8 +42,8 @@ pub mod record {
     }
 
     impl<'a> ::capnp::traits::FromPointerReader<'a> for Reader<'a> {
-        fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>)
-                            -> Result<Reader<'a>> {
+        fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>,)
+            -> Result<Reader<'a>> {
             ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(try!(reader.get_struct(::std::ptr::null()))))
         }
     }
@@ -167,21 +167,23 @@ pub mod record {
     }
 
     impl<'a> ::capnp::traits::FromPointerBuilder<'a> for Builder<'a> {
-        fn init_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,
-                        _size: u32)
-                        -> Builder<'a> {
+        fn init_pointer(
+            builder: ::capnp::private::layout::PointerBuilder<'a>,
+            _size: u32,
+        ) -> Builder<'a> {
             ::capnp::traits::FromStructBuilder::new(builder.init_struct(_private::STRUCT_SIZE))
         }
-        fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>)
-                            -> Result<Builder<'a>> {
+        fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,)
+            -> Result<Builder<'a>> {
             ::std::result::Result::Ok(::capnp::traits::FromStructBuilder::new(try!(builder.get_struct(_private::STRUCT_SIZE, ::std::ptr::null()))))
         }
     }
 
     impl<'a> ::capnp::traits::SetPointerBuilder<Builder<'a>> for Reader<'a> {
-        fn set_pointer_builder<'b>(pointer: ::capnp::private::layout::PointerBuilder<'b>,
-                                   value: Reader<'a>)
-                                   -> Result<()> {
+        fn set_pointer_builder<'b>(
+            pointer: ::capnp::private::layout::PointerBuilder<'b>,
+            value: Reader<'a>,
+        ) -> Result<()> {
             pointer.set_struct(&value.reader)
         }
     }
@@ -334,17 +336,19 @@ pub mod record {
             ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(7))
         }
         #[inline]
-        pub fn set_pairs(&mut self,
-                         value: struct_list::Reader<'a, ::record_capnp::pair::Owned>)
-                         -> Result<()> {
+        pub fn set_pairs(
+            &mut self,
+            value: struct_list::Reader<'a, ::record_capnp::pair::Owned>,
+        ) -> Result<()> {
             ::capnp::traits::SetPointerBuilder::set_pointer_builder(self.builder
                                                                         .get_pointer_field(7),
                                                                     value)
         }
         #[inline]
-        pub fn init_pairs(self,
-                          size: u32)
-                          -> struct_list::Builder<'a, ::record_capnp::pair::Owned> {
+        pub fn init_pairs(
+            self,
+            size: u32,
+        ) -> struct_list::Builder<'a, ::record_capnp::pair::Owned> {
             ::capnp::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(7),
                                                               size)
         }
@@ -356,17 +360,19 @@ pub mod record {
             ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(8))
         }
         #[inline]
-        pub fn set_extra(&mut self,
-                         value: struct_list::Reader<'a, ::record_capnp::pair::Owned>)
-                         -> Result<()> {
+        pub fn set_extra(
+            &mut self,
+            value: struct_list::Reader<'a, ::record_capnp::pair::Owned>,
+        ) -> Result<()> {
             ::capnp::traits::SetPointerBuilder::set_pointer_builder(self.builder
                                                                         .get_pointer_field(8),
                                                                     value)
         }
         #[inline]
-        pub fn init_extra(self,
-                          size: u32)
-                          -> struct_list::Builder<'a, ::record_capnp::pair::Owned> {
+        pub fn init_extra(
+            self,
+            size: u32,
+        ) -> struct_list::Builder<'a, ::record_capnp::pair::Owned> {
             ::capnp::traits::FromPointerBuilder::init_pointer(self.builder.get_pointer_field(8),
                                                               size)
         }
@@ -433,8 +439,8 @@ pub mod pair {
     }
 
     impl<'a> ::capnp::traits::FromPointerReader<'a> for Reader<'a> {
-        fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>)
-                            -> Result<Reader<'a>> {
+        fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>,)
+            -> Result<Reader<'a>> {
             ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(try!(reader.get_struct(::std::ptr::null()))))
         }
     }
@@ -494,21 +500,23 @@ pub mod pair {
     }
 
     impl<'a> ::capnp::traits::FromPointerBuilder<'a> for Builder<'a> {
-        fn init_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,
-                        _size: u32)
-                        -> Builder<'a> {
+        fn init_pointer(
+            builder: ::capnp::private::layout::PointerBuilder<'a>,
+            _size: u32,
+        ) -> Builder<'a> {
             ::capnp::traits::FromStructBuilder::new(builder.init_struct(_private::STRUCT_SIZE))
         }
-        fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>)
-                            -> Result<Builder<'a>> {
+        fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,)
+            -> Result<Builder<'a>> {
             ::std::result::Result::Ok(::capnp::traits::FromStructBuilder::new(try!(builder.get_struct(_private::STRUCT_SIZE, ::std::ptr::null()))))
         }
     }
 
     impl<'a> ::capnp::traits::SetPointerBuilder<Builder<'a>> for Reader<'a> {
-        fn set_pointer_builder<'b>(pointer: ::capnp::private::layout::PointerBuilder<'b>,
-                                   value: Reader<'a>)
-                                   -> Result<()> {
+        fn set_pointer_builder<'b>(
+            pointer: ::capnp::private::layout::PointerBuilder<'b>,
+            value: Reader<'a>,
+        ) -> Result<()> {
             pointer.set_struct(&value.reader)
         }
     }
@@ -621,8 +629,8 @@ pub mod pair {
         }
 
         impl<'a> ::capnp::traits::FromPointerReader<'a> for Reader<'a> {
-            fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>)
-                                -> Result<Reader<'a>> {
+            fn get_from_pointer(reader: &::capnp::private::layout::PointerReader<'a>,)
+                -> Result<Reader<'a>> {
                 ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(try!(reader.get_struct(::std::ptr::null()))))
             }
         }
@@ -703,21 +711,23 @@ pub mod pair {
         }
 
         impl<'a> ::capnp::traits::FromPointerBuilder<'a> for Builder<'a> {
-            fn init_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,
-                            _size: u32)
-                            -> Builder<'a> {
+            fn init_pointer(
+                builder: ::capnp::private::layout::PointerBuilder<'a>,
+                _size: u32,
+            ) -> Builder<'a> {
                 ::capnp::traits::FromStructBuilder::new(builder.init_struct(_private::STRUCT_SIZE))
             }
-            fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>)
-                                -> Result<Builder<'a>> {
+            fn get_from_pointer(builder: ::capnp::private::layout::PointerBuilder<'a>,)
+                -> Result<Builder<'a>> {
                 ::std::result::Result::Ok(::capnp::traits::FromStructBuilder::new(try!(builder.get_struct(_private::STRUCT_SIZE, ::std::ptr::null()))))
             }
         }
 
         impl<'a> ::capnp::traits::SetPointerBuilder<Builder<'a>> for Reader<'a> {
-            fn set_pointer_builder<'b>(pointer: ::capnp::private::layout::PointerBuilder<'b>,
-                                       value: Reader<'a>)
-                                       -> Result<()> {
+            fn set_pointer_builder<'b>(
+                pointer: ::capnp::private::layout::PointerBuilder<'b>,
+                value: Reader<'a>,
+            ) -> Result<()> {
                 pointer.set_struct(&value.reader)
             }
         }

@@ -13,15 +13,17 @@ use super::Splitter;
 pub struct CapnpSplitter;
 
 impl<T: Read> Splitter<T> for CapnpSplitter {
-    fn run(&self,
-           buf_reader: BufReader<T>,
-           tx: SyncSender<Vec<u8>>,
-           _decoder: Box<Decoder>,
-           encoder: Box<Encoder>) {
+    fn run(
+        &self,
+        buf_reader: BufReader<T>,
+        tx: SyncSender<Vec<u8>>,
+        _decoder: Box<Decoder>,
+        encoder: Box<Encoder>,
+    ) {
         let mut buf_reader = buf_reader;
         loop {
             let message_reader = match capnp::serialize::read_message(&mut buf_reader,
-                                                 ReaderOptions::new()) {
+                                                                      ReaderOptions::new()) {
                 Err(e) => {
                     match e.kind {
                         capnp::ErrorKind::Failed |
@@ -61,9 +63,10 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
     }
 }
 
-fn get_pairs(message_pairs: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
-             message_extra: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>)
-             -> Vec<(String, SDValue)> {
+fn get_pairs(
+    message_pairs: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
+    message_extra: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
+) -> Vec<(String, SDValue)> {
     let pairs_count = message_pairs.and_then(|x| Some(x.len())).or(Some(0)).unwrap() as usize +
                       message_extra.and_then(|x| Some(x.len())).or(Some(0)).unwrap() as usize;
     let mut pairs = Vec::with_capacity(pairs_count);

@@ -25,10 +25,12 @@ impl TcpCoInput {
 }
 
 impl Input for TcpCoInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let tcp_config = self.tcp_config.clone();
         let threads = tcp_config.threads;
         let listen: SocketAddr = self.listen.parse().unwrap();
@@ -43,8 +45,12 @@ impl Input for TcpCoInput {
                             let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                             let tcp_config = tcp_config.clone();
                             Scheduler::spawn(move || {
-                                handle_client(client, tx, decoder, encoder, tcp_config);
-                            });
+                                                 handle_client(client,
+                                                               tx,
+                                                               decoder,
+                                                               encoder,
+                                                               tcp_config);
+                                             });
                         }
                         Err(_) => {}
                     }
@@ -54,11 +60,13 @@ impl Input for TcpCoInput {
     }
 }
 
-fn handle_client(client: TcpStream,
-                 tx: SyncSender<Vec<u8>>,
-                 decoder: Box<Decoder>,
-                 encoder: Box<Encoder>,
-                 tcp_config: TcpConfig) {
+fn handle_client(
+    client: TcpStream,
+    tx: SyncSender<Vec<u8>>,
+    decoder: Box<Decoder>,
+    encoder: Box<Encoder>,
+    tcp_config: TcpConfig,
+) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TCP from [{}]", peer_addr);
     }

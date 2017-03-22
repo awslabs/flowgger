@@ -9,12 +9,15 @@ pub use self::ltsv_encoder::LTSVEncoder;
 use flowgger::record::Record;
 
 pub trait CloneBoxedEncoder {
-    fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a> where Self: 'a;
+    fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a>
+    where
+        Self: 'a;
 }
 
 impl<T: Encoder + Clone + Send> CloneBoxedEncoder for T {
     fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a>
-        where Self: 'a
+    where
+        Self: 'a,
     {
         Box::new(self.clone())
     }

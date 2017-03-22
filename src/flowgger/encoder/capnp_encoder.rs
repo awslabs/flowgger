@@ -42,9 +42,11 @@ impl Encoder for CapnpEncoder {
     }
 }
 
-fn build_record<T: Allocator>(record_msg: &mut capnp::message::Builder<T>,
-                              record: Record,
-                              extra: &Vec<(String, String)>) {
+fn build_record<T: Allocator>(
+    record_msg: &mut capnp::message::Builder<T>,
+    record: Record,
+    extra: &Vec<(String, String)>,
+) {
     let mut root: record_capnp::record::Builder = record_msg.init_root();
     root.set_ts(record.ts);
     root.set_hostname(&record.hostname);

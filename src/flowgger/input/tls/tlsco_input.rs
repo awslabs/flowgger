@@ -26,10 +26,12 @@ impl TlsCoInput {
 }
 
 impl Input for TlsCoInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let tls_config = self.tls_config.clone();
         let threads = tls_config.threads;
         let listen: SocketAddr = self.listen.parse().unwrap();
@@ -44,8 +46,12 @@ impl Input for TlsCoInput {
                             let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                             let tls_config = tls_config.clone();
                             Scheduler::spawn(move || {
-                                handle_client(client, tx, decoder, encoder, tls_config);
-                            });
+                                                 handle_client(client,
+                                                               tx,
+                                                               decoder,
+                                                               encoder,
+                                                               tls_config);
+                                             });
                         }
                         Err(_) => {}
                     }
@@ -55,11 +61,13 @@ impl Input for TlsCoInput {
     }
 }
 
-fn handle_client(client: TcpStream,
-                 tx: SyncSender<Vec<u8>>,
-                 decoder: Box<Decoder>,
-                 encoder: Box<Encoder>,
-                 tls_config: TlsConfig) {
+fn handle_client(
+    client: TcpStream,
+    tx: SyncSender<Vec<u8>>,
+    decoder: Box<Decoder>,
+    encoder: Box<Encoder>,
+    tls_config: TlsConfig,
+) {
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS<coroutines> from [{}]", peer_addr);
     }

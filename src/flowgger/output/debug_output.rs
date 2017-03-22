@@ -22,11 +22,11 @@ impl Output for DebugOutput {
         };
         thread::spawn(move || loop {
                           let mut bytes = match {
-                      arx.lock().unwrap().recv()
-                  } {
-                Ok(line) => line,
-                Err(_) => return,
-            };
+                                    arx.lock().unwrap().recv()
+                                } {
+                              Ok(line) => line,
+                              Err(_) => return,
+                          };
                           if let Some(ref merger) = merger {
                               merger.frame(&mut bytes);
                           }

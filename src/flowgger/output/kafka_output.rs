@@ -158,9 +158,8 @@ impl KafkaOutput {
             x.as_integer().expect("output.kafka_coalesce must be a size integer") as usize
         });
         let compression = match config.lookup("output.kafka_compression")
-                  .map_or(KAFKA_DEFAULT_COMPRESSION, |x| {
-            x.as_str().expect("output.kafka_compresion must be a string")
-        })
+                  .map_or(KAFKA_DEFAULT_COMPRESSION,
+                          |x| x.as_str().expect("output.kafka_compresion must be a string"))
                   .to_lowercase()
                   .as_ref() {
             "none" => Compression::NONE,

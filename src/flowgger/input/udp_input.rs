@@ -27,10 +27,12 @@ impl UdpInput {
 }
 
 impl Input for UdpInput {
-    fn accept(&self,
-              tx: SyncSender<Vec<u8>>,
-              decoder: Box<Decoder + Send>,
-              encoder: Box<Encoder + Send>) {
+    fn accept(
+        &self,
+        tx: SyncSender<Vec<u8>>,
+        decoder: Box<Decoder + Send>,
+        encoder: Box<Encoder + Send>,
+    ) {
         let socket =
             UdpSocket::bind(&self.listen as &str).expect(&format!("Unable to listen to {}",
                                                                   self.listen));
@@ -51,11 +53,12 @@ impl Input for UdpInput {
     }
 }
 
-fn handle_record_maybe_compressed(line: &[u8],
-                                  tx: &SyncSender<Vec<u8>>,
-                                  decoder: &Box<Decoder>,
-                                  encoder: &Box<Encoder>)
-                                  -> Result<(), &'static str> {
+fn handle_record_maybe_compressed(
+    line: &[u8],
+    tx: &SyncSender<Vec<u8>>,
+    decoder: &Box<Decoder>,
+    encoder: &Box<Encoder>,
+) -> Result<(), &'static str> {
     if line.len() >= 8 &&
        (line[0] == 0x78 && (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda)) {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
@@ -74,11 +77,12 @@ fn handle_record_maybe_compressed(line: &[u8],
     }
 }
 
-fn handle_record(line: &[u8],
-                 tx: &SyncSender<Vec<u8>>,
-                 decoder: &Box<Decoder>,
-                 encoder: &Box<Encoder>)
-                 -> Result<(), &'static str> {
+fn handle_record(
+    line: &[u8],
+    tx: &SyncSender<Vec<u8>>,
+    decoder: &Box<Decoder>,
+    encoder: &Box<Encoder>,
+) -> Result<(), &'static str> {
     let line = match str::from_utf8(line) {
         Err(_) => return Err("Invalid UTF-8 input"),
         Ok(line) => line,

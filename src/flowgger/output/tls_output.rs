@@ -68,10 +68,11 @@ struct TlsWorker {
 }
 
 impl TlsWorker {
-    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-           merger: Option<Box<Merger + Send>>,
-           tls_config: TlsConfig)
-           -> TlsWorker {
+    fn new(
+        arx: Arc<Mutex<Receiver<Vec<u8>>>>,
+        merger: Option<Box<Merger + Send>>,
+        tls_config: TlsConfig,
+    ) -> TlsWorker {
         TlsWorker {
             arx: arx,
             merger: merger,
