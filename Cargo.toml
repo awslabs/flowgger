@@ -8,7 +8,6 @@ build = "build.rs"
 capnp-recompile = ["capnpc"]
 cargo-clippy = ["clippy"]
 coroutines = ["coio"]
-ecdh = ["openssl/ecdh_auto"]
 
 default = ["kafka"]
 
@@ -42,8 +41,7 @@ features = ["snappy", "gzip", "security"]
 optional = true
 
 [dependencies.openssl]
-version = "~0.8"
-features = ["tlsv1_2", "tlsv1_1", "dh_from_params"]
+version = "~0.9"
 
 [profile.release]
 opt-level = 3

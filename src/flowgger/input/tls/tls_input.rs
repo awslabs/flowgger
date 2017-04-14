@@ -2,7 +2,6 @@ use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
-use openssl::ssl::*;
 use std::io::{stderr, Write, BufReader};
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
@@ -62,7 +61,7 @@ fn handle_client(
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS from [{}]", peer_addr);
     }
-    let sslclient = match SslStream::accept(&*tls_config.arc_ctx, client) {
+    let sslclient = match tls_config.arc_acceptor.accept(client) {
         Err(_) => {
             let _ = writeln!(stderr(), "SSL handshake aborted by the client");
             return;
