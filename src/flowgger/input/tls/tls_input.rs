@@ -61,7 +61,7 @@ fn handle_client(
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS from [{}]", peer_addr);
     }
-    let sslclient = match tls_config.arc_acceptor.accept(client) {
+    let sslclient = match tls_config.acceptor.accept(client) {
         Err(_) => {
             let _ = writeln!(stderr(), "SSL handshake aborted by the client");
             return;

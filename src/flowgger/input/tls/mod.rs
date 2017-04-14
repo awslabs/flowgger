@@ -4,7 +4,6 @@ use openssl::dh::Dh;
 use openssl::ssl::*;
 use openssl::x509::X509_FILETYPE_PEM;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
 
 pub mod tls_input;
 #[cfg(feature = "coroutines")]
@@ -36,7 +35,7 @@ const TLS_VERIFY_DEPTH: u32 = 6;
 pub struct TlsConfig {
     framing: String,
     threads: usize,
-    arc_acceptor: Arc<SslAcceptor>,
+    acceptor: SslAcceptor,
 }
 
 fn set_fs(ctx: &mut SslContextBuilder) {
@@ -174,11 +173,11 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         ctx.set_cipher_list(&ciphers)
             .expect("Unsupported cipher suite");
     }
-    let arc_acceptor = Arc::new(acceptor_builder.build());
+    let acceptor = acceptor_builder.build();
     let tls_config = TlsConfig {
         framing: framing,
         threads: threads,
-        arc_acceptor: arc_acceptor,
+        acceptor: acceptor,
     };
     (tls_config, listen, timeout)
 }

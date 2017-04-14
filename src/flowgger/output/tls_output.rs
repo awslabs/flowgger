@@ -33,7 +33,6 @@ const DEFAULT_RECOVERY_DELAY_MAX: u32 = 10_000;
 const DEFAULT_RECOVERY_PROBE_TIME: u32 = 30_000;
 const DEFAULT_ASYNC: bool = false;
 const DEFAULT_TIMEOUT: u64 = 3600;
-const DEFAULT_TLS_COMPATIBILITY_LEVEL: &'static str = "default";
 const DEFAULT_VERIFY_PEER: bool = false;
 const TLS_VERIFY_DEPTH: u32 = 6;
 const TLS_DEFAULT_THREADS: u32 = 1;
@@ -52,7 +51,7 @@ struct Cluster {
 struct TlsConfig {
     timeout: Option<Duration>,
     mx_cluster: Arc<Mutex<Cluster>>,
-    arc_connector: Arc<SslConnector>,
+    connector: SslConnector,
     async: bool,
     recovery_delay_init: u32,
     recovery_delay_max: u32,
@@ -81,7 +80,7 @@ impl TlsWorker {
     fn handle_connection(&self, connect_chosen: &str) -> io::Result<()> {
         let client = try!(new_tcp(connect_chosen));
         let _ = writeln!(stderr(), "Connected to {}", connect_chosen);
-        let sslclient = match self.tls_config.arc_connector.danger_connect_without_providing_domain_for_certificate_verification_and_server_name_indication(client) {
+        let sslclient = match self.tls_config.connector.danger_connect_without_providing_domain_for_certificate_verification_and_server_name_indication(client) {
             Err(_) => {
                 return Err(io::Error::new(io::ErrorKind::ConnectionAborted,
                                           "SSL handshake aborted by the server"))
@@ -336,7 +335,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         ctx.set_cipher_list(&ciphers)
             .expect("Unsupported cipher suite");
     }
-    let arc_connector = Arc::new(connector_builder.build());
+    let connector = connector_builder.build();
     rand::thread_rng().shuffle(&mut connect);
     let cluster = Cluster {
         connect: connect,
@@ -346,7 +345,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     let tls_config = TlsConfig {
         mx_cluster: mx_cluster,
         timeout: Some(Duration::from_secs(timeout)),
-        arc_connector: arc_connector,
+        connector: connector,
         async: async,
         recovery_delay_init: recovery_delay_init,
         recovery_delay_max: recovery_delay_max,
