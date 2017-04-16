@@ -65,11 +65,10 @@ struct TlsWorker {
 }
 
 impl TlsWorker {
-    fn new(
-        arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-        merger: Option<Box<Merger + Send>>,
-        tls_config: TlsConfig,
-    ) -> TlsWorker {
+    fn new(arx: Arc<Mutex<Receiver<Vec<u8>>>>,
+           merger: Option<Box<Merger + Send>>,
+           tls_config: TlsConfig)
+           -> TlsWorker {
         TlsWorker {
             arx: arx,
             merger: merger,
@@ -79,8 +78,12 @@ impl TlsWorker {
 
     fn handle_connection(&self, connect_chosen: &str) -> io::Result<()> {
         let client = try!(new_tcp(connect_chosen));
+        let hostname = connect_chosen
+            .split(':')
+            .next()
+            .expect(&format!("Invalid connection string: {}", connect_chosen));
         let _ = writeln!(stderr(), "Connected to {}", connect_chosen);
-        let sslclient = match self.tls_config.connector.danger_connect_without_providing_domain_for_certificate_verification_and_server_name_indication(client) {
+        let sslclient = match self.tls_config.connector.connect(hostname, client) {
             Err(_) => {
                 return Err(io::Error::new(io::ErrorKind::ConnectionAborted,
                                           "SSL handshake aborted by the server"))
