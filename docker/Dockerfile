@@ -1,6 +1,6 @@
-FROM jedisct1/base-dev-rust-nightly:62eb6056d
+FROM jedisct1/base-dev-rust-nightly:94e884b63
 MAINTAINER Frank Denis
-ENV SERIAL 2
+ENV SERIAL 1
 
 ENV DEBIAN_FRONTEND noninteractive
 
