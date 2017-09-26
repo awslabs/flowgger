@@ -1,0 +1,11 @@
+array_horizontal_layout_threshold = 10
+condense_wildcard_suffixes = true
+error_on_line_overflow = false
+normalize_comments = true
+reorder_imported_names = true
+reorder_imports = true
+reorder_imports_in_group = true
+take_source_hints = true
+use_try_shorthand = true
+
+
