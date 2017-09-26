@@ -95,7 +95,7 @@ impl<'a> KafkaWorker<'a> {
                 topic: &self.config.topic,
                 value: bytes,
             };
-            let mut queue = &mut self.queue;
+            let queue = &mut self.queue;
             queue.push(message);
             if queue.len() >= self.config.coalesce {
                 match self.producer.send_all(queue) {

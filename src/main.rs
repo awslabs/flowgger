@@ -6,11 +6,9 @@ extern crate coio;
 extern crate flate2;
 #[cfg(feature = "kafka")]
 extern crate kafka;
-extern crate log;
 extern crate openssl;
 extern crate rand;
 extern crate redis;
-extern crate serde;
 extern crate serde_json;
 extern crate toml;
 
