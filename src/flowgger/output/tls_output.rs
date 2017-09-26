@@ -128,7 +128,7 @@ impl TlsWorker {
         let mut recovery_delay = tls_config.recovery_delay_init as f64;
         let mut last_recovery;
         loop {
-            last_recovery = chrono::UTC::now();
+            last_recovery = chrono::offset::Utc::now();
             let connect_chosen = {
                 let mut cluster = tls_config.mx_cluster.lock().unwrap();
                 cluster.idx += 1;
@@ -160,7 +160,7 @@ impl TlsWorker {
                     }
                 }
             }
-            let now = chrono::UTC::now();
+            let now = chrono::offset::Utc::now();
             if now.signed_duration_since(last_recovery)
                 > chrono::Duration::milliseconds(tls_config.recovery_probe_time as i64)
             {
