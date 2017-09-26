@@ -1,13 +1,13 @@
+use super::*;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
+use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
 use std::io::BufReader;
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
 use std::thread;
 use std::time::Duration;
-use super::*;
 
 pub struct TcpInput {
     listen: String,
@@ -42,8 +42,8 @@ impl Input for TcpInput {
                     let tcp_config = self.tcp_config.clone();
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     thread::spawn(move || {
-                                      handle_client(client, tx, decoder, encoder, tcp_config);
-                                  });
+                        handle_client(client, tx, decoder, encoder, tcp_config);
+                    });
                 }
                 Err(_) => {}
             }

@@ -1,9 +1,9 @@
+use super::Encoder;
 use flowgger::config::Config;
 use flowgger::record::{Record, SDValue};
 use serde_json;
 use serde_json::builder::ObjectBuilder;
 use serde_json::value::Value;
-use super::Encoder;
 
 #[derive(Clone)]
 pub struct GelfEncoder {
@@ -14,18 +14,19 @@ impl GelfEncoder {
     pub fn new(config: &Config) -> GelfEncoder {
         let extra = match config.lookup("output.gelf_extra") {
             None => Vec::new(),
-            Some(extra) => {
-                extra.as_table()
-                    .expect("output.gelf_extra must be a list of key/value pairs")
-                    .into_iter()
-                    .map(|(k, v)| {
-                             (k.to_owned(),
-                              v.as_str()
-                                  .expect("output.gelf_extra values must be strings")
-                                  .to_owned())
-                         })
-                    .collect()
-            }
+            Some(extra) => extra
+                .as_table()
+                .expect("output.gelf_extra must be a list of key/value pairs")
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        k.to_owned(),
+                        v.as_str()
+                            .expect("output.gelf_extra values must be strings")
+                            .to_owned(),
+                    )
+                })
+                .collect(),
         };
         GelfEncoder { extra: extra }
     }
@@ -36,8 +37,10 @@ impl Encoder for GelfEncoder {
         let mut map = ObjectBuilder::new()
             .insert("version".to_owned(), Value::String("1.1".to_owned()))
             .insert("host".to_owned(), Value::String(record.hostname))
-            .insert("short_message".to_owned(),
-                    Value::String(record.msg.unwrap_or("-".to_owned())))
+            .insert(
+                "short_message".to_owned(),
+                Value::String(record.msg.unwrap_or("-".to_owned())),
+            )
             .insert("timestamp".to_owned(), Value::F64(record.ts));
         if let Some(severity) = record.severity {
             map = map.insert("level".to_owned(), Value::U64(severity as u64));
@@ -70,7 +73,7 @@ impl Encoder for GelfEncoder {
                 map = map.insert(name, value);
             }
         }
-        let json = try!(serde_json::to_vec(&map.build()).or(Err("Unable to serialize to JSON")));
+        let json = serde_json::to_vec(&map.build()).or(Err("Unable to serialize to JSON"))?;
         Ok(json)
     }
 }

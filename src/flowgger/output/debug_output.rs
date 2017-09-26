@@ -1,10 +1,10 @@
+use super::Output;
 use flowgger::config::Config;
 use flowgger::merger::Merger;
 use std::io::{stdout, Write};
-use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
+use std::sync::mpsc::Receiver;
 use std::thread;
-use super::Output;
 
 pub struct DebugOutput;
 
@@ -21,18 +21,16 @@ impl Output for DebugOutput {
             None => None,
         };
         thread::spawn(move || loop {
-                          let mut bytes = match {
-                                    arx.lock().unwrap().recv()
-                                } {
-                              Ok(line) => line,
-                              Err(_) => return,
-                          };
-                          if let Some(ref merger) = merger {
-                              merger.frame(&mut bytes);
-                          }
-                          let out = String::from_utf8_lossy(&bytes);
-                          print!("{}", out);
-                          let _ = stdout().flush();
-                      });
+            let mut bytes = match { arx.lock().unwrap().recv() } {
+                Ok(line) => line,
+                Err(_) => return,
+            };
+            if let Some(ref merger) = merger {
+                merger.frame(&mut bytes);
+            }
+            let out = String::from_utf8_lossy(&bytes);
+            print!("{}", out);
+            let _ = stdout().flush();
+        });
     }
 }

@@ -1,14 +1,14 @@
+use super::Splitter;
 use capnp;
 use capnp::message::ReaderOptions;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
 use record_capnp;
-use std::io::{stderr, Read, Write, BufReader};
+use std::io::{stderr, BufReader, Read, Write};
 use std::sync::mpsc::SyncSender;
 use std::thread;
 use std::time::Duration;
-use super::Splitter;
 
 pub struct CapnpSplitter;
 
@@ -22,12 +22,10 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
     ) {
         let mut buf_reader = buf_reader;
         loop {
-            let message_reader = match capnp::serialize::read_message(&mut buf_reader,
-                                                                      ReaderOptions::new()) {
-                Err(e) => {
-                    match e.kind {
-                        capnp::ErrorKind::Failed |
-                        capnp::ErrorKind::Unimplemented => {
+            let message_reader =
+                match capnp::serialize::read_message(&mut buf_reader, ReaderOptions::new()) {
+                    Err(e) => match e.kind {
+                        capnp::ErrorKind::Failed | capnp::ErrorKind::Unimplemented => {
                             let _ = writeln!(stderr(), "Capnp decoding error: {}", e.description);
                             return;
                         }
@@ -36,15 +34,16 @@ impl<T: Read> Splitter<T> for CapnpSplitter {
                             continue;
                         }
                         capnp::ErrorKind::Disconnected => {
-                            let _ = writeln!(stderr(),
-                                             "Client hasn't sent any data for a while - Closing \
-                                              idle connection");
+                            let _ = writeln!(
+                                stderr(),
+                                "Client hasn't sent any data for a while - Closing \
+                                 idle connection"
+                            );
                             return;
                         }
-                    }
-                }
-                Ok(message_reader) => message_reader,
-            };
+                    },
+                    Ok(message_reader) => message_reader,
+                };
             let message: record_capnp::record::Reader = message_reader.get_root().unwrap();
             let record = match handle_message(message) {
                 Err(e) => {
@@ -67,19 +66,23 @@ fn get_pairs(
     message_pairs: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
     message_extra: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
 ) -> Vec<(String, SDValue)> {
-    let pairs_count = message_pairs.and_then(|x| Some(x.len())).or(Some(0)).unwrap() as usize +
-                      message_extra.and_then(|x| Some(x.len())).or(Some(0)).unwrap() as usize;
+    let pairs_count = message_pairs
+        .and_then(|x| Some(x.len()))
+        .or(Some(0))
+        .unwrap() as usize
+        + message_extra
+            .and_then(|x| Some(x.len()))
+            .or(Some(0))
+            .unwrap() as usize;
     let mut pairs = Vec::with_capacity(pairs_count);
     if let Some(message_pairs) = message_pairs {
         for message_pair in message_pairs.iter() {
             let name = match message_pair.get_key() {
-                Ok(name) => {
-                    if name.starts_with('_') {
-                        name.to_owned()
-                    } else {
-                        format!("_{}", name)
-                    }
-                }
+                Ok(name) => if name.starts_with('_') {
+                    name.to_owned()
+                } else {
+                    format!("_{}", name)
+                },
                 _ => continue,
             };
             let value = match message_pair.get_value().which() {
@@ -120,9 +123,9 @@ fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData
         get_pairs(pairs, extra)
     };
     Ok(Some(StructuredData {
-                sd_id: sd_id,
-                pairs: pairs,
-            }))
+        sd_id: sd_id,
+        pairs: pairs,
+    }))
 }
 
 fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'static str> {
@@ -130,8 +133,10 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
     if ts.is_nan() || ts <= 0.0 {
         return Err("Missing timestamp");
     }
-    let hostname =
-        try!(message.get_hostname().and_then(|x| Ok(x.to_owned())).or(Err("Missing host name")));
+    let hostname = message
+        .get_hostname()
+        .and_then(|x| Ok(x.to_owned()))
+        .or(Err("Missing host name"))?;
     let facility = match message.get_facility() {
         facility if facility <= FACILITY_MAX => Some(facility),
         _ => None,
@@ -145,17 +150,17 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
     let msgid = message.get_msgid().and_then(|x| Ok(x.to_owned())).ok();
     let msg = message.get_msg().and_then(|x| Ok(x.to_owned())).ok();
     let full_msg = message.get_full_msg().and_then(|x| Ok(x.to_owned())).ok();
-    let sd = try!(get_sd(message));
+    let sd = get_sd(message)?;
     Ok(Record {
-           ts: ts,
-           hostname: hostname,
-           facility: facility,
-           severity: severity,
-           appname: appname,
-           procid: procid,
-           msgid: msgid,
-           msg: msg,
-           full_msg: full_msg,
-           sd: sd,
-       })
+        ts: ts,
+        hostname: hostname,
+        facility: facility,
+        severity: severity,
+        appname: appname,
+        procid: procid,
+        msgid: msgid,
+        msg: msg,
+        full_msg: full_msg,
+        sd: sd,
+    })
 }

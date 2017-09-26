@@ -1,11 +1,11 @@
+use super::Decoder;
 use flowgger::config::Config;
-use flowgger::record::{Record, StructuredData, SDValue, SEVERITY_MAX};
+use flowgger::record::{Record, SDValue, StructuredData, SEVERITY_MAX};
 use flowgger::utils;
 use serde_json::de;
-use serde_json::error::ErrorCode;
 use serde_json::error::Error::Syntax;
+use serde_json::error::ErrorCode;
 use serde_json::value::Value;
-use super::Decoder;
 
 #[derive(Clone)]
 pub struct GelfDecoder;
@@ -27,37 +27,46 @@ impl Decoder for GelfDecoder {
 
         let obj = match de::from_str(line) {
             x @ Ok(_) => x,
-            Err(Syntax(ErrorCode::InvalidUnicodeCodePoint, _, _)) => {
+            Err(Syntax(ErrorCode::InvalidUnicodeCodePoint, ..)) => {
                 de::from_str(&line.replace('\n', r"\n"))
             }
             x @ _ => x,
         };
-        let obj: Value = try!(obj.or(Err("Invalid GELF input, unable to parse as a JSON object")));
-        let obj = try!(obj.as_object().ok_or("Empty GELF input"));
+        let obj: Value = obj.or(Err("Invalid GELF input, unable to parse as a JSON object"))?;
+        let obj = obj.as_object().ok_or("Empty GELF input")?;
         for (key, value) in obj {
             match key.as_ref() {
-                "timestamp" => ts = Some(try!(value.as_f64().ok_or("Invalid GELF timestamp"))),
+                "timestamp" => ts = Some(value.as_f64().ok_or("Invalid GELF timestamp")?),
                 "host" => {
-                    hostname = Some(try!(value.as_str().ok_or("GELF host name must be a string"))
-                                        .to_owned())
+                    hostname = Some(
+                        value
+                            .as_str()
+                            .ok_or("GELF host name must be a string")?
+                            .to_owned(),
+                    )
                 }
                 "short_message" => {
-                    msg = Some(try!(value.as_str().ok_or("GELF short message must be a string"))
-                                   .to_owned())
+                    msg = Some(
+                        value
+                            .as_str()
+                            .ok_or("GELF short message must be a string")?
+                            .to_owned(),
+                    )
                 }
                 "full_message" => {
-                    full_msg = Some(try!(value.as_str()
-                            .ok_or("GELF full message must be a string"))
-                                            .to_owned())
+                    full_msg = Some(
+                        value
+                            .as_str()
+                            .ok_or("GELF full message must be a string")?
+                            .to_owned(),
+                    )
                 }
-                "version" => {
-                    match try!(value.as_str().ok_or("GELF version must be a string")) {
-                        "1.0" | "1.1" => {}
-                        _ => return Err("Unsupported GELF version"),
-                    }
-                }
+                "version" => match value.as_str().ok_or("GELF version must be a string")? {
+                    "1.0" | "1.1" => {}
+                    _ => return Err("Unsupported GELF version"),
+                },
                 "level" => {
-                    let severity_given = try!(value.as_u64().ok_or("Invalid severity level"));
+                    let severity_given = value.as_u64().ok_or("Invalid severity level")?;
                     if severity_given > SEVERITY_MAX as u64 {
                         return Err("Invalid severity level (too high)");
                     }
@@ -84,7 +93,7 @@ impl Decoder for GelfDecoder {
         }
         let record = Record {
             ts: ts.unwrap_or_else(|| utils::PreciseTimestamp::now().as_f64()),
-            hostname: try!(hostname.ok_or("Missing hostname")),
+            hostname: hostname.ok_or("Missing hostname")?,
             facility: None,
             severity: severity,
             appname: None,
@@ -110,19 +119,25 @@ fn test_gelf() {
 
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::U64(v) = v {
-                                          k == "_user_id" && v == 9001
-                                      } else {
-                                          false
-                                      }));
-    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-                                          k == "_some_info" && v == "foo"
-                                      } else {
-                                          false
-                                      }));
-    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-                                          k == "_some_env_var" && v == "bar"
-                                      } else {
-                                          false
-                                      }));
+    assert!(pairs.iter().cloned().any(
+        |(k, v)| if let SDValue::U64(v) = v {
+            k == "_user_id" && v == 9001
+        } else {
+            false
+        }
+    ));
+    assert!(pairs.iter().cloned().any(
+        |(k, v)| if let SDValue::String(v) = v {
+            k == "_some_info" && v == "foo"
+        } else {
+            false
+        }
+    ));
+    assert!(pairs.iter().cloned().any(
+        |(k, v)| if let SDValue::String(v) = v {
+            k == "_some_env_var" && v == "bar"
+        } else {
+            false
+        }
+    ));
 }

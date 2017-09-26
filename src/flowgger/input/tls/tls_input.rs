@@ -1,13 +1,13 @@
+use super::*;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
-use std::io::{stderr, Write, BufReader};
+use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
+use std::io::{stderr, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;
-use std::time::Duration;
 use std::thread;
-use super::*;
+use std::time::Duration;
 
 pub struct TlsInput {
     listen: String,
@@ -42,8 +42,8 @@ impl Input for TlsInput {
                     let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                     let tls_config = self.tls_config.clone();
                     thread::spawn(move || {
-                                      handle_client(client, tx, decoder, encoder, tls_config);
-                                  });
+                        handle_client(client, tx, decoder, encoder, tls_config);
+                    });
                 }
                 Err(_) => {}
             }

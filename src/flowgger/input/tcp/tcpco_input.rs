@@ -1,13 +1,13 @@
+use super::*;
+use coio::Scheduler;
+use coio::net::{TcpListener, TcpStream};
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
-use coio::Scheduler;
-use coio::net::{TcpListener, TcpStream};
+use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
 use std::io::BufReader;
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
-use super::*;
 
 pub struct TcpCoInput {
     listen: String,
@@ -45,12 +45,8 @@ impl Input for TcpCoInput {
                             let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                             let tcp_config = tcp_config.clone();
                             Scheduler::spawn(move || {
-                                                 handle_client(client,
-                                                               tx,
-                                                               decoder,
-                                                               encoder,
-                                                               tcp_config);
-                                             });
+                                handle_client(client, tx, decoder, encoder, tcp_config);
+                            });
                         }
                         Err(_) => {}
                     }

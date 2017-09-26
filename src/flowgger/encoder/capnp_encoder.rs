@@ -1,9 +1,9 @@
+use super::Encoder;
 use capnp;
 use capnp::message::{Allocator, Builder};
 use flowgger::config::Config;
 use flowgger::record::{Record, SDValue, FACILITY_MISSING, SEVERITY_MISSING};
 use flowgger::record_capnp;
-use super::Encoder;
 
 #[derive(Clone)]
 pub struct CapnpEncoder {
@@ -14,18 +14,19 @@ impl CapnpEncoder {
     pub fn new(config: &Config) -> CapnpEncoder {
         let extra = match config.lookup("output.capnp_extra") {
             None => Vec::new(),
-            Some(extra) => {
-                extra.as_table()
-                    .expect("output.capnp_extra must be a list of key/value pairs")
-                    .into_iter()
-                    .map(|(k, v)| {
-                             (k.to_owned(),
-                              v.as_str()
-                                  .expect("output.capnp_extra values must be strings")
-                                  .to_owned())
-                         })
-                    .collect()
-            }
+            Some(extra) => extra
+                .as_table()
+                .expect("output.capnp_extra must be a list of key/value pairs")
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        k.to_owned(),
+                        v.as_str()
+                            .expect("output.capnp_extra values must be strings")
+                            .to_owned(),
+                    )
+                })
+                .collect(),
         };
         CapnpEncoder { extra: extra }
     }
@@ -36,8 +37,8 @@ impl Encoder for CapnpEncoder {
         let mut record_msg = Builder::new_default();
         build_record(&mut record_msg, record, &self.extra);
         let mut bytes = Vec::new();
-        try!(capnp::serialize::write_message(&mut bytes, &record_msg)
-            .or(Err("Unable to serialize to Cap'n Proto format")));
+        capnp::serialize::write_message(&mut bytes, &record_msg)
+            .or(Err("Unable to serialize to Cap'n Proto format"))?;
         Ok(bytes)
     }
 }
@@ -74,7 +75,9 @@ fn build_record<T: Allocator>(
         root.set_full_msg(&full_msg);
     }
     if let Some(sd) = record.sd {
-        sd.sd_id.as_ref().and_then(|sd_id| Some(root.set_sd_id(sd_id)));
+        sd.sd_id
+            .as_ref()
+            .and_then(|sd_id| Some(root.set_sd_id(sd_id)));
         let mut pairs = root.borrow().init_pairs(sd.pairs.len() as u32);
         for (i, (name, value)) in sd.pairs.into_iter().enumerate() {
             let mut pair = pairs.borrow().get(i as u32);

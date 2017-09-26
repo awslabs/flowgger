@@ -1,5 +1,5 @@
-use flowgger::config::Config;
 use super::Merger;
+use flowgger::config::Config;
 
 #[derive(Clone)]
 pub struct NulMerger;

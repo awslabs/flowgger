@@ -1,6 +1,6 @@
+use super::Merger;
 use flowgger::config::Config;
 use std::ptr;
-use super::Merger;
 
 #[derive(Clone)]
 pub struct SyslenMerger;

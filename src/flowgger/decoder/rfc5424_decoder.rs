@@ -1,8 +1,8 @@
+use super::Decoder;
 use chrono::DateTime;
 use flowgger::config::Config;
-use flowgger::record::{Record, StructuredData, SDValue};
+use flowgger::record::{Record, SDValue, StructuredData};
 use flowgger::utils;
-use super::Decoder;
 
 #[derive(Clone)]
 pub struct RFC5424Decoder;
@@ -21,14 +21,13 @@ impl Decoder for RFC5424Decoder {
             Err(err) => return Err(err),
         };
         let mut parts = line.splitn(7, ' ');
-        let pri_version = try!(parse_pri_version(try!(parts.next()
-            .ok_or("Missing priority and version"))));
-        let ts = try!(parse_ts(try!(parts.next().ok_or("Missing timestamp"))));
-        let hostname = try!(parts.next().ok_or("Missing hostname"));
-        let appname = try!(parts.next().ok_or("Missing application name"));
-        let procid = try!(parts.next().ok_or("Missing process id"));
-        let msgid = try!(parts.next().ok_or("Missing message id"));
-        let (sd, msg) = try!(parse_data(try!(parts.next().ok_or("Missing message data"))));
+        let pri_version = parse_pri_version(parts.next().ok_or("Missing priority and version")?)?;
+        let ts = parse_ts(parts.next().ok_or("Missing timestamp")?)?;
+        let hostname = parts.next().ok_or("Missing hostname")?;
+        let appname = parts.next().ok_or("Missing application name")?;
+        let procid = parts.next().ok_or("Missing process id")?;
+        let msgid = parts.next().ok_or("Missing message id")?;
+        let (sd, msg) = parse_data(parts.next().ok_or("Missing message data")?)?;
         let record = Record {
             ts: ts,
             hostname: hostname.to_owned(),
@@ -72,16 +71,19 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
         return Err("The priority should be inside brackets");
     }
     let mut parts = line[1..].splitn(2, '>');
-    let pri_encoded: u8 =
-        try!(try!(parts.next().ok_or("Empty priority")).parse().or(Err("Invalid priority")));
-    let version = try!(parts.next().ok_or("Missing version"));
+    let pri_encoded: u8 = parts
+        .next()
+        .ok_or("Empty priority")?
+        .parse()
+        .or(Err("Invalid priority"))?;
+    let version = parts.next().ok_or("Missing version")?;
     if version != "1" {
         return Err("Unsupported version");
     }
     Ok(Pri {
-           facility: pri_encoded >> 3,
-           severity: pri_encoded & 7,
-       })
+        facility: pri_encoded >> 3,
+        severity: pri_encoded & 7,
+    })
 }
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
@@ -129,7 +131,7 @@ fn parse_msg(line: &str, offset: usize) -> Option<String> {
 }
 
 fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'static str> {
-    match try!(line.chars().next().ok_or("Short message")) {
+    match line.chars().next().ok_or("Short message")? {
         '-' => {
             return Ok((None, parse_msg(line, 1)));
         }
@@ -137,8 +139,8 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
         _ => return Err("Short message"),
     };
     let mut parts = line[1..].splitn(2, ' ');
-    let sd_id = try!(parts.next().ok_or("Missing structured data id"));
-    let sd = try!(parts.next().ok_or("Missing structured data"));
+    let sd_id = parts.next().ok_or("Missing structured data id")?;
+    let sd = parts.next().ok_or("Missing structured data")?;
     let mut in_name = false;
     let mut in_value = false;
     let mut name_start = 0;
@@ -169,7 +171,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
             (_, _, true, true, false, _) => {
                 // name
             }
-            ('=', false, _, true, _, _) => {
+            ('=', false, _, true, ..) => {
                 name = Some(&sd[name_start..i]);
                 in_name = false;
             }
@@ -181,10 +183,14 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
             ('"', false, _, _, _, true) => {
                 in_value = false;
                 let value = unescape_sd_value(&sd[value_start..i]);
-                let pair = ("_".to_owned() +
-                            name.expect("Name in structured data contains an invalid UTF-8 \
-                                         sequence"),
-                            SDValue::String(value));
+                let pair = (
+                    "_".to_owned()
+                        + name.expect(
+                            "Name in structured data contains an invalid UTF-8 \
+                             sequence",
+                        ),
+                    SDValue::String(value),
+                );
                 sd_res.pairs.push(pair);
                 name = None;
             }
@@ -217,14 +223,18 @@ fn test_rfc5424() {
     assert!(sd.sd_id == Some("origin@123".to_owned()));
     let pairs = sd.pairs;
 
-    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-                                          k == "_software" && v == "te\\st sc\"ript"
-                                      } else {
-                                          false
-                                      }));
-    assert!(pairs.iter().cloned().any(|(k, v)| if let SDValue::String(v) = v {
-                                          k == "_swVersion" && v == "0.0.1"
-                                      } else {
-                                          false
-                                      }));
+    assert!(pairs.iter().cloned().any(
+        |(k, v)| if let SDValue::String(v) = v {
+            k == "_software" && v == "te\\st sc\"ript"
+        } else {
+            false
+        }
+    ));
+    assert!(pairs.iter().cloned().any(
+        |(k, v)| if let SDValue::String(v) = v {
+            k == "_swVersion" && v == "0.0.1"
+        } else {
+            false
+        }
+    ));
 }

@@ -1,9 +1,9 @@
+use super::Splitter;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use std::io::{stderr, Read, Write, BufRead, BufReader};
+use std::io::{stderr, BufRead, BufReader, Read, Write};
 use std::str;
 use std::sync::mpsc::SyncSender;
-use super::Splitter;
 
 pub struct SyslenSplitter;
 
@@ -62,8 +62,8 @@ fn handle_line(
     decoder: &Box<Decoder>,
     encoder: &Box<Encoder>,
 ) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(line));
-    let reencoded = try!(encoder.encode(decoded));
+    let decoded = decoder.decode(line)?;
+    let reencoded = encoder.encode(decoded)?;
     tx.send(reencoded).unwrap();
     Ok(())
 }

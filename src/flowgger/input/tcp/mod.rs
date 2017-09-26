@@ -20,9 +20,12 @@ pub struct TcpConfig {
 
 #[cfg(feature = "coroutines")]
 fn get_default_threads(config: &Config) -> usize {
-    config.lookup("input.tcp_threads").map_or(DEFAULT_THREADS, |x| {
-        x.as_integer().expect("input.tcp_threads must be an unsigned integer") as usize
-    })
+    config
+        .lookup("input.tcp_threads")
+        .map_or(DEFAULT_THREADS, |x| {
+            x.as_integer()
+                .expect("input.tcp_threads must be an unsigned integer") as usize
+        })
 }
 
 #[cfg(not(feature = "coroutines"))]
@@ -31,13 +34,16 @@ fn get_default_threads(_config: &Config) -> usize {
 }
 
 pub fn config_parse(config: &Config) -> (TcpConfig, String, u64) {
-    let listen = config.lookup("input.listen")
-        .map_or(DEFAULT_LISTEN,
-                |x| x.as_str().expect("input.listen must be an ip:port string"))
+    let listen = config
+        .lookup("input.listen")
+        .map_or(DEFAULT_LISTEN, |x| {
+            x.as_str().expect("input.listen must be an ip:port string")
+        })
         .to_owned();
     let threads = get_default_threads(&config);
     let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| {
-        x.as_integer().expect("input.timeout must be an unsigned integer") as u64
+        x.as_integer()
+            .expect("input.timeout must be an unsigned integer") as u64
     });
     let framing = if config.lookup("input.framed").map_or(false, |x| {
         x.as_bool().expect("input.framed must be a boolean")
@@ -46,9 +52,11 @@ pub fn config_parse(config: &Config) -> (TcpConfig, String, u64) {
     } else {
         DEFAULT_FRAMING
     };
-    let framing = config.lookup("input.framing")
+    let framing = config
+        .lookup("input.framing")
         .map_or(framing, |x| {
-            x.as_str().expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
+            x.as_str()
+                .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
         })
         .to_owned();
     let tcp_config = TcpConfig {

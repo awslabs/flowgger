@@ -1,3 +1,4 @@
+use super::Input;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
@@ -7,7 +8,6 @@ use std::io::{stderr, Write};
 use std::process::exit;
 use std::sync::mpsc::SyncSender;
 use std::thread;
-use super::Input;
 
 const DEFAULT_CONNECT: &'static str = "127.0.0.1";
 const DEFAULT_QUEUE_KEY: &'static str = "logs";
@@ -35,17 +35,25 @@ struct RedisConfig {
 
 impl RedisInput {
     pub fn new(config: &Config) -> RedisInput {
-        let connect = config.lookup("input.redis_connect")
-            .map_or(DEFAULT_CONNECT,
-                    |x| x.as_str().expect("input.redis_connect must be an ip:port string"))
+        let connect = config
+            .lookup("input.redis_connect")
+            .map_or(DEFAULT_CONNECT, |x| {
+                x.as_str()
+                    .expect("input.redis_connect must be an ip:port string")
+            })
             .to_owned();
-        let queue_key = config.lookup("input.redis_queue_key")
-            .map_or(DEFAULT_QUEUE_KEY,
-                    |x| x.as_str().expect("input.redis_queue_key must be a string"))
+        let queue_key = config
+            .lookup("input.redis_queue_key")
+            .map_or(DEFAULT_QUEUE_KEY, |x| {
+                x.as_str().expect("input.redis_queue_key must be a string")
+            })
             .to_owned();
-        let threads = config.lookup("input.redis_threads").map_or(DEFAULT_THREADS, |x| {
-            x.as_integer().expect("input.redis_threads must be a 32-bit integer") as u32
-        });
+        let threads = config
+            .lookup("input.redis_threads")
+            .map_or(DEFAULT_THREADS, |x| {
+                x.as_integer()
+                    .expect("input.redis_threads must be a 32-bit integer") as u32
+            });
         let redis_config = RedisConfig {
             connect: connect,
             queue_key: queue_key,
@@ -65,21 +73,18 @@ impl RedisWorker {
         decoder: Box<Decoder + Send>,
         encoder: Box<Encoder + Send>,
     ) -> RedisWorker {
-        let redis_cnx = match redis::Client::open(format!("redis://{}/", config.connect)
-                                                      .as_ref()) {
-            Err(_) => {
-                panic!("Invalid connection string for the Redis server: [{}]",
-                       config.connect)
-            }
-            Ok(client) => {
-                match client.get_connection() {
-                    Err(_) => {
-                        panic!("Unable to connect to the Redis server: [{}]",
-                               config.connect)
-                    }
-                    Ok(redis_cnx) => redis_cnx,
-                }
-            }
+        let redis_cnx = match redis::Client::open(format!("redis://{}/", config.connect).as_ref()) {
+            Err(_) => panic!(
+                "Invalid connection string for the Redis server: [{}]",
+                config.connect
+            ),
+            Ok(client) => match client.get_connection() {
+                Err(_) => panic!(
+                    "Unable to connect to the Redis server: [{}]",
+                    config.connect
+                ),
+                Ok(redis_cnx) => redis_cnx,
+            },
         };
         RedisWorker {
             tid: tid,
@@ -95,13 +100,15 @@ impl RedisWorker {
         let queue_key: &str = &self.config.queue_key;
         let queue_key_tmp: &str = &format!("{}.tmp.{}", queue_key, self.tid);
         let redis_cnx = self.redis_cnx;
-        println!("Connected to Redis [{}], pulling messages from key [{}]",
-                 self.config.connect,
-                 queue_key);
+        println!(
+            "Connected to Redis [{}], pulling messages from key [{}]",
+            self.config.connect,
+            queue_key
+        );
         while {
-                  let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
-                  dummy.is_ok()
-              } {}
+            let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
+            dummy.is_ok()
+        } {}
         let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (self.decoder, self.encoder);
         loop {
             let line: String = match redis_cnx.brpoplpush(queue_key, queue_key_tmp, 0) {
@@ -154,8 +161,8 @@ fn handle_record(
     decoder: &Box<Decoder>,
     encoder: &Box<Encoder>,
 ) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(&line));
-    let reencoded = try!(encoder.encode(decoded));
+    let decoded = decoder.decode(&line)?;
+    let reencoded = encoder.encode(decoded)?;
     tx.send(reencoded).unwrap();
     Ok(())
 }

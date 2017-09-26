@@ -1,6 +1,6 @@
+use super::Encoder;
 use flowgger::config::Config;
 use flowgger::record::{Record, SDValue};
-use super::Encoder;
 
 #[derive(Clone)]
 pub struct LTSVEncoder {
@@ -11,18 +11,19 @@ impl LTSVEncoder {
     pub fn new(config: &Config) -> LTSVEncoder {
         let extra = match config.lookup("output.ltsv_extra") {
             None => Vec::new(),
-            Some(extra) => {
-                extra.as_table()
-                    .expect("output.ltsv_extra must be a list of key/value pairs")
-                    .into_iter()
-                    .map(|(k, v)| {
-                             (k.to_owned(),
-                              v.as_str()
-                                  .expect("output.ltsv_extra values must be strings")
-                                  .to_owned())
-                         })
-                    .collect()
-            }
+            Some(extra) => extra
+                .as_table()
+                .expect("output.ltsv_extra must be a list of key/value pairs")
+                .into_iter()
+                .map(|(k, v)| {
+                    (
+                        k.to_owned(),
+                        v.as_str()
+                            .expect("output.ltsv_extra values must be strings")
+                            .to_owned(),
+                    )
+                })
+                .collect(),
         };
         LTSVEncoder { extra: extra }
     }

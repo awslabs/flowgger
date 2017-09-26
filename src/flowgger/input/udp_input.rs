@@ -1,12 +1,12 @@
+use super::Input;
+use flate2::FlateReadExt;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flate2::FlateReadExt;
 use std::io::{stderr, Read, Write};
 use std::net::UdpSocket;
 use std::str;
 use std::sync::mpsc::SyncSender;
-use super::Input;
 
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:514";
 const MAX_UDP_PACKET_SIZE: usize = 65527;
@@ -18,9 +18,11 @@ pub struct UdpInput {
 
 impl UdpInput {
     pub fn new(config: &Config) -> UdpInput {
-        let listen = config.lookup("input.listen")
-            .map_or(DEFAULT_LISTEN,
-                    |x| x.as_str().expect("input.listen must be an ip:port string"))
+        let listen = config
+            .lookup("input.listen")
+            .map_or(DEFAULT_LISTEN, |x| {
+                x.as_str().expect("input.listen must be an ip:port string")
+            })
             .to_owned();
         UdpInput { listen: listen }
     }
@@ -33,12 +35,11 @@ impl Input for UdpInput {
         decoder: Box<Decoder + Send>,
         encoder: Box<Encoder + Send>,
     ) {
-        let socket =
-            UdpSocket::bind(&self.listen as &str).expect(&format!("Unable to listen to {}",
-                                                                  self.listen));
+        let socket = UdpSocket::bind(&self.listen as &str)
+            .expect(&format!("Unable to listen to {}", self.listen));
         let tx = tx.clone();
-        let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (decoder.clone_boxed(),
-                                                                encoder.clone_boxed());
+        let (decoder, encoder): (Box<Decoder>, Box<Encoder>) =
+            (decoder.clone_boxed(), encoder.clone_boxed());
         let mut buf = [0; MAX_UDP_PACKET_SIZE];
         loop {
             let (length, _src) = match socket.recv_from(&mut buf) {
@@ -59,8 +60,9 @@ fn handle_record_maybe_compressed(
     decoder: &Box<Decoder>,
     encoder: &Box<Encoder>,
 ) -> Result<(), &'static str> {
-    if line.len() >= 8 &&
-       (line[0] == 0x78 && (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda)) {
+    if line.len() >= 8
+        && (line[0] == 0x78 && (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda))
+    {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
         match line.zlib_decode().read_to_end(&mut decompressed) {
             Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
@@ -68,7 +70,9 @@ fn handle_record_maybe_compressed(
         }
     } else if line.len() >= 24 && (line[0] == 0x1f && line[1] == 0x8b && line[2] == 0x08) {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
-        match line.gz_decode().and_then(|mut x| x.read_to_end(&mut decompressed)) {
+        match line.gz_decode()
+            .and_then(|mut x| x.read_to_end(&mut decompressed))
+        {
             Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
             Err(_) => return Err("Corrupted compressed (gzip) record"),
         }
@@ -87,8 +91,8 @@ fn handle_record(
         Err(_) => return Err("Invalid UTF-8 input"),
         Ok(line) => line,
     };
-    let decoded = try!(decoder.decode(line));
-    let reencoded = try!(encoder.encode(decoded));
+    let decoded = decoder.decode(line)?;
+    let reencoded = encoder.encode(decoded)?;
     tx.send(reencoded).unwrap();
     Ok(())
 }

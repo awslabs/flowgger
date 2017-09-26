@@ -1,10 +1,10 @@
+use super::Input;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
+use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
 use std::io::{stdin, BufReader};
 use std::sync::mpsc::SyncSender;
-use super::Input;
 
 const DEFAULT_FRAMING: &'static str = "line";
 
@@ -19,14 +19,17 @@ pub struct StdinInput {
 
 impl StdinInput {
     pub fn new(config: &Config) -> StdinInput {
-        let framing = config.lookup("input.framing")
+        let framing = config
+            .lookup("input.framing")
             .map_or(DEFAULT_FRAMING, |x| {
                 x.as_str()
                     .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
             })
             .to_owned();
         let stdin_config = StdinConfig { framing: framing };
-        StdinInput { stdin_config: stdin_config }
+        StdinInput {
+            stdin_config: stdin_config,
+        }
     }
 }
 

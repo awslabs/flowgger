@@ -1,7 +1,7 @@
-use std::io::prelude::*;
 use std::fs::File;
-use std::path::Path;
 use std::io::{Error, ErrorKind};
+use std::io::prelude::*;
+use std::path::Path;
 use toml;
 
 #[derive(Clone)]
@@ -11,9 +11,9 @@ pub struct Config {
 
 impl Config {
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Config, Error> {
-        let mut fd = try!(File::open(path));
+        let mut fd = File::open(path)?;
         let mut toml = String::new();
-        try!(fd.read_to_string(&mut toml));
+        fd.read_to_string(&mut toml)?;
         Config::from_string(&toml)
     }
 
@@ -21,8 +21,10 @@ impl Config {
         let config = match toml.parse() {
             Ok(config) => config,
             Err(_) => {
-                return Err(Error::new(ErrorKind::InvalidData,
-                                      "Syntax error - config file is not valid TOML"))
+                return Err(Error::new(
+                    ErrorKind::InvalidData,
+                    "Syntax error - config file is not valid TOML",
+                ))
             }
         };
         Ok(Config { config: config })

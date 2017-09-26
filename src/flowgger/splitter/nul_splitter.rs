@@ -1,9 +1,9 @@
+use super::Splitter;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use std::io::{stderr, ErrorKind, Read, Write, BufRead, BufReader};
+use std::io::{stderr, BufRead, BufReader, ErrorKind, Read, Write};
 use std::str;
 use std::sync::mpsc::SyncSender;
-use super::Splitter;
 
 pub struct NulSplitter;
 
@@ -18,18 +18,18 @@ impl<T: Read> Splitter<T> for NulSplitter {
         for line in buf_reader.split(0) {
             let line = match line {
                 Ok(line) => line,
-                Err(e) => {
-                    match e.kind() {
-                        ErrorKind::Interrupted => continue,
-                        ErrorKind::WouldBlock => {
-                            let _ = writeln!(stderr(),
-                                             "Client hasn't sent any data for a while - Closing \
-                                              idle connection");
-                            return;
-                        }
-                        _ => return,
+                Err(e) => match e.kind() {
+                    ErrorKind::Interrupted => continue,
+                    ErrorKind::WouldBlock => {
+                        let _ = writeln!(
+                            stderr(),
+                            "Client hasn't sent any data for a while - Closing \
+                             idle connection"
+                        );
+                        return;
                     }
-                }
+                    _ => return,
+                },
             };
             let line = match str::from_utf8(&line) {
                 Err(_) => {
@@ -54,8 +54,8 @@ fn handle_line(
     decoder: &Box<Decoder>,
     encoder: &Box<Encoder>,
 ) -> Result<(), &'static str> {
-    let decoded = try!(decoder.decode(line));
-    let reencoded = try!(encoder.encode(decoded));
+    let decoded = decoder.decode(line)?;
+    let reencoded = encoder.encode(decoded)?;
     tx.send(reencoded).unwrap();
     Ok(())
 }

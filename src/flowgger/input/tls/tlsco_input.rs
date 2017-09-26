@@ -1,14 +1,14 @@
+use super::*;
+use coio::Scheduler;
+use coio::net::{TcpListener, TcpStream};
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
-use flowgger::splitter::{Splitter, CapnpSplitter, LineSplitter, NulSplitter, SyslenSplitter};
+use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
 use openssl::ssl::*;
-use coio::Scheduler;
-use coio::net::{TcpListener, TcpStream};
-use std::io::{stderr, Write, BufReader};
+use std::io::{stderr, BufReader, Write};
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
-use super::*;
 
 pub struct TlsCoInput {
     listen: String,
@@ -46,12 +46,8 @@ impl Input for TlsCoInput {
                             let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
                             let tls_config = tls_config.clone();
                             Scheduler::spawn(move || {
-                                                 handle_client(client,
-                                                               tx,
-                                                               decoder,
-                                                               encoder,
-                                                               tls_config);
-                                             });
+                                handle_client(client, tx, decoder, encoder, tls_config);
+                            });
                         }
                         Err(_) => {}
                     }

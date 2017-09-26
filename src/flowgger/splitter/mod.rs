@@ -4,8 +4,8 @@ mod line_splitter;
 mod syslen_splitter;
 
 pub use self::capnp_splitter::CapnpSplitter;
-pub use self::nul_splitter::NulSplitter;
 pub use self::line_splitter::LineSplitter;
+pub use self::nul_splitter::NulSplitter;
 pub use self::syslen_splitter::SyslenSplitter;
 
 use flowgger::decoder::Decoder;
