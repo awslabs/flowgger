@@ -17,7 +17,7 @@ pub struct TlsInput {
 
 impl TlsInput {
     pub fn new(config: &Config) -> TlsInput {
-        let (tls_config, listen, timeout) = config_parse(&config);
+        let (tls_config, listen, timeout) = config_parse(config);
         TlsInput {
             listen: listen,
             tls_config: tls_config,
@@ -35,17 +35,14 @@ impl Input for TlsInput {
     ) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
-            match client {
-                Ok(client) => {
-                    let _ = client.set_read_timeout(self.timeout);
-                    let tx = tx.clone();
-                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                    let tls_config = self.tls_config.clone();
-                    thread::spawn(move || {
-                        handle_client(client, tx, decoder, encoder, tls_config);
-                    });
-                }
-                Err(_) => {}
+            if let Ok(client) = client {
+                let _ = client.set_read_timeout(self.timeout);
+                let tx = tx.clone();
+                let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+                let tls_config = self.tls_config.clone();
+                thread::spawn(move || {
+                    handle_client(client, tx, decoder, encoder, tls_config);
+                });
             }
         }
     }

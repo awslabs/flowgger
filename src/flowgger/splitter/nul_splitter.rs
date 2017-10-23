@@ -40,7 +40,7 @@ impl<T: Read> Splitter<T> for NulSplitter {
             };
             if let Err(e) = handle_line(line, &tx, &decoder, &encoder) {
                 let line = line.trim();
-                if line.len() > 0 {
+                if !line.is_empty() {
                     let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
                 }
             }

@@ -13,7 +13,7 @@ const KAFKA_DEFAULT_ACKS: i16 = 0;
 const KAFKA_DEFAULT_COALESCE: usize = 1;
 const KAFKA_DEFAULT_COMPRESSION: &'static str = "none";
 const KAFKA_DEFAULT_THREADS: u32 = 1;
-const KAFKA_DEFAULT_TIMEOUT: u64 = 60000;
+const KAFKA_DEFAULT_TIMEOUT: u64 = 60_000;
 
 pub struct KafkaOutput {
     config: KafkaConfig,
@@ -201,7 +201,7 @@ impl Output for KafkaOutput {
             let _ = writeln!(stderr(), "Output framing is ignored with the Kafka output");
         }
         for _ in 0..self.threads {
-            let arx = arx.clone();
+            let arx = Arc::clone(&arx);
             let config = self.config.clone();
             thread::spawn(move || {
                 let mut worker = KafkaWorker::new(arx, config);

@@ -59,7 +59,7 @@ pub mod record {
     }
 
     impl<'a> Reader<'a> {
-        pub fn borrow<'b>(&'b self) -> Reader<'b> {
+        pub fn borrow(&self) -> Reader {
             Reader { ..*self }
         }
 
@@ -213,10 +213,10 @@ pub mod record {
         pub fn as_reader(self) -> Reader<'a> {
             ::capnp::traits::FromStructReader::new(self.builder.as_reader())
         }
-        pub fn borrow<'b>(&'b mut self) -> Builder<'b> {
+        pub fn borrow(&mut self) -> Builder {
             Builder { ..*self }
         }
-        pub fn borrow_as_reader<'b>(&'b self) -> Reader<'b> {
+        pub fn borrow_as_reader(&self) -> Reader {
             ::capnp::traits::FromStructReader::new(self.builder.as_reader())
         }
 
@@ -499,7 +499,7 @@ pub mod pair {
     }
 
     impl<'a> Reader<'a> {
-        pub fn borrow<'b>(&'b self) -> Reader<'b> {
+        pub fn borrow(&self) -> Reader {
             Reader { ..*self }
         }
 
@@ -577,10 +577,10 @@ pub mod pair {
         pub fn as_reader(self) -> Reader<'a> {
             ::capnp::traits::FromStructReader::new(self.builder.as_reader())
         }
-        pub fn borrow<'b>(&'b mut self) -> Builder<'b> {
+        pub fn borrow(&mut self) -> Builder {
             Builder { ..*self }
         }
-        pub fn borrow_as_reader<'b>(&'b self) -> Reader<'b> {
+        pub fn borrow_as_reader(&self) -> Reader {
             ::capnp::traits::FromStructReader::new(self.builder.as_reader())
         }
 
@@ -613,9 +613,9 @@ pub mod pair {
             self.builder.set_data_field::<u16>(0, 0);
             self.builder.get_pointer_field(1).clear();
             self.builder.set_bool_field(16, false);
-            self.builder.set_data_field::<f64>(1, 0u8 as f64);
-            self.builder.set_data_field::<i64>(1, 0u8 as i64);
-            self.builder.set_data_field::<u64>(1, 0u8 as u64);
+            self.builder.set_data_field::<f64>(1, 0f64);
+            self.builder.set_data_field::<i64>(1, 0i64);
+            self.builder.set_data_field::<u64>(1, 0u64);
             ::capnp::traits::FromStructBuilder::new(self.builder)
         }
     }
@@ -702,7 +702,7 @@ pub mod pair {
         }
 
         impl<'a> Reader<'a> {
-            pub fn borrow<'b>(&'b self) -> Reader<'b> {
+            pub fn borrow(&self) -> Reader {
                 Reader { ..*self }
             }
 
@@ -801,10 +801,10 @@ pub mod pair {
             pub fn as_reader(self) -> Reader<'a> {
                 ::capnp::traits::FromStructReader::new(self.builder.as_reader())
             }
-            pub fn borrow<'b>(&'b mut self) -> Builder<'b> {
+            pub fn borrow(&mut self) -> Builder {
                 Builder { ..*self }
             }
-            pub fn borrow_as_reader<'b>(&'b self) -> Reader<'b> {
+            pub fn borrow_as_reader(&self) -> Reader {
                 ::capnp::traits::FromStructReader::new(self.builder.as_reader())
             }
 
