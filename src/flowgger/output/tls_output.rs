@@ -116,7 +116,7 @@ impl TlsWorker {
                     _ => return Err(e),
                 },
             };
-            if self.tls_config.async == false {
+            if !self.tls_config.async {
                 writer.flush()?;
             }
         }
@@ -125,7 +125,7 @@ impl TlsWorker {
     fn run(self) {
         let tls_config = &self.tls_config;
         let mut rng = rand::thread_rng();
-        let mut recovery_delay = tls_config.recovery_delay_init as f64;
+        let mut recovery_delay = f64::from(tls_config.recovery_delay_init);
         let mut last_recovery;
         loop {
             last_recovery = chrono::offset::Utc::now();
@@ -162,10 +162,10 @@ impl TlsWorker {
             }
             let now = chrono::offset::Utc::now();
             if now.signed_duration_since(last_recovery)
-                > chrono::Duration::milliseconds(tls_config.recovery_probe_time as i64)
+                > chrono::Duration::milliseconds(i64::from(tls_config.recovery_probe_time))
             {
-                recovery_delay = tls_config.recovery_delay_init as f64;
-            } else if recovery_delay < tls_config.recovery_delay_max as f64 {
+                recovery_delay = f64::from(tls_config.recovery_delay_init);
+            } else if recovery_delay < f64::from(tls_config.recovery_delay_max) {
                 let between = Range::new(0.0, recovery_delay);
                 let mut rng = rand::thread_rng();
                 recovery_delay += between.ind_sample(&mut rng);
@@ -189,7 +189,7 @@ fn new_tcp(connect_chosen: &str) -> Result<TcpStream, io::Error> {
 
 impl TlsOutput {
     pub fn new(config: &Config) -> TlsOutput {
-        let (tls_config, threads) = config_parse(&config);
+        let (tls_config, threads) = config_parse(config);
         TlsOutput {
             config: tls_config,
             threads: threads,
@@ -200,7 +200,7 @@ impl TlsOutput {
 impl Output for TlsOutput {
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
         for _ in 0..self.threads {
-            let arx = arx.clone();
+            let arx = Arc::clone(&arx);
             let config = self.config.clone();
             let merger = match merger {
                 Some(ref merger) => Some(merger.clone_boxed()) as Option<Box<Merger + Send>>,
@@ -245,13 +245,13 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
                 .to_owned()
         })
         .collect();
-    let cert: Option<PathBuf> = config.lookup("output.tls_cert").map_or(None, |x| {
+    let cert: Option<PathBuf> = config.lookup("output.tls_cert").and_then(|x| {
         Some(PathBuf::from(
             x.as_str()
                 .expect("output.tls_cert must be a path to a .pem file"),
         ))
     });
-    let key: Option<PathBuf> = config.lookup("output.tls_key").map_or(None, |x| {
+    let key: Option<PathBuf> = config.lookup("output.tls_key").and_then(|x| {
         Some(PathBuf::from(
             x.as_str()
                 .expect("output.tls_key must be a path to a .pem file"),
@@ -270,7 +270,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
             x.as_bool()
                 .expect("output.tls_verify_peer must be a boolean")
         });
-    let ca_file: Option<PathBuf> = config.lookup("output.tls_ca_file").map_or(None, |x| {
+    let ca_file: Option<PathBuf> = config.lookup("output.tls_ca_file").and_then(|x| {
         Some(PathBuf::from(
             x.as_str()
                 .expect("output.tls_ca_file must be a path to a file"),
@@ -319,7 +319,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     let mut connector_builder = SslConnectorBuilder::new(SslMethod::tls()).unwrap();
     {
         let mut ctx = connector_builder.builder_mut();
-        if verify_peer == false {
+        if !verify_peer {
             ctx.set_verify(SSL_VERIFY_NONE);
         } else {
             ctx.set_verify_depth(TLS_VERIFY_DEPTH);
@@ -331,8 +331,8 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         }
         let mut opts =
             SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
-        if compression == false {
-            opts = opts | SSL_OP_NO_COMPRESSION;
+        if !compression {
+            opts |= SSL_OP_NO_COMPRESSION;
         }
         ctx.set_options(opts);
         set_fs(&mut ctx);

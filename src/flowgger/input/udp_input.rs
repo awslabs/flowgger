@@ -9,7 +9,7 @@ use std::str;
 use std::sync::mpsc::SyncSender;
 
 const DEFAULT_LISTEN: &'static str = "0.0.0.0:514";
-const MAX_UDP_PACKET_SIZE: usize = 65527;
+const MAX_UDP_PACKET_SIZE: usize = 65_527;
 const MAX_COMPRESSION_RATIO: usize = 5;
 
 pub struct UdpInput {
@@ -47,7 +47,7 @@ impl Input for UdpInput {
                 Err(_) => continue,
             };
             let line = &buf[..length];
-            if let Err(e) = handle_record_maybe_compressed(&line, &tx, &decoder, &encoder) {
+            if let Err(e) = handle_record_maybe_compressed(line, &tx, &decoder, &encoder) {
                 let _ = writeln!(stderr(), "{}", e);
             }
         }
@@ -66,7 +66,7 @@ fn handle_record_maybe_compressed(
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
         match line.zlib_decode().read_to_end(&mut decompressed) {
             Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
-            Err(_) => return Err("Corrupted compressed (zlib) record"),
+            Err(_) => Err("Corrupted compressed (zlib) record"),
         }
     } else if line.len() >= 24 && (line[0] == 0x1f && line[1] == 0x8b && line[2] == 0x08) {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
@@ -74,7 +74,7 @@ fn handle_record_maybe_compressed(
             .and_then(|mut x| x.read_to_end(&mut decompressed))
         {
             Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
-            Err(_) => return Err("Corrupted compressed (gzip) record"),
+            Err(_) => Err("Corrupted compressed (gzip) record"),
         }
     } else {
         handle_record(line, tx, decoder, encoder)
