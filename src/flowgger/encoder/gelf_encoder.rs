@@ -39,11 +39,11 @@ impl Encoder for GelfEncoder {
             .insert("host".to_owned(), Value::String(record.hostname))
             .insert(
                 "short_message".to_owned(),
-                Value::String(record.msg.unwrap_or("-".to_owned())),
+                Value::String(record.msg.unwrap_or_else(|| "-".to_owned())),
             )
             .insert("timestamp".to_owned(), Value::F64(record.ts));
         if let Some(severity) = record.severity {
-            map = map.insert("level".to_owned(), Value::U64(severity as u64));
+            map = map.insert("level".to_owned(), Value::U64(u64::from(severity)));
         }
         if let Some(full_msg) = record.full_msg {
             map = map.insert("full_message".to_owned(), Value::String(full_msg));

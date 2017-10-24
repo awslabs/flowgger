@@ -39,7 +39,7 @@ impl LTSVString {
     }
 
     pub fn insert(&mut self, key: &str, value: &str) {
-        if self.out.is_empty() == false {
+        if !self.out.is_empty() {
             self.out.push('\t');
         }
         if key.chars().any(|s| s == '\n' || s == '\t' || s == ':') {
@@ -70,15 +70,15 @@ impl Encoder for LTSVEncoder {
                 let name = if (*name).starts_with('_') {
                     &name[1..] as &str
                 } else {
-                    &name as &str
+                    name as &str
                 };
                 match *value {
-                    SDValue::String(ref value) => res.insert(&name, value),
-                    SDValue::Bool(ref value) => res.insert(&name, &value.to_string()),
-                    SDValue::F64(ref value) => res.insert(&name, &value.to_string()),
-                    SDValue::I64(ref value) => res.insert(&name, &value.to_string()),
-                    SDValue::U64(ref value) => res.insert(&name, &value.to_string()),
-                    SDValue::Null => res.insert(&name, ""),
+                    SDValue::String(ref value) => res.insert(name, value),
+                    SDValue::Bool(ref value) => res.insert(name, &value.to_string()),
+                    SDValue::F64(ref value) => res.insert(name, &value.to_string()),
+                    SDValue::I64(ref value) => res.insert(name, &value.to_string()),
+                    SDValue::U64(ref value) => res.insert(name, &value.to_string()),
+                    SDValue::Null => res.insert(name, ""),
                 }
             }
         }
@@ -86,7 +86,7 @@ impl Encoder for LTSVEncoder {
             let name = if (*name).starts_with('_') {
                 &name[1..] as &str
             } else {
-                &name as &str
+                name as &str
             };
             res.insert(name, value);
         }

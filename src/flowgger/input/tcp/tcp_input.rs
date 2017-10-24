@@ -17,7 +17,7 @@ pub struct TcpInput {
 
 impl TcpInput {
     pub fn new(config: &Config) -> TcpInput {
-        let (tcp_config, listen, timeout) = config_parse(&config);
+        let (tcp_config, listen, timeout) = config_parse(config);
         TcpInput {
             listen: listen,
             tcp_config: tcp_config,
@@ -35,17 +35,14 @@ impl Input for TcpInput {
     ) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
-            match client {
-                Ok(client) => {
-                    let _ = client.set_read_timeout(self.timeout);
-                    let tx = tx.clone();
-                    let tcp_config = self.tcp_config.clone();
-                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                    thread::spawn(move || {
-                        handle_client(client, tx, decoder, encoder, tcp_config);
-                    });
-                }
-                Err(_) => {}
+            if let Ok(client) = client {
+                let _ = client.set_read_timeout(self.timeout);
+                let tx = tx.clone();
+                let tcp_config = self.tcp_config.clone();
+                let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+                thread::spawn(move || {
+                    handle_client(client, tx, decoder, encoder, tcp_config);
+                });
             }
         }
     }

@@ -439,7 +439,7 @@ pub mod record {
             data: 2,
             pointers: 9,
         };
-        pub const TYPE_ID: u64 = 0xe1068a6aee02baba;
+        pub const TYPE_ID: u64 = 0xe106_8a6a_ee02_baba;
     }
 }
 
@@ -641,7 +641,7 @@ pub mod pair {
             data: 2,
             pointers: 2,
         };
-        pub const TYPE_ID: u64 = 0xb4a68d38a716233d;
+        pub const TYPE_ID: u64 = 0xb4a6_8d38_a716_233d;
     }
 
     pub mod value {
@@ -719,28 +719,28 @@ pub mod pair {
             pub fn which(self) -> ::std::result::Result<WhichReader<'a>, ::capnp::NotInSchema> {
                 match self.reader.get_data_field::<u16>(0) {
                     0 => {
-                        return ::std::result::Result::Ok(String(
+                        ::std::result::Result::Ok(String(
                             self.reader
                                 .get_pointer_field(1)
                                 .get_text(::std::ptr::null(), 0),
-                        ));
+                        ))
                     }
                     1 => {
-                        return ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16)));
+                        ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16)))
                     }
                     2 => {
-                        return ::std::result::Result::Ok(F64(self.reader.get_data_field::<f64>(1)));
+                        ::std::result::Result::Ok(F64(self.reader.get_data_field::<f64>(1)))
                     }
                     3 => {
-                        return ::std::result::Result::Ok(I64(self.reader.get_data_field::<i64>(1)));
+                        ::std::result::Result::Ok(I64(self.reader.get_data_field::<i64>(1)))
                     }
                     4 => {
-                        return ::std::result::Result::Ok(U64(self.reader.get_data_field::<u64>(1)));
+                        ::std::result::Result::Ok(U64(self.reader.get_data_field::<u64>(1)))
                     }
                     5 => {
-                        return ::std::result::Result::Ok(Null(()));
+                        ::std::result::Result::Ok(Null(()))
                     }
-                    x => return ::std::result::Result::Err(::capnp::NotInSchema(x)),
+                    x => ::std::result::Result::Err(::capnp::NotInSchema(x)),
                 }
             }
         }
@@ -855,34 +855,34 @@ pub mod pair {
             pub fn which(self) -> ::std::result::Result<WhichBuilder<'a>, ::capnp::NotInSchema> {
                 match self.builder.get_data_field::<u16>(0) {
                     0 => {
-                        return ::std::result::Result::Ok(String(
+                        ::std::result::Result::Ok(String(
                             self.builder
                                 .get_pointer_field(1)
                                 .get_text(::std::ptr::null(), 0),
-                        ));
+                        ))
                     }
                     1 => {
-                        return ::std::result::Result::Ok(Bool(self.builder.get_bool_field(16)));
+                        ::std::result::Result::Ok(Bool(self.builder.get_bool_field(16)))
                     }
                     2 => {
-                        return ::std::result::Result::Ok(
+                        ::std::result::Result::Ok(
                             F64(self.builder.get_data_field::<f64>(1)),
-                        );
+                        )
                     }
                     3 => {
-                        return ::std::result::Result::Ok(
+                        ::std::result::Result::Ok(
                             I64(self.builder.get_data_field::<i64>(1)),
-                        );
+                        )
                     }
                     4 => {
-                        return ::std::result::Result::Ok(
+                        ::std::result::Result::Ok(
                             U64(self.builder.get_data_field::<u64>(1)),
-                        );
+                        )
                     }
                     5 => {
-                        return ::std::result::Result::Ok(Null(()));
+                        ::std::result::Result::Ok(Null(()))
                     }
-                    x => return ::std::result::Result::Err(::capnp::NotInSchema(x)),
+                    x => ::std::result::Result::Err(::capnp::NotInSchema(x)),
                 }
             }
         }
@@ -904,7 +904,7 @@ pub mod pair {
                 data: 2,
                 pointers: 2,
             };
-            pub const TYPE_ID: u64 = 0x8a994a2aad4d9204;
+            pub const TYPE_ID: u64 = 0x8a99_4a2a_ad4d_9204;
         }
         pub enum Which<A0> {
             String(A0),
