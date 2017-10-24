@@ -210,7 +210,7 @@ pub mod record {
     }
 
     impl<'a> Builder<'a> {
-        pub fn as_reader(self) -> Reader<'a> {
+        pub fn as_reader(&self) -> Reader<'a> {
             ::capnp::traits::FromStructReader::new(self.builder.as_reader())
         }
         pub fn borrow(&mut self) -> Builder {
@@ -574,7 +574,7 @@ pub mod pair {
     }
 
     impl<'a> Builder<'a> {
-        pub fn as_reader(self) -> Reader<'a> {
+        pub fn as_reader(&self) -> Reader<'a> {
             ::capnp::traits::FromStructReader::new(self.builder.as_reader())
         }
         pub fn borrow(&mut self) -> Builder {
@@ -798,7 +798,7 @@ pub mod pair {
         }
 
         impl<'a> Builder<'a> {
-            pub fn as_reader(self) -> Reader<'a> {
+            pub fn as_reader(&self) -> Reader<'a> {
                 ::capnp::traits::FromStructReader::new(self.builder.as_reader())
             }
             pub fn borrow(&mut self) -> Builder {
