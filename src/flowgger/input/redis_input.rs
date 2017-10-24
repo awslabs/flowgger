@@ -119,9 +119,8 @@ impl RedisWorker {
                 let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
             }
             let res: RedisResult<u8> = redis_cnx.lrem(queue_key_tmp as &str, 1, line as String);
-            match res {
-                Err(e) => return Err(format!("Redis protocol error in LREM: [{}]", e)),
-                Ok(_) => (),
+            if let Err(e) = res {
+                return Err(format!("Redis protocol error in LREM: [{}]", e));
             };
         }
     }
@@ -148,7 +147,7 @@ impl Input for RedisInput {
             }));
         }
         for jid in jids {
-            if let Err(_) = jid.join() {
+            if jid.join().is_err() {
                 panic!("Redis connection lost");
             }
         }
@@ -161,7 +160,7 @@ fn handle_record(
     decoder: &Box<Decoder>,
     encoder: &Box<Encoder>,
 ) -> Result<(), &'static str> {
-    let decoded = decoder.decode(&line)?;
+    let decoded = decoder.decode(line)?;
     let reencoded = encoder.encode(decoded)?;
     tx.send(reencoded).unwrap();
     Ok(())

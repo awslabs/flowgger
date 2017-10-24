@@ -67,7 +67,7 @@ impl Decoder for GelfDecoder {
                 },
                 "level" => {
                     let severity_given = value.as_u64().ok_or("Invalid severity level")?;
-                    if severity_given > SEVERITY_MAX as u64 {
+                    if severity_given > u64::from(SEVERITY_MAX) {
                         return Err("Invalid severity level (too high)");
                     }
                     severity = Some(severity_given as u8)
