@@ -12,14 +12,15 @@ pub mod tlsco_input;
 pub use super::Input;
 
 const DEFAULT_CERT: &'static str = "flowgger.pem";
-const DEFAULT_CIPHERS: &'static str = "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
-                                       ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
-                                       ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:\
-                                       ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:\
-                                       ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:\
-                                       AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:\
-                                       ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:\
-                                       !EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
+const DEFAULT_CIPHERS: &'static str =
+    "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
+     ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
+     ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:\
+     ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:\
+     ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:\
+     AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:\
+     ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:\
+     !EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
 const DEFAULT_COMPRESSION: bool = false;
 const DEFAULT_FRAMING: &'static str = "line";
 const DEFAULT_KEY: &'static str = "flowgger.pem";
@@ -142,12 +143,11 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
                 .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
         })
         .to_owned();
-        let mut acceptor_builder = (if tls_modern {
-            SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls())
-        }
-        else {
-            SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())
-        }).unwrap();
+    let mut acceptor_builder = (if tls_modern {
+        SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls())
+    } else {
+        SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())
+    }).unwrap();
     {
         let mut ctx = acceptor_builder.builder_mut();
         if let Some(ca_file) = ca_file {

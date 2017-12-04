@@ -102,8 +102,7 @@ impl RedisWorker {
         let redis_cnx = self.redis_cnx;
         println!(
             "Connected to Redis [{}], pulling messages from key [{}]",
-            self.config.connect,
-            queue_key
+            self.config.connect, queue_key
         );
         while {
             let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);

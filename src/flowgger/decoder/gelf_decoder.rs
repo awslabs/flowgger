@@ -119,25 +119,34 @@ fn test_gelf() {
 
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(pairs.iter().cloned().any(
-        |(k, v)| if let SDValue::U64(v) = v {
-            k == "_user_id" && v == 9001
-        } else {
-            false
-        }
-    ));
-    assert!(pairs.iter().cloned().any(
-        |(k, v)| if let SDValue::String(v) = v {
-            k == "_some_info" && v == "foo"
-        } else {
-            false
-        }
-    ));
-    assert!(pairs.iter().cloned().any(
-        |(k, v)| if let SDValue::String(v) = v {
-            k == "_some_env_var" && v == "bar"
-        } else {
-            false
-        }
-    ));
+    assert!(
+        pairs
+            .iter()
+            .cloned()
+            .any(|(k, v)| if let SDValue::U64(v) = v {
+                k == "_user_id" && v == 9001
+            } else {
+                false
+            })
+    );
+    assert!(
+        pairs
+            .iter()
+            .cloned()
+            .any(|(k, v)| if let SDValue::String(v) = v {
+                k == "_some_info" && v == "foo"
+            } else {
+                false
+            })
+    );
+    assert!(
+        pairs
+            .iter()
+            .cloned()
+            .any(|(k, v)| if let SDValue::String(v) = v {
+                k == "_some_env_var" && v == "bar"
+            } else {
+                false
+            })
+    );
 }

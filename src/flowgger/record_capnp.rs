@@ -45,9 +45,8 @@ pub mod record {
         fn get_from_pointer(
             reader: &::capnp::private::layout::PointerReader<'a>,
         ) -> Result<Reader<'a>> {
-            ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(
-                reader.get_struct(::std::ptr::null())?,
-            ))
+            ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(reader
+                .get_struct(::std::ptr::null())?))
         }
     }
 
@@ -485,9 +484,8 @@ pub mod pair {
         fn get_from_pointer(
             reader: &::capnp::private::layout::PointerReader<'a>,
         ) -> Result<Reader<'a>> {
-            ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(
-                reader.get_struct(::std::ptr::null())?,
-            ))
+            ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(reader
+                .get_struct(::std::ptr::null())?))
         }
     }
 
@@ -688,9 +686,8 @@ pub mod pair {
             fn get_from_pointer(
                 reader: &::capnp::private::layout::PointerReader<'a>,
             ) -> Result<Reader<'a>> {
-                ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(
-                    reader.get_struct(::std::ptr::null())?,
-                ))
+                ::std::result::Result::Ok(::capnp::traits::FromStructReader::new(reader
+                    .get_struct(::std::ptr::null())?))
             }
         }
 
@@ -718,28 +715,16 @@ pub mod pair {
             #[inline]
             pub fn which(self) -> ::std::result::Result<WhichReader<'a>, ::capnp::NotInSchema> {
                 match self.reader.get_data_field::<u16>(0) {
-                    0 => {
-                        ::std::result::Result::Ok(String(
-                            self.reader
-                                .get_pointer_field(1)
-                                .get_text(::std::ptr::null(), 0),
-                        ))
-                    }
-                    1 => {
-                        ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16)))
-                    }
-                    2 => {
-                        ::std::result::Result::Ok(F64(self.reader.get_data_field::<f64>(1)))
-                    }
-                    3 => {
-                        ::std::result::Result::Ok(I64(self.reader.get_data_field::<i64>(1)))
-                    }
-                    4 => {
-                        ::std::result::Result::Ok(U64(self.reader.get_data_field::<u64>(1)))
-                    }
-                    5 => {
-                        ::std::result::Result::Ok(Null(()))
-                    }
+                    0 => ::std::result::Result::Ok(String(
+                        self.reader
+                            .get_pointer_field(1)
+                            .get_text(::std::ptr::null(), 0),
+                    )),
+                    1 => ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16))),
+                    2 => ::std::result::Result::Ok(F64(self.reader.get_data_field::<f64>(1))),
+                    3 => ::std::result::Result::Ok(I64(self.reader.get_data_field::<i64>(1))),
+                    4 => ::std::result::Result::Ok(U64(self.reader.get_data_field::<u64>(1))),
+                    5 => ::std::result::Result::Ok(Null(())),
                     x => ::std::result::Result::Err(::capnp::NotInSchema(x)),
                 }
             }
@@ -854,34 +839,16 @@ pub mod pair {
             #[inline]
             pub fn which(self) -> ::std::result::Result<WhichBuilder<'a>, ::capnp::NotInSchema> {
                 match self.builder.get_data_field::<u16>(0) {
-                    0 => {
-                        ::std::result::Result::Ok(String(
-                            self.builder
-                                .get_pointer_field(1)
-                                .get_text(::std::ptr::null(), 0),
-                        ))
-                    }
-                    1 => {
-                        ::std::result::Result::Ok(Bool(self.builder.get_bool_field(16)))
-                    }
-                    2 => {
-                        ::std::result::Result::Ok(
-                            F64(self.builder.get_data_field::<f64>(1)),
-                        )
-                    }
-                    3 => {
-                        ::std::result::Result::Ok(
-                            I64(self.builder.get_data_field::<i64>(1)),
-                        )
-                    }
-                    4 => {
-                        ::std::result::Result::Ok(
-                            U64(self.builder.get_data_field::<u64>(1)),
-                        )
-                    }
-                    5 => {
-                        ::std::result::Result::Ok(Null(()))
-                    }
+                    0 => ::std::result::Result::Ok(String(
+                        self.builder
+                            .get_pointer_field(1)
+                            .get_text(::std::ptr::null(), 0),
+                    )),
+                    1 => ::std::result::Result::Ok(Bool(self.builder.get_bool_field(16))),
+                    2 => ::std::result::Result::Ok(F64(self.builder.get_data_field::<f64>(1))),
+                    3 => ::std::result::Result::Ok(I64(self.builder.get_data_field::<i64>(1))),
+                    4 => ::std::result::Result::Ok(U64(self.builder.get_data_field::<u64>(1))),
+                    5 => ::std::result::Result::Ok(Null(())),
                     x => ::std::result::Result::Err(::capnp::NotInSchema(x)),
                 }
             }
