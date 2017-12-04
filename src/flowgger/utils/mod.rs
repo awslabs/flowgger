@@ -10,14 +10,14 @@ impl PreciseTimestamp {
     pub fn now() -> Self {
         let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
         PreciseTimestamp {
-            ts: now.as_secs() as f64 + now.subsec_nanos() as f64 / 1e9,
+            ts: now.as_secs() as f64 + f64::from(now.subsec_nanos()) / 1e9,
         }
     }
 
     #[inline]
     pub fn from_datetime(tsd: DateTime<FixedOffset>) -> Self {
         PreciseTimestamp {
-            ts: tsd.timestamp() as f64 + tsd.naive_utc().nanosecond() as f64 / 1e9,
+            ts: tsd.timestamp() as f64 + f64::from(tsd.naive_utc().nanosecond()) / 1e9,
         }
     }
 

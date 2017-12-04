@@ -70,7 +70,7 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             x.as_str().expect("input.listen must be an ip:port string")
         })
         .to_owned();
-    let threads = get_default_threads(&config);
+    let threads = get_default_threads(config);
     let cert = config
         .lookup("input.tls_cert")
         .map_or(DEFAULT_CERT, |x| {
@@ -113,7 +113,7 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             x.as_bool()
                 .expect("input.tls_verify_peer must be a boolean")
         });
-    let ca_file: Option<PathBuf> = config.lookup("input.tls_ca_file").map_or(None, |x| {
+    let ca_file: Option<PathBuf> = config.lookup("input.tls_ca_file").and_then(|x| {
         Some(PathBuf::from(
             x.as_str()
                 .expect("input.tls_ca_file must be a path to a file"),
@@ -142,17 +142,19 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
                 .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
         })
         .to_owned();
-    let mut acceptor_builder = match tls_modern {
-        false => SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls()),
-        true => SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls()),
-    }.unwrap();
+        let mut acceptor_builder = (if tls_modern {
+            SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls())
+        }
+        else {
+            SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())
+        }).unwrap();
     {
         let mut ctx = acceptor_builder.builder_mut();
         if let Some(ca_file) = ca_file {
             ctx.set_ca_file(&ca_file)
                 .expect("Unable to read the trusted CA file");
         }
-        if verify_peer == false {
+        if !verify_peer {
             ctx.set_verify(SSL_VERIFY_NONE);
         } else {
             ctx.set_verify_depth(TLS_VERIFY_DEPTH);
@@ -160,8 +162,8 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         }
         let mut opts =
             SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
-        if compression == false {
-            opts = opts | SSL_OP_NO_COMPRESSION;
+        if !compression {
+            opts |= SSL_OP_NO_COMPRESSION;
         }
         ctx.set_options(opts);
         set_fs(&mut ctx);

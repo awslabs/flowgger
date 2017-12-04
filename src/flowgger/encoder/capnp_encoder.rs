@@ -97,9 +97,9 @@ fn build_record<T: Allocator>(
         let mut pairs = root.init_extra(extra.len() as u32);
         for (i, &(ref name, ref value)) in extra.into_iter().enumerate() {
             let mut pair = pairs.borrow().get((i) as u32);
-            pair.set_key(&name);
+            pair.set_key(name);
             let mut v = pair.init_value();
-            v.set_string(&value)
+            v.set_string(value)
         }
     }
 }

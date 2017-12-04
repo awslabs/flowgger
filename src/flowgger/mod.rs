@@ -56,20 +56,20 @@ fn get_input_tcpco(_config: &Config) -> ! {
 
 fn get_input(input_type: &str, config: &Config) -> Box<Input> {
     match input_type {
-        "redis" => Box::new(RedisInput::new(&config)) as Box<Input>,
-        "stdin" => Box::new(StdinInput::new(&config)) as Box<Input>,
-        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(&config)) as Box<Input>,
-        "tcp_co" | "tcpco" | "syslog-tcp_co" | "syslog-tcpco" => get_input_tcpco(&config),
-        "tls" | "syslog-tls" => Box::new(TlsInput::new(&config)) as Box<Input>,
-        "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(&config),
-        "udp" => Box::new(UdpInput::new(&config)) as Box<Input>,
+        "redis" => Box::new(RedisInput::new(config)) as Box<Input>,
+        "stdin" => Box::new(StdinInput::new(config)) as Box<Input>,
+        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(config)) as Box<Input>,
+        "tcp_co" | "tcpco" | "syslog-tcp_co" | "syslog-tcpco" => get_input_tcpco(config),
+        "tls" | "syslog-tls" => Box::new(TlsInput::new(config)) as Box<Input>,
+        "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(config),
+        "udp" => Box::new(UdpInput::new(config)) as Box<Input>,
         _ => panic!("Invalid input type: {}", input_type),
     }
 }
 
 #[cfg(feature = "kafka")]
 fn get_output_kafka(config: &Config) -> Box<Output> {
-    Box::new(KafkaOutput::new(&config)) as Box<Output>
+    Box::new(KafkaOutput::new(config)) as Box<Output>
 }
 
 #[cfg(not(feature = "kafka"))]
@@ -79,9 +79,9 @@ fn get_output_kafka(_config: &Config) -> ! {
 
 fn get_output(output_type: &str, config: &Config) -> Box<Output> {
     match output_type {
-        "stdout" | "debug" => Box::new(DebugOutput::new(&config)) as Box<Output>,
-        "kafka" => get_output_kafka(&config),
-        "tls" | "syslog-tls" => Box::new(TlsOutput::new(&config)) as Box<Output>,
+        "stdout" | "debug" => Box::new(DebugOutput::new(config)) as Box<Output>,
+        "kafka" => get_output_kafka(config),
+        "tls" | "syslog-tls" => Box::new(TlsOutput::new(config)) as Box<Output>,
         _ => panic!("Invalid output type: {}", output_type),
     }
 }
