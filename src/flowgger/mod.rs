@@ -13,7 +13,7 @@ pub mod record_capnp;
 use self::config::Config;
 use self::decoder::{Decoder, GelfDecoder, InvalidDecoder, LTSVDecoder, RFC5424Decoder};
 use self::encoder::{CapnpEncoder, Encoder, GelfEncoder, LTSVEncoder};
-use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
+use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput, FileInput};
 #[cfg(feature = "coroutines")]
 use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{LineMerger, Merger, NulMerger, SyslenMerger};
@@ -63,6 +63,7 @@ fn get_input(input_type: &str, config: &Config) -> Box<Input> {
         "tls" | "syslog-tls" => Box::new(TlsInput::new(config)) as Box<Input>,
         "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(config),
         "udp" => Box::new(UdpInput::new(config)) as Box<Input>,
+        "file" => Box::new(FileInput::new(config)) as Box<Input>,
         _ => panic!("Invalid input type: {}", input_type),
     }
 }

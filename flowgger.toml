@@ -53,7 +53,9 @@ timeout = 3600
 # redis_queue_key = "logs"
 # redis_threads = 1
 
-
+### File input
+# type = "file"
+# src = "/var/lib/docker/containers/*/*.log"
 
 ### Input format and parameters
 # format = "ltsv"

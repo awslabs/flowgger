@@ -11,6 +11,8 @@ extern crate rand;
 extern crate redis;
 extern crate serde_json;
 extern crate toml;
+extern crate notify;
+extern crate glob;
 
 mod flowgger;
 pub use crate::flowgger::record_capnp;
