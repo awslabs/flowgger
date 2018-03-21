@@ -24,8 +24,8 @@ RUN set -x && \
     apt-get clean && \
     rm -fr /tmp/* /var/tmp/*
 
-ENV LIBRESSL_VERSION 2.6.4
-ENV LIBRESSL_SHA256 638a20c2f9e99ee283a841cd787ab4d846d1880e180c4e96904fc327d419d11f
+ENV LIBRESSL_VERSION 2.7.0
+ENV LIBRESSL_SHA256 50ce6d6f88dea73a3efca62b0a9e6ca75292bdee6c9293efd6a771cfdb28cdee
 ENV LIBRESSL_DOWNLOAD_URL https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz
 
 RUN set -x && \
