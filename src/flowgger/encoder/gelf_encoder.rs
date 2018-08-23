@@ -35,7 +35,7 @@ impl Encoder for GelfEncoder {
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
         let mut map = ObjectBuilder::new()
             .insert("version".to_owned(), Value::String("1.1".to_owned()))
-            .insert("host".to_owned(), Value::String(record.hostname))
+            .insert("host".to_owned(), Value::String(record.hostname.unwrap_or_else(|| "unknown".to_owned())))
             .insert(
                 "short_message".to_owned(),
                 Value::String(record.msg.unwrap_or_else(|| "-".to_owned())),
