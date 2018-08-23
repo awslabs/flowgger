@@ -176,12 +176,12 @@ impl TlsWorker {
 }
 
 fn new_tcp(connect_chosen: &str) -> Result<TcpStream, io::Error> {
-        match TcpStream::connect(connect_chosen) {
-            Ok(stream) => return Ok(stream),
-            Err(e) => {
-                return Err(e);
-            }
+    match TcpStream::connect(connect_chosen) {
+        Ok(stream) => return Ok(stream),
+        Err(e) => {
+            return Err(e);
         }
+    }
 }
 
 impl TlsOutput {
