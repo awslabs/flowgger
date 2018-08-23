@@ -1,10 +1,10 @@
 use super::Splitter;
 use capnp;
 use capnp::message::ReaderOptions;
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
-use flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
-use record_capnp;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
+use crate::flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
+use crate::record_capnp;
 use std::io::{stderr, BufReader, Read, Write};
 use std::sync::mpsc::SyncSender;
 use std::thread;

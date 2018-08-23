@@ -1,6 +1,6 @@
 use super::Output;
-use flowgger::config::Config;
-use flowgger::merger::Merger;
+use crate::flowgger::config::Config;
+use crate::flowgger::merger::Merger;
 use kafka::producer::{Compression, Producer, Record, RequiredAcks};
 use std::io::{stderr, Write};
 use std::process::exit;

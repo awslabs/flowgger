@@ -8,7 +8,7 @@ pub use self::invalid_decoder::InvalidDecoder;
 pub use self::ltsv_decoder::LTSVDecoder;
 pub use self::rfc5424_decoder::RFC5424Decoder;
 
-use flowgger::record::Record;
+use crate::flowgger::record::Record;
 
 pub trait CloneBoxedDecoder {
     fn clone_boxed<'a>(&self) -> Box<Decoder + Send + 'a>

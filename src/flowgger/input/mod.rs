@@ -14,8 +14,8 @@ pub use self::tls::tls_input::TlsInput;
 pub use self::tls::tlsco_input::TlsCoInput;
 pub use self::udp_input::UdpInput;
 
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
 use std::sync::mpsc::SyncSender;
 
 pub trait Input {

@@ -1,5 +1,5 @@
 use super::Merger;
-use flowgger::config::Config;
+use crate::flowgger::config::Config;
 use std::ptr;
 
 #[derive(Clone)]

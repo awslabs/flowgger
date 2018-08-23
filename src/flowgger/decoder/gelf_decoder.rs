@@ -1,7 +1,7 @@
 use super::Decoder;
-use flowgger::config::Config;
-use flowgger::record::{Record, SDValue, StructuredData, SEVERITY_MAX};
-use flowgger::utils;
+use crate::flowgger::config::Config;
+use crate::flowgger::record::{Record, SDValue, StructuredData, SEVERITY_MAX};
+use crate::flowgger::utils;
 use serde_json::de;
 use serde_json::error::Error::Syntax;
 use serde_json::error::ErrorCode;

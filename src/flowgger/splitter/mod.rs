@@ -8,8 +8,8 @@ pub use self::line_splitter::LineSplitter;
 pub use self::nul_splitter::NulSplitter;
 pub use self::syslen_splitter::SyslenSplitter;
 
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
 use std::io::BufReader;
 use std::sync::mpsc::SyncSender;
 

@@ -6,7 +6,7 @@ pub use self::capnp_encoder::CapnpEncoder;
 pub use self::gelf_encoder::GelfEncoder;
 pub use self::ltsv_encoder::LTSVEncoder;
 
-use flowgger::record::Record;
+use crate::flowgger::record::Record;
 
 pub trait CloneBoxedEncoder {
     fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a>

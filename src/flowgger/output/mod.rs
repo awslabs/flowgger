@@ -8,7 +8,7 @@ pub use self::debug_output::DebugOutput;
 pub use self::kafka_output::KafkaOutput;
 pub use self::tls_output::TlsOutput;
 
-use flowgger::merger::Merger;
+use crate::flowgger::merger::Merger;
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 

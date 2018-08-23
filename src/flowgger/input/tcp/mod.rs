@@ -1,4 +1,4 @@
-use flowgger::config::Config;
+use crate::flowgger::config::Config;
 
 pub mod tcp_input;
 #[cfg(feature = "coroutines")]

@@ -1,7 +1,7 @@
 use super::Input;
-use flowgger::config::Config;
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
+use crate::flowgger::config::Config;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
 use redis;
 use redis::{Commands, Connection, RedisResult};
 use std::io::{stderr, Write};

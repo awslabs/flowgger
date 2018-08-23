@@ -1,6 +1,6 @@
 use super::Output;
-use flowgger::config::Config;
-use flowgger::merger::Merger;
+use crate::flowgger::config::Config;
+use crate::flowgger::merger::Merger;
 use std::io::{stdout, Write};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};

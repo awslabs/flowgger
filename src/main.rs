@@ -13,7 +13,7 @@ extern crate serde_json;
 extern crate toml;
 
 mod flowgger;
-pub use flowgger::record_capnp;
+pub use crate::flowgger::record_capnp;
 
 use clap::{App, Arg};
 use std::io::{stderr, Write};

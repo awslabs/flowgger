@@ -1,6 +1,6 @@
 use chrono;
-use flowgger::config::Config;
-use flowgger::merger::Merger;
+use crate::flowgger::config::Config;
+use crate::flowgger::merger::Merger;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;

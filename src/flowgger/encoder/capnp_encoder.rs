@@ -1,9 +1,9 @@
 use super::Encoder;
 use capnp;
 use capnp::message::{Allocator, Builder};
-use flowgger::config::Config;
-use flowgger::record::{Record, SDValue, FACILITY_MISSING, SEVERITY_MISSING};
-use flowgger::record_capnp;
+use crate::flowgger::config::Config;
+use crate::flowgger::record::{Record, SDValue, FACILITY_MISSING, SEVERITY_MISSING};
+use crate::flowgger::record_capnp;
 
 #[derive(Clone)]
 pub struct CapnpEncoder {

@@ -1,8 +1,8 @@
 use super::Decoder;
 use chrono::DateTime;
-use flowgger::config::Config;
-use flowgger::record::{Record, SDValue, SDValueType, StructuredData};
-use flowgger::utils;
+use crate::flowgger::config::Config;
+use crate::flowgger::record::{Record, SDValue, SDValueType, StructuredData};
+use crate::flowgger::utils;
 use std::collections::HashMap;
 
 #[derive(Clone)]

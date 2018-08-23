@@ -1,4 +1,7 @@
+cargo-features = ["edition"]
+
 [package]
+edition = "2018"
 name = "flowgger"
 version = "0.2.6"
 authors = ["Frank Denis <github@pureftpd.org>"]

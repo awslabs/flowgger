@@ -1,4 +1,4 @@
-use flowgger::config::Config;
+use crate::flowgger::config::Config;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;

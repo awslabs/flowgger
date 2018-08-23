@@ -1,8 +1,10 @@
 use super::*;
-use flowgger::config::Config;
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
-use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
+use crate::flowgger::config::Config;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
+use crate::flowgger::splitter::{
+    CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
+};
 use std::io::BufReader;
 use std::net::{TcpListener, TcpStream};
 use std::sync::mpsc::SyncSender;

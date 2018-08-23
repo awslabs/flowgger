@@ -137,7 +137,7 @@ pub mod record {
         #[inline]
         pub fn get_pairs(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Reader<'a, ::record_capnp::pair::Owned>>
+        ) -> ::capnp::Result<::capnp::struct_list::Reader<'a, crate::record_capnp::pair::Owned>>
         {
             ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(7))
         }
@@ -147,7 +147,7 @@ pub mod record {
         #[inline]
         pub fn get_extra(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Reader<'a, ::record_capnp::pair::Owned>>
+        ) -> ::capnp::Result<::capnp::struct_list::Reader<'a, crate::record_capnp::pair::Owned>>
         {
             ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(8))
         }
@@ -370,14 +370,14 @@ pub mod record {
         #[inline]
         pub fn get_pairs(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Builder<'a, ::record_capnp::pair::Owned>>
+        ) -> ::capnp::Result<::capnp::struct_list::Builder<'a, crate::record_capnp::pair::Owned>>
         {
             ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(7))
         }
         #[inline]
         pub fn set_pairs(
             &mut self,
-            value: ::capnp::struct_list::Reader<'a, ::record_capnp::pair::Owned>,
+            value: ::capnp::struct_list::Reader<'a, crate::record_capnp::pair::Owned>,
         ) -> ::capnp::Result<()> {
             ::capnp::traits::SetPointerBuilder::set_pointer_builder(
                 self.builder.get_pointer_field(7),
@@ -389,7 +389,7 @@ pub mod record {
         pub fn init_pairs(
             self,
             size: u32,
-        ) -> ::capnp::struct_list::Builder<'a, ::record_capnp::pair::Owned> {
+        ) -> ::capnp::struct_list::Builder<'a, crate::record_capnp::pair::Owned> {
             ::capnp::traits::FromPointerBuilder::init_pointer(
                 self.builder.get_pointer_field(7),
                 size,
@@ -401,14 +401,14 @@ pub mod record {
         #[inline]
         pub fn get_extra(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Builder<'a, ::record_capnp::pair::Owned>>
+        ) -> ::capnp::Result<::capnp::struct_list::Builder<'a, crate::record_capnp::pair::Owned>>
         {
             ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(8))
         }
         #[inline]
         pub fn set_extra(
             &mut self,
-            value: ::capnp::struct_list::Reader<'a, ::record_capnp::pair::Owned>,
+            value: ::capnp::struct_list::Reader<'a, crate::record_capnp::pair::Owned>,
         ) -> ::capnp::Result<()> {
             ::capnp::traits::SetPointerBuilder::set_pointer_builder(
                 self.builder.get_pointer_field(8),
@@ -420,7 +420,7 @@ pub mod record {
         pub fn init_extra(
             self,
             size: u32,
-        ) -> ::capnp::struct_list::Builder<'a, ::record_capnp::pair::Owned> {
+        ) -> ::capnp::struct_list::Builder<'a, crate::record_capnp::pair::Owned> {
             ::capnp::traits::FromPointerBuilder::init_pointer(
                 self.builder.get_pointer_field(8),
                 size,
@@ -519,7 +519,7 @@ pub mod pair {
             !self.reader.get_pointer_field(0).is_null()
         }
         #[inline]
-        pub fn get_value(self) -> ::record_capnp::pair::value::Reader<'a> {
+        pub fn get_value(self) -> crate::record_capnp::pair::value::Reader<'a> {
             ::capnp::traits::FromStructReader::new(self.reader)
         }
     }
@@ -610,11 +610,11 @@ pub mod pair {
             !self.builder.get_pointer_field(0).is_null()
         }
         #[inline]
-        pub fn get_value(self) -> ::record_capnp::pair::value::Builder<'a> {
+        pub fn get_value(self) -> crate::record_capnp::pair::value::Builder<'a> {
             ::capnp::traits::FromStructBuilder::new(self.builder)
         }
         #[inline]
-        pub fn init_value(self) -> ::record_capnp::pair::value::Builder<'a> {
+        pub fn init_value(self) -> crate::record_capnp::pair::value::Builder<'a> {
             self.builder.set_data_field::<u16>(0, 0);
             self.builder.get_pointer_field(1).clear();
             self.builder.set_bool_field(16, false);
@@ -636,7 +636,7 @@ pub mod pair {
         }
     }
     impl Pipeline {
-        pub fn get_value(&self) -> ::record_capnp::pair::value::Pipeline {
+        pub fn get_value(&self) -> crate::record_capnp::pair::value::Pipeline {
             ::capnp::capability::FromTypelessPipeline::new(self._typeless.noop())
         }
     }

@@ -1,6 +1,6 @@
 use super::Splitter;
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
 use std::io::{stderr, BufRead, BufReader, ErrorKind, Read, Write};
 use std::str;
 use std::sync::mpsc::SyncSender;

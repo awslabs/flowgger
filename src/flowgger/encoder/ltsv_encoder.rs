@@ -1,6 +1,6 @@
 use super::Encoder;
-use flowgger::config::Config;
-use flowgger::record::{Record, SDValue};
+use crate::flowgger::config::Config;
+use crate::flowgger::record::{Record, SDValue};
 
 #[derive(Clone)]
 pub struct LTSVEncoder {

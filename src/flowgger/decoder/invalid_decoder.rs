@@ -1,6 +1,6 @@
 use super::Decoder;
-use flowgger::config::Config;
-use flowgger::record::Record;
+use crate::flowgger::config::Config;
+use crate::flowgger::record::Record;
 
 #[derive(Clone)]
 pub struct InvalidDecoder;

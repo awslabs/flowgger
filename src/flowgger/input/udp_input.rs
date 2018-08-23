@@ -1,8 +1,8 @@
 use super::Input;
+use crate::flowgger::config::Config;
+use crate::flowgger::decoder::Decoder;
+use crate::flowgger::encoder::Encoder;
 use flate2::read::{GzDecoder, ZlibDecoder};
-use flowgger::config::Config;
-use flowgger::decoder::Decoder;
-use flowgger::encoder::Encoder;
 use std::io::{stderr, Read, Write};
 use std::net::UdpSocket;
 use std::str;
