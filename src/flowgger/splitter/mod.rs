@@ -1,6 +1,6 @@
 mod capnp_splitter;
-mod nul_splitter;
 mod line_splitter;
+mod nul_splitter;
 mod syslen_splitter;
 
 pub use self::capnp_splitter::CapnpSplitter;

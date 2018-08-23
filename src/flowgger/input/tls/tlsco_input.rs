@@ -1,11 +1,10 @@
 use super::*;
-use coio::Scheduler;
 use coio::net::{TcpListener, TcpStream};
+use coio::Scheduler;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
 use flowgger::splitter::{CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter};
-use openssl::ssl::*;
 use std::io::{stderr, BufReader, Write};
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
@@ -52,8 +51,7 @@ impl Input for TlsCoInput {
                         Err(_) => {}
                     }
                 }
-            })
-            .unwrap();
+            }).unwrap();
     }
 }
 
@@ -67,7 +65,7 @@ fn handle_client(
     if let Ok(peer_addr) = client.peer_addr() {
         println!("Connection over TLS<coroutines> from [{}]", peer_addr);
     }
-    let sslclient = match SslStream::accept(&*tls_config.arc_ctx, client) {
+    let sslclient = match tls_config.acceptor.accept(client) {
         Err(_) => {
             let _ = writeln!(stderr(), "SSL handshake aborted by the client");
             return;

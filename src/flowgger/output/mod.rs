@@ -9,8 +9,8 @@ pub use self::kafka_output::KafkaOutput;
 pub use self::tls_output::TlsOutput;
 
 use flowgger::merger::Merger;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
+use std::sync::{Arc, Mutex};
 
 pub trait Output {
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>);

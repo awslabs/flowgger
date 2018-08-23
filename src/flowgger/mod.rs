@@ -17,12 +17,12 @@ use self::input::{Input, RedisInput, StdinInput, TcpInput, TlsInput, UdpInput};
 #[cfg(feature = "coroutines")]
 use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{LineMerger, Merger, NulMerger, SyslenMerger};
-use self::output::{DebugOutput, Output, TlsOutput};
 #[cfg(feature = "kafka")]
 use self::output::KafkaOutput;
+use self::output::{DebugOutput, Output, TlsOutput};
 use std::error::Error;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
+use std::sync::{Arc, Mutex};
 
 const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
 const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";

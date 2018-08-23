@@ -30,7 +30,7 @@ impl Decoder for GelfDecoder {
             Err(Syntax(ErrorCode::InvalidUnicodeCodePoint, ..)) => {
                 de::from_str(&line.replace('\n', r"\n"))
             }
-            x @ _ => x,
+            x => x,
         };
         let obj: Value = obj.or(Err("Invalid GELF input, unable to parse as a JSON object"))?;
         let obj = obj.as_object().ok_or("Empty GELF input")?;

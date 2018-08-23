@@ -132,9 +132,11 @@ impl Decoder for LTSVDecoder {
                                     };
                                     (
                                         final_name,
-                                        SDValue::Bool(value
-                                            .parse::<bool>()
-                                            .or(Err("Type error; boolean was expected"))?),
+                                        SDValue::Bool(
+                                            value
+                                                .parse::<bool>()
+                                                .or(Err("Type error; boolean was expected"))?,
+                                        ),
                                     )
                                 }
                                 Some(&SDValueType::F64) => {
@@ -146,9 +148,11 @@ impl Decoder for LTSVDecoder {
                                     };
                                     (
                                         final_name,
-                                        SDValue::F64(value
-                                            .parse::<f64>()
-                                            .or(Err("Type error; f64 was expected"))?),
+                                        SDValue::F64(
+                                            value
+                                                .parse::<f64>()
+                                                .or(Err("Type error; f64 was expected"))?,
+                                        ),
                                     )
                                 }
                                 Some(&SDValueType::I64) => {
@@ -160,9 +164,11 @@ impl Decoder for LTSVDecoder {
                                     };
                                     (
                                         final_name,
-                                        SDValue::I64(value
-                                            .parse::<i64>()
-                                            .or(Err("Type error; i64 was expected"))?),
+                                        SDValue::I64(
+                                            value
+                                                .parse::<i64>()
+                                                .or(Err("Type error; i64 was expected"))?,
+                                        ),
                                     )
                                 }
                                 Some(&SDValueType::U64) => {
@@ -174,9 +180,11 @@ impl Decoder for LTSVDecoder {
                                     };
                                     (
                                         final_name,
-                                        SDValue::U64(value
-                                            .parse::<u64>()
-                                            .or(Err("Type error; u64 was expected"))?),
+                                        SDValue::U64(
+                                            value
+                                                .parse::<u64>()
+                                                .or(Err("Type error; u64 was expected"))?,
+                                        ),
                                     )
                                 }
                             }

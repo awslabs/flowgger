@@ -1,5 +1,5 @@
 use super::Input;
-use flate2::FlateReadExt;
+use flate2::read::{GzDecoder, ZlibDecoder};
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
@@ -22,8 +22,7 @@ impl UdpInput {
             .lookup("input.listen")
             .map_or(DEFAULT_LISTEN, |x| {
                 x.as_str().expect("input.listen must be an ip:port string")
-            })
-            .to_owned();
+            }).to_owned();
         UdpInput { listen: listen }
     }
 }
@@ -64,15 +63,13 @@ fn handle_record_maybe_compressed(
         && (line[0] == 0x78 && (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda))
     {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
-        match line.zlib_decode().read_to_end(&mut decompressed) {
+        match ZlibDecoder::new(line).read_to_end(&mut decompressed) {
             Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
             Err(_) => Err("Corrupted compressed (zlib) record"),
         }
     } else if line.len() >= 24 && (line[0] == 0x1f && line[1] == 0x8b && line[2] == 0x08) {
         let mut decompressed = Vec::with_capacity(MAX_UDP_PACKET_SIZE * MAX_COMPRESSION_RATIO);
-        match line.gz_decode()
-            .and_then(|mut x| x.read_to_end(&mut decompressed))
-        {
+        match GzDecoder::new(line).read_to_end(&mut decompressed) {
             Ok(_) => handle_record(&decompressed, tx, decoder, encoder),
             Err(_) => Err("Corrupted compressed (gzip) record"),
         }

@@ -25,8 +25,7 @@ impl CapnpEncoder {
                             .expect("output.capnp_extra values must be strings")
                             .to_owned(),
                     )
-                })
-                .collect(),
+                }).collect(),
         };
         CapnpEncoder { extra: extra }
     }
@@ -75,12 +74,13 @@ fn build_record<T: Allocator>(
         root.set_full_msg(&full_msg);
     }
     if let Some(sd) = record.sd {
-        sd.sd_id
-            .as_ref()
-            .and_then(|sd_id| Some(root.set_sd_id(sd_id)));
-        let mut pairs = root.borrow().init_pairs(sd.pairs.len() as u32);
+        sd.sd_id.as_ref().and_then(|sd_id| {
+            root.set_sd_id(sd_id);
+            Some(())
+        });
+        let mut pairs = root.reborrow().init_pairs(sd.pairs.len() as u32);
         for (i, (name, value)) in sd.pairs.into_iter().enumerate() {
-            let mut pair = pairs.borrow().get(i as u32);
+            let mut pair = pairs.reborrow().get(i as u32);
             pair.set_key(&name);
             let mut v = pair.init_value();
             match value {
@@ -96,7 +96,7 @@ fn build_record<T: Allocator>(
     if !extra.is_empty() {
         let mut pairs = root.init_extra(extra.len() as u32);
         for (i, &(ref name, ref value)) in extra.into_iter().enumerate() {
-            let mut pair = pairs.borrow().get((i) as u32);
+            let mut pair = pairs.reborrow().get((i) as u32);
             pair.set_key(name);
             let mut v = pair.init_value();
             v.set_string(value)

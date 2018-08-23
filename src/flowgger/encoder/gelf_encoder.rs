@@ -25,8 +25,7 @@ impl GelfEncoder {
                             .expect("output.gelf_extra values must be strings")
                             .to_owned(),
                     )
-                })
-                .collect(),
+                }).collect(),
         };
         GelfEncoder { extra: extra }
     }
@@ -40,8 +39,7 @@ impl Encoder for GelfEncoder {
             .insert(
                 "short_message".to_owned(),
                 Value::String(record.msg.unwrap_or_else(|| "-".to_owned())),
-            )
-            .insert("timestamp".to_owned(), Value::F64(record.ts));
+            ).insert("timestamp".to_owned(), Value::F64(record.ts));
         if let Some(severity) = record.severity {
             map = map.insert("level".to_owned(), Value::U64(u64::from(severity)));
         }

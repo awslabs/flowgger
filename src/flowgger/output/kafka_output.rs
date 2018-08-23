@@ -4,8 +4,8 @@ use flowgger::merger::Merger;
 use kafka::producer::{Compression, Producer, Record, RequiredAcks};
 use std::io::{stderr, Write};
 use std::process::exit;
-use std::sync::{Arc, Mutex};
 use std::sync::mpsc::Receiver;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -71,7 +71,8 @@ impl<'a> KafkaWorker<'a> {
                 Ok(line) => line,
                 Err(_) => return,
             };
-            match self.producer
+            match self
+                .producer
                 .send(&Record::from_value(&self.config.topic, bytes))
             {
                 Ok(_) => {}
@@ -139,8 +140,7 @@ impl KafkaOutput {
                 x.as_str()
                     .expect("output.kafka_brokers must be a list of strings")
                     .to_owned()
-            })
-            .collect();
+            }).collect();
         let topic = config
             .lookup("output.kafka_topic")
             .expect("output.kafka_topic must be a string")
@@ -171,8 +171,7 @@ impl KafkaOutput {
             .map_or(KAFKA_DEFAULT_COMPRESSION, |x| {
                 x.as_str()
                     .expect("output.kafka_compresion must be a string")
-            })
-            .to_lowercase()
+            }).to_lowercase()
             .as_ref()
         {
             "none" => Compression::NONE,

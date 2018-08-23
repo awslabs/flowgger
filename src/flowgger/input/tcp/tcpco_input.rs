@@ -1,6 +1,6 @@
 use super::*;
-use coio::Scheduler;
 use coio::net::{TcpListener, TcpStream};
+use coio::Scheduler;
 use flowgger::config::Config;
 use flowgger::decoder::Decoder;
 use flowgger::encoder::Encoder;
@@ -51,8 +51,7 @@ impl Input for TcpCoInput {
                         Err(_) => {}
                     }
                 }
-            })
-            .unwrap();
+            }).unwrap();
     }
 }
 

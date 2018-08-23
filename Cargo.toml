@@ -6,7 +6,6 @@ build = "build.rs"
 
 [features]
 capnp-recompile = ["capnpc"]
-cargo-clippy = ["clippy"]
 coroutines = ["coio"]
 
 default = ["kafka"]
@@ -27,12 +26,8 @@ serde = "~0.8"
 serde_json = "~0.8"
 toml = "~0.2"
 
-[dependencies.clippy]
-git = "https://github.com/Manishearth/rust-clippy"
-optional = true
-
 [dependencies.coio]
-git = "https://github.com/zonyitoo/coio-rs"
+git = "https://github.com/jedisct1/coio-rs"
 optional = true
 
 [dependencies.kafka]

@@ -22,8 +22,7 @@ impl LTSVEncoder {
                             .expect("output.ltsv_extra values must be strings")
                             .to_owned(),
                     )
-                })
-                .collect(),
+                }).collect(),
         };
         LTSVEncoder { extra: extra }
     }

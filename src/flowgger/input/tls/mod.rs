@@ -42,9 +42,9 @@ pub struct TlsConfig {
 fn set_fs(ctx: &mut SslContextBuilder) {
     let p = BigNum::from_hex_str("87A8E61DB4B6663CFFBBD19C651959998CEEF608660DD0F25D2CEED4435E3B00E00DF8F1D61957D4FAF7DF4561B2AA3016C3D91134096FAA3BF4296D830E9A7C209E0C6497517ABD5A8A9D306BCF67ED91F9E6725B4758C022E0B1EF4275BF7B6C5BFC11D45F9088B941F54EB1E59BB8BC39A0BF12307F5C4FDB70C581B23F76B63ACAE1CAA6B7902D52526735488A0EF13C6D9A51BFA4AB3AD8347796524D8EF6A167B5A41825D967E144E5140564251CCACB83E6B486F6B3CA3F7971506026C0B857F689962856DED4010ABD0BE621C3A3960A54E710C375F26375D7014103A4B54330C198AF126116D2276E11715F693877FAD7EF09CADB094AE91E1A1597").unwrap();
     let g = BigNum::from_hex_str("3FB32C9B73134D0B2E77506660EDBD484CA7B18F21EF205407F4793A1A0BA12510DBC15077BE463FFF4FED4AAC0BB555BE3A6C1B0C6B47B1BC3773BF7E8C6F62901228F8C28CBB18A55AE31341000A650196F931C77A57F2DDF463E5E9EC144B777DE62AAAB8A8628AC376D282D6ED3864E67982428EBC831D14348F6F2F9193B5045AF2767164E1DFC967C1FB3F2E55A4BD1BFFE83B9C80D052B985D182EA0ADB2A3B7313D3FE14C8484B1E052588B9B7D2BBD2DF016199ECD06E1557CD0915B3353BBB64E0EC377FD028370DF92B52C7891428CDC67EB6184B523D1DB246C32F63078490F00EF8D647D148D47954515E2327CFEF98C582664B4C0F6CC41659").unwrap();
-    let q = BigNum::from_hex_str(
-        "8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3",
-    ).unwrap();
+    let q =
+        BigNum::from_hex_str("8CF83642A709A097B447997640129DA299B1A47D1EB3750BA308B0FE64F5FBD3")
+            .unwrap();
     let dh = Dh::from_params(p, g, q).unwrap();
     ctx.set_tmp_dh(&dh).unwrap();
 }
@@ -69,30 +69,26 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         .lookup("input.listen")
         .map_or(DEFAULT_LISTEN, |x| {
             x.as_str().expect("input.listen must be an ip:port string")
-        })
-        .to_owned();
+        }).to_owned();
     let threads = get_default_threads(config);
     let cert = config
         .lookup("input.tls_cert")
         .map_or(DEFAULT_CERT, |x| {
             x.as_str()
                 .expect("input.tls_cert must be a path to a .pem file")
-        })
-        .to_owned();
+        }).to_owned();
     let key = config
         .lookup("input.tls_key")
         .map_or(DEFAULT_KEY, |x| {
             x.as_str()
                 .expect("input.tls_key must be a path to a .pem file")
-        })
-        .to_owned();
+        }).to_owned();
     let ciphers = config
         .lookup("input.tls_ciphers")
         .map_or(DEFAULT_CIPHERS, |x| {
             x.as_str()
                 .expect("input.tls_ciphers must be a string with a cipher suite")
-        })
-        .to_owned();
+        }).to_owned();
 
     let tls_modern = match config
         .lookup("input.tls_compatibility_level")
@@ -100,8 +96,7 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             x.as_str().expect(
                 "input.tls_compatibility_level must be a string with the comptibility level",
             )
-        })
-        .to_lowercase()
+        }).to_lowercase()
         .as_ref()
     {
         "default" | "any" | "intermediate" => false,
@@ -141,15 +136,14 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         .map_or(framing, |x| {
             x.as_str()
                 .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
-        })
-        .to_owned();
+        }).to_owned();
     let mut acceptor_builder = (if tls_modern {
         SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls())
     } else {
         SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())
     }).unwrap();
     {
-        let mut ctx = acceptor_builder.builder_mut();
+        let mut ctx = &mut acceptor_builder;
         if let Some(ca_file) = ca_file {
             ctx.set_ca_file(&ca_file)
                 .expect("Unable to read the trusted CA file");

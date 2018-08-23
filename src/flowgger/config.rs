@@ -1,6 +1,6 @@
 use std::fs::File;
-use std::io::{Error, ErrorKind};
 use std::io::prelude::*;
+use std::io::{Error, ErrorKind};
 use std::path::Path;
 use toml;
 
