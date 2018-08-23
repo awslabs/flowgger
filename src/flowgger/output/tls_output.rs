@@ -52,7 +52,7 @@ struct TlsConfig {
     timeout: Option<Duration>,
     mx_cluster: Arc<Mutex<Cluster>>,
     connector: SslConnector,
-    async: bool,
+    async_: bool,
     recovery_delay_init: u32,
     recovery_delay_max: u32,
     recovery_probe_time: u32,
@@ -116,7 +116,7 @@ impl TlsWorker {
                     _ => return Err(e),
                 },
             };
-            if !self.tls_config.async {
+            if !self.tls_config.async_ {
                 writer.flush()?;
             }
         }
@@ -282,7 +282,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         .map_or(DEFAULT_TIMEOUT, |x| {
             x.as_integer().expect("output.timeout must be an integer") as u64
         });
-    let async = config
+    let async_ = config
         .lookup("output.tls_async")
         .map_or(DEFAULT_ASYNC, |x| {
             x.as_bool().expect("output.tls_async must be a boolean")
@@ -356,7 +356,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         mx_cluster: mx_cluster,
         timeout: Some(Duration::from_secs(timeout)),
         connector: connector,
-        async: async,
+        async_: async_,
         recovery_delay_init: recovery_delay_init,
         recovery_delay_max: recovery_delay_max,
         recovery_probe_time: recovery_probe_time,
