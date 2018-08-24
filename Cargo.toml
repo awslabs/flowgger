@@ -30,7 +30,7 @@ serde_json = "~0.8"
 toml = "~0.2"
 
 [dependencies.coio]
-git = "https://github.com/jedisct1/coio-rs"
+git = "https://github.com/zonyitoo/coio-rs"
 optional = true
 
 [dependencies.kafka]
