@@ -19,7 +19,7 @@ use self::input::{TcpCoInput, TlsCoInput};
 use self::merger::{LineMerger, Merger, NulMerger, SyslenMerger};
 #[cfg(feature = "kafka")]
 use self::output::KafkaOutput;
-use self::output::{DebugOutput, Output, TlsOutput};
+use self::output::{DebugOutput, Output, TlsOutput, FileOutput};
 use std::error::Error;
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
@@ -82,6 +82,7 @@ fn get_output(output_type: &str, config: &Config) -> Box<Output> {
         "stdout" | "debug" => Box::new(DebugOutput::new(config)) as Box<Output>,
         "kafka" => get_output_kafka(config),
         "tls" | "syslog-tls" => Box::new(TlsOutput::new(config)) as Box<Output>,
+        "file" => Box::new(FileOutput::new(config)) as Box<Output>,
         _ => panic!("Invalid output type: {}", output_type),
     }
 }
@@ -93,7 +94,7 @@ pub fn start(config_file: &str) {
             "Unable to read the config file [{}]: {}",
             config_file,
             e.description()
-        ),
+            ),
     };
     let input_format = config
         .lookup("input.format")
