@@ -140,7 +140,8 @@ impl KafkaOutput {
                 x.as_str()
                     .expect("output.kafka_brokers must be a list of strings")
                     .to_owned()
-            }).collect();
+            })
+            .collect();
         let topic = config
             .lookup("output.kafka_topic")
             .expect("output.kafka_topic must be a string")
@@ -171,7 +172,8 @@ impl KafkaOutput {
             .map_or(KAFKA_DEFAULT_COMPRESSION, |x| {
                 x.as_str()
                     .expect("output.kafka_compresion must be a string")
-            }).to_lowercase()
+            })
+            .to_lowercase()
             .as_ref()
         {
             "none" => Compression::NONE,

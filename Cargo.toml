@@ -1,16 +1,13 @@
-cargo-features = ["edition"]
-
 [package]
 edition = "2018"
 name = "flowgger"
-version = "0.2.6"
-authors = ["Frank Denis <github@pureftpd.org>"]
+version = "0.2.7"
+authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org"]
 build = "build.rs"
 
 [features]
 capnp-recompile = ["capnpc"]
 coroutines = ["coio"]
-
 default = ["kafka"]
 
 [build-dependencies.capnpc]
@@ -18,23 +15,23 @@ version = "*"
 optional = true
 
 [dependencies]
-capnp = "*"
-chrono = "*"
-clap = "*"
-flate2 = "*"
-log = "*"
-rand = "*"
-redis = "*"
-serde = "~0.8"
+capnp = "0.9"
+chrono = "0.4"
+clap = "2"
+flate2 = "1.0"
+log = "0.4"
+rand = "0.5"
+redis = "0.10"
+serde = "1"
 serde_json = "~0.8"
-toml = "~0.2"
+toml = "0.2"
 
 [dependencies.coio]
 git = "https://github.com/zonyitoo/coio-rs"
 optional = true
 
 [dependencies.kafka]
-git = "https://github.com/spicavigo/kafka-rust"
+version = "0.7"
 features = ["snappy", "gzip", "security"]
 optional = true
 

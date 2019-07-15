@@ -1,8 +1,8 @@
 use super::Decoder;
-use chrono::DateTime;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue, SDValueType, StructuredData};
 use crate::flowgger::utils;
+use chrono::DateTime;
 use std::collections::HashMap;
 
 #[derive(Clone)]
@@ -58,26 +58,28 @@ impl LTSVDecoder {
         };
         match config.lookup("input.ltsv_suffixes") {
             None => {}
-            Some(pairs) => for (sdtype, suffix) in pairs
-                .as_table()
-                .expect("input.ltsv_suffixes must be a list of type/suffixes pairs")
-            {
-                let suffix = suffix
-                    .as_str()
-                    .expect("input.ltsv_suffixes suffixes must be strings")
-                    .to_owned();
-                match sdtype.to_lowercase().as_ref() {
-                    "string" => panic!("Strings cannot be suffixed"),
-                    "bool" => suffixes.s_bool = Some(suffix),
-                    "f64" => suffixes.s_f64 = Some(suffix),
-                    "i64" => suffixes.s_i64 = Some(suffix),
-                    "u64" => suffixes.s_u64 = Some(suffix),
-                    _ => panic!(format!(
-                        "Unsupported type in input.ltsv_suffixes for type [{}]",
-                        sdtype
-                    )),
+            Some(pairs) => {
+                for (sdtype, suffix) in pairs
+                    .as_table()
+                    .expect("input.ltsv_suffixes must be a list of type/suffixes pairs")
+                {
+                    let suffix = suffix
+                        .as_str()
+                        .expect("input.ltsv_suffixes suffixes must be strings")
+                        .to_owned();
+                    match sdtype.to_lowercase().as_ref() {
+                        "string" => panic!("Strings cannot be suffixed"),
+                        "bool" => suffixes.s_bool = Some(suffix),
+                        "f64" => suffixes.s_f64 = Some(suffix),
+                        "i64" => suffixes.s_i64 = Some(suffix),
+                        "u64" => suffixes.s_u64 = Some(suffix),
+                        _ => panic!(format!(
+                            "Unsupported type in input.ltsv_suffixes for type [{}]",
+                            sdtype
+                        )),
+                    }
                 }
-            },
+            }
         };
         LTSVDecoder {
             schema: schema,
@@ -253,46 +255,38 @@ fn test_ltsv_suffixes() {
     let res = ltsv_decoder.decode(msg).unwrap();
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::U64(v) = v {
-                k == "_counter_u64" && v == 42
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::I64(v) = v {
-                k == "_score_i64" && v == -1
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::F64(v) = v {
-                k == "_mean_f64" && f64::abs(v - 0.42) < 1e-5
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::Bool(v) = v {
-                k == "_done_bool" && v == true
-            } else {
-                false
-            })
-    );
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::U64(v) = v {
+            k == "_counter_u64" && v == 42
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::I64(v) = v {
+            k == "_score_i64" && v == -1
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::F64(v) = v {
+            k == "_mean_f64" && f64::abs(v - 0.42) < 1e-5
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::Bool(v) = v {
+            k == "_done_bool" && v == true
+        } else {
+            false
+        }));
 }
 
 #[test]
@@ -311,46 +305,38 @@ fn test_ltsv_suffixes_2() {
     let res = ltsv_decoder.decode(msg).unwrap();
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::U64(v) = v {
-                k == "_counter_u64" && v == 42
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::I64(v) = v {
-                k == "_score_i64" && v == -1
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::F64(v) = v {
-                k == "_mean_f64" && f64::abs(v - 0.42) < 1e-5
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::Bool(v) = v {
-                k == "_done_bool" && v == true
-            } else {
-                false
-            })
-    );
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::U64(v) = v {
+            k == "_counter_u64" && v == 42
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::I64(v) = v {
+            k == "_score_i64" && v == -1
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::F64(v) = v {
+            k == "_mean_f64" && f64::abs(v - 0.42) < 1e-5
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::Bool(v) = v {
+            k == "_done_bool" && v == true
+        } else {
+            false
+        }));
 }
 
 #[test]
@@ -398,74 +384,60 @@ fn test_ltsv_3() {
     assert!(res.msg.unwrap() == "this is a test");
     let sd = res.sd.unwrap();
     let pairs = sd.pairs;
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::String(v) = v {
-                k == "_name1" && v == "value1"
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::String(v) = v {
-                k == "_name 2" && v == " value 2"
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::String(v) = v {
-                k == "_n3" && v == "v3"
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::U64(v) = v {
-                k == "_counter" && v == 42
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::I64(v) = v {
-                k == "_score" && v == -1
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::F64(v) = v {
-                k == "_mean" && f64::abs(v - 0.42) < 1e-5
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::Bool(v) = v {
-                k == "_done" && v == true
-            } else {
-                false
-            })
-    );
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_name1" && v == "value1"
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_name 2" && v == " value 2"
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_n3" && v == "v3"
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::U64(v) = v {
+            k == "_counter" && v == 42
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::I64(v) = v {
+            k == "_score" && v == -1
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::F64(v) = v {
+            k == "_mean" && f64::abs(v - 0.42) < 1e-5
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::Bool(v) = v {
+            k == "_done" && v == true
+        } else {
+            false
+        }));
 }

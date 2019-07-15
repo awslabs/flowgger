@@ -22,7 +22,8 @@ impl UdpInput {
             .lookup("input.listen")
             .map_or(DEFAULT_LISTEN, |x| {
                 x.as_str().expect("input.listen must be an ip:port string")
-            }).to_owned();
+            })
+            .to_owned();
         UdpInput { listen: listen }
     }
 }

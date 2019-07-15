@@ -40,12 +40,14 @@ impl RedisInput {
             .map_or(DEFAULT_CONNECT, |x| {
                 x.as_str()
                     .expect("input.redis_connect must be an ip:port string")
-            }).to_owned();
+            })
+            .to_owned();
         let queue_key = config
             .lookup("input.redis_queue_key")
             .map_or(DEFAULT_QUEUE_KEY, |x| {
                 x.as_str().expect("input.redis_queue_key must be a string")
-            }).to_owned();
+            })
+            .to_owned();
         let threads = config
             .lookup("input.redis_threads")
             .map_or(DEFAULT_THREADS, |x| {

@@ -1,6 +1,6 @@
-use chrono;
 use crate::flowgger::config::Config;
 use crate::flowgger::merger::Merger;
+use chrono;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;
@@ -240,7 +240,8 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
             x.as_str()
                 .expect("output.connect must be a list of strings")
                 .to_owned()
-        }).collect();
+        })
+        .collect();
     let cert: Option<PathBuf> = config.lookup("output.tls_cert").and_then(|x| {
         Some(PathBuf::from(
             x.as_str()
@@ -258,7 +259,8 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
         .map_or(DEFAULT_CIPHERS, |x| {
             x.as_str()
                 .expect("output.tls_ciphers must be a string with a cipher suite")
-        }).to_owned();
+        })
+        .to_owned();
     let verify_peer = config
         .lookup("output.tls_verify_peer")
         .map_or(DEFAULT_VERIFY_PEER, |x| {

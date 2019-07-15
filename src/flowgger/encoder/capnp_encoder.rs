@@ -1,9 +1,9 @@
 use super::Encoder;
-use capnp;
-use capnp::message::{Allocator, Builder};
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue, FACILITY_MISSING, SEVERITY_MISSING};
 use crate::flowgger::record_capnp;
+use capnp;
+use capnp::message::{Allocator, Builder};
 
 #[derive(Clone)]
 pub struct CapnpEncoder {
@@ -25,7 +25,8 @@ impl CapnpEncoder {
                             .expect("output.capnp_extra values must be strings")
                             .to_owned(),
                     )
-                }).collect(),
+                })
+                .collect(),
         };
         CapnpEncoder { extra: extra }
     }

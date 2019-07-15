@@ -728,13 +728,19 @@ pub mod pair {
                         return ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16)));
                     }
                     2 => {
-                        return ::std::result::Result::Ok(F64(self.reader.get_data_field::<f64>(1)));
+                        return ::std::result::Result::Ok(F64(self
+                            .reader
+                            .get_data_field::<f64>(1)));
                     }
                     3 => {
-                        return ::std::result::Result::Ok(I64(self.reader.get_data_field::<i64>(1)));
+                        return ::std::result::Result::Ok(I64(self
+                            .reader
+                            .get_data_field::<i64>(1)));
                     }
                     4 => {
-                        return ::std::result::Result::Ok(U64(self.reader.get_data_field::<u64>(1)));
+                        return ::std::result::Result::Ok(U64(self
+                            .reader
+                            .get_data_field::<u64>(1)));
                     }
                     5 => {
                         return ::std::result::Result::Ok(Null(()));
