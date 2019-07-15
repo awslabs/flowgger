@@ -38,7 +38,8 @@ pub fn config_parse(config: &Config) -> (TcpConfig, String, u64) {
         .lookup("input.listen")
         .map_or(DEFAULT_LISTEN, |x| {
             x.as_str().expect("input.listen must be an ip:port string")
-        }).to_owned();
+        })
+        .to_owned();
     let threads = get_default_threads(config);
     let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| {
         x.as_integer()
@@ -56,7 +57,8 @@ pub fn config_parse(config: &Config) -> (TcpConfig, String, u64) {
         .map_or(framing, |x| {
             x.as_str()
                 .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
-        }).to_owned();
+        })
+        .to_owned();
     let tcp_config = TcpConfig {
         framing: framing,
         threads: threads,

@@ -69,26 +69,30 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         .lookup("input.listen")
         .map_or(DEFAULT_LISTEN, |x| {
             x.as_str().expect("input.listen must be an ip:port string")
-        }).to_owned();
+        })
+        .to_owned();
     let threads = get_default_threads(config);
     let cert = config
         .lookup("input.tls_cert")
         .map_or(DEFAULT_CERT, |x| {
             x.as_str()
                 .expect("input.tls_cert must be a path to a .pem file")
-        }).to_owned();
+        })
+        .to_owned();
     let key = config
         .lookup("input.tls_key")
         .map_or(DEFAULT_KEY, |x| {
             x.as_str()
                 .expect("input.tls_key must be a path to a .pem file")
-        }).to_owned();
+        })
+        .to_owned();
     let ciphers = config
         .lookup("input.tls_ciphers")
         .map_or(DEFAULT_CIPHERS, |x| {
             x.as_str()
                 .expect("input.tls_ciphers must be a string with a cipher suite")
-        }).to_owned();
+        })
+        .to_owned();
 
     let tls_modern = match config
         .lookup("input.tls_compatibility_level")
@@ -96,7 +100,8 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             x.as_str().expect(
                 "input.tls_compatibility_level must be a string with the comptibility level",
             )
-        }).to_lowercase()
+        })
+        .to_lowercase()
         .as_ref()
     {
         "default" | "any" | "intermediate" => false,
@@ -136,12 +141,14 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         .map_or(framing, |x| {
             x.as_str()
                 .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
-        }).to_owned();
+        })
+        .to_owned();
     let mut acceptor_builder = (if tls_modern {
         SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls())
     } else {
         SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())
-    }).unwrap();
+    })
+    .unwrap();
     {
         let mut ctx = &mut acceptor_builder;
         if let Some(ca_file) = ca_file {

@@ -30,7 +30,8 @@ fn main() {
                 .help("Configuration file")
                 .value_name("FILE")
                 .index(1),
-        ).get_matches();
+        )
+        .get_matches();
     let config_file = matches
         .value_of("config_file")
         .unwrap_or(DEFAULT_CONFIG_FILE);

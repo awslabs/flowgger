@@ -26,7 +26,8 @@ impl StdinInput {
             .map_or(DEFAULT_FRAMING, |x| {
                 x.as_str()
                     .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
-            }).to_owned();
+            })
+            .to_owned();
         let stdin_config = StdinConfig { framing: framing };
         StdinInput {
             stdin_config: stdin_config,

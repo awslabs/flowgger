@@ -1,10 +1,10 @@
 use super::Splitter;
-use capnp;
-use capnp::message::ReaderOptions;
 use crate::flowgger::decoder::Decoder;
 use crate::flowgger::encoder::Encoder;
 use crate::flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
 use crate::record_capnp;
+use capnp;
+use capnp::message::ReaderOptions;
 use std::io::{stderr, BufReader, Read, Write};
 use std::sync::mpsc::SyncSender;
 use std::thread;
@@ -78,11 +78,13 @@ fn get_pairs(
     if let Some(message_pairs) = message_pairs {
         for message_pair in message_pairs.iter() {
             let name = match message_pair.get_key() {
-                Ok(name) => if name.starts_with('_') {
-                    name.to_owned()
-                } else {
-                    format!("_{}", name)
-                },
+                Ok(name) => {
+                    if name.starts_with('_') {
+                        name.to_owned()
+                    } else {
+                        format!("_{}", name)
+                    }
+                }
                 _ => continue,
             };
             let value = match message_pair.get_value().which() {

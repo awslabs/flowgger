@@ -1,12 +1,12 @@
 use super::*;
-use coio::net::{TcpListener, TcpStream};
-use coio::Scheduler;
 use crate::flowgger::config::Config;
 use crate::flowgger::decoder::Decoder;
 use crate::flowgger::encoder::Encoder;
 use crate::flowgger::splitter::{
     CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
 };
+use coio::net::{TcpListener, TcpStream};
+use coio::Scheduler;
 use std::io::{stderr, BufReader, Write};
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
@@ -53,7 +53,8 @@ impl Input for TlsCoInput {
                         Err(_) => {}
                     }
                 }
-            }).unwrap();
+            })
+            .unwrap();
     }
 }
 

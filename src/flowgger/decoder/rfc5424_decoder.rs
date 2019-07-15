@@ -1,8 +1,8 @@
 use super::Decoder;
-use chrono::DateTime;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue, StructuredData};
 use crate::flowgger::utils;
+use chrono::DateTime;
 
 #[derive(Clone)]
 pub struct RFC5424Decoder;
@@ -184,10 +184,11 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
                 in_value = false;
                 let value = unescape_sd_value(&sd[value_start..i]);
                 let pair = (
-                    "_".to_owned() + name.expect(
-                        "Name in structured data contains an invalid UTF-8 \
-                         sequence",
-                    ),
+                    "_".to_owned()
+                        + name.expect(
+                            "Name in structured data contains an invalid UTF-8 \
+                             sequence",
+                        ),
                     SDValue::String(value),
                 );
                 sd_res.pairs.push(pair);
@@ -222,24 +223,20 @@ fn test_rfc5424() {
     assert!(sd.sd_id == Some("origin@123".to_owned()));
     let pairs = sd.pairs;
 
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::String(v) = v {
-                k == "_software" && v == "te\\st sc\"ript"
-            } else {
-                false
-            })
-    );
-    assert!(
-        pairs
-            .iter()
-            .cloned()
-            .any(|(k, v)| if let SDValue::String(v) = v {
-                k == "_swVersion" && v == "0.0.1"
-            } else {
-                false
-            })
-    );
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_software" && v == "te\\st sc\"ript"
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_swVersion" && v == "0.0.1"
+        } else {
+            false
+        }));
 }
