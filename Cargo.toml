@@ -8,13 +8,14 @@ build = "build.rs"
 [features]
 capnp-recompile = ["capnpc", "capnp"]
 coroutines = ["coio", "tls"]
-default = ["syslog", "kafka-output", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
+default = ["syslog", "kafka-output", "file", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
 redis-input = ["redis"]
 kafka-output = ["kafka"]
 tls = ["openssl"]
 gelf = ["serde", "serde_json"]
 ltsv = []
 syslog = []
+file = []
 
 [build-dependencies.capnpc]
 version = "*"

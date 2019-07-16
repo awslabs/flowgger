@@ -36,6 +36,8 @@ use self::input::{TcpCoInput, TlsCoInput};
 #[cfg(feature = "syslog")]
 use self::input::{TcpInput, UdpInput};
 use self::merger::{LineMerger, Merger, NulMerger, SyslenMerger};
+#[cfg(feature = "file")]
+use self::output::FileOutput;
 #[cfg(feature = "kafka-output")]
 use self::output::KafkaOutput;
 #[cfg(feature = "tls")]
@@ -138,6 +140,16 @@ fn get_output_kafka(_config: &Config) -> ! {
     panic!("Support for Kafka hasn't been compiled in")
 }
 
+#[cfg(feature = "file")]
+fn get_output_file(config: &Config) -> Box<dyn Output> {
+    Box::new(FileOutput::new(config)) as Box<dyn Output>
+}
+
+#[cfg(not(feature = "file"))]
+fn get_output_file(_config: &Config) -> ! {
+    panic!("Support for file hasn't been compiled in")
+}
+
 #[cfg(feature = "tls")]
 fn get_output_tls(config: &Config) -> Box<dyn Output> {
     Box::new(TlsOutput::new(config)) as Box<dyn Output>
@@ -153,6 +165,7 @@ fn get_output(output_type: &str, config: &Config) -> Box<dyn Output> {
         "stdout" | "debug" => Box::new(DebugOutput::new(config)) as Box<dyn Output>,
         "kafka" => get_output_kafka(config),
         "tls" | "syslog-tls" => get_output_tls(config),
+        "file" => get_output_file(config),
         _ => panic!("Invalid output type: {}", output_type),
     }
 }
