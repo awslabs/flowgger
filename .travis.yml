@@ -30,6 +30,8 @@ matrix:
     - env: TARGET=powerpc64-unknown-linux-gnu DISABLE_TESTS=1
     - env: TARGET=powerpc64le-unknown-linux-gnu DISABLE_TESTS=1
     - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+      rust: nightly
+    allow_failures:
     - env: TARGET=aarch64-unknown-linux-musl DISABLE_TESTS=1
       rust: nightly
 
