@@ -12,8 +12,8 @@ impl<T: Read> Splitter<T> for SyslenSplitter {
         &self,
         buf_reader: BufReader<T>,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder>,
-        encoder: Box<Encoder>,
+        decoder: Box<dyn Decoder>,
+        encoder: Box<dyn Encoder>,
     ) {
         let mut buf_reader = buf_reader;
         loop {
@@ -39,7 +39,7 @@ impl<T: Read> Splitter<T> for SyslenSplitter {
     }
 }
 
-fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
+fn read_msglen(reader: &mut dyn BufRead) -> Result<usize, &'static str> {
     let mut nbytes_v = Vec::with_capacity(16);
     let nbytes_vl = match reader.read_until(b' ', &mut nbytes_v) {
         Err(_) | Ok(0) | Ok(1) => return Err("Connection closed"),
@@ -57,10 +57,10 @@ fn read_msglen(reader: &mut BufRead) -> Result<usize, &'static str> {
 }
 
 fn handle_line(
-    line: &String,
+    line: &str,
     tx: &SyncSender<Vec<u8>>,
-    decoder: &Box<Decoder>,
-    encoder: &Box<Encoder>,
+    decoder: &Box<dyn Decoder>,
+    encoder: &Box<dyn Encoder>,
 ) -> Result<(), &'static str> {
     let decoded = decoder.decode(line)?;
     let reencoded = encoder.encode(decoded)?;

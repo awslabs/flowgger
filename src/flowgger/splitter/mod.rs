@@ -18,7 +18,7 @@ pub trait Splitter<T> {
         &self,
         buf_reader: BufReader<T>,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder>,
-        encoder: Box<Encoder>,
+        decoder: Box<dyn Decoder>,
+        encoder: Box<dyn Encoder>,
     );
 }

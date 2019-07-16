@@ -8,7 +8,7 @@ use crate::flowgger::splitter::{
 use std::io::{stdin, BufReader};
 use std::sync::mpsc::SyncSender;
 
-const DEFAULT_FRAMING: &'static str = "line";
+const DEFAULT_FRAMING: &str = "line";
 
 #[derive(Clone)]
 pub struct StdinConfig {
@@ -28,10 +28,8 @@ impl StdinInput {
                     .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
             })
             .to_owned();
-        let stdin_config = StdinConfig { framing: framing };
-        StdinInput {
-            stdin_config: stdin_config,
-        }
+        let stdin_config = StdinConfig { framing };
+        StdinInput { stdin_config }
     }
 }
 
@@ -39,15 +37,15 @@ impl Input for StdinInput {
     fn accept(
         &self,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder + Send>,
-        encoder: Box<Encoder + Send>,
+        decoder: Box<dyn Decoder + Send>,
+        encoder: Box<dyn Encoder + Send>,
     ) {
         let reader = BufReader::new(stdin());
         let splitter = match &self.stdin_config.framing as &str {
-            "capnp" => Box::new(CapnpSplitter) as Box<Splitter<_>>,
-            "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
-            "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
-            "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,
+            "capnp" => Box::new(CapnpSplitter) as Box<dyn Splitter<_>>,
+            "line" => Box::new(LineSplitter) as Box<dyn Splitter<_>>,
+            "syslen" => Box::new(SyslenSplitter) as Box<dyn Splitter<_>>,
+            "nul" => Box::new(NulSplitter) as Box<dyn Splitter<_>>,
             _ => panic!("Unsupported framing scheme"),
         };
         splitter.run(reader, tx, decoder, encoder);

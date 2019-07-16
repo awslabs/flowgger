@@ -22,7 +22,7 @@ pub trait Input {
     fn accept(
         &self,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder + Send>,
-        encoder: Box<Encoder + Send>,
+        decoder: Box<dyn Decoder + Send>,
+        encoder: Box<dyn Encoder + Send>,
     );
 }

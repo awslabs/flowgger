@@ -13,5 +13,5 @@ use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 
 pub trait Output {
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>);
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<dyn Merger>>);
 }

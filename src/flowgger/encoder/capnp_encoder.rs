@@ -17,7 +17,7 @@ impl CapnpEncoder {
             Some(extra) => extra
                 .as_table()
                 .expect("output.capnp_extra must be a list of key/value pairs")
-                .into_iter()
+                .iter()
                 .map(|(k, v)| {
                     (
                         k.to_owned(),
@@ -28,7 +28,7 @@ impl CapnpEncoder {
                 })
                 .collect(),
         };
-        CapnpEncoder { extra: extra }
+        CapnpEncoder { extra }
     }
 }
 
@@ -46,7 +46,7 @@ impl Encoder for CapnpEncoder {
 fn build_record<T: Allocator>(
     record_msg: &mut capnp::message::Builder<T>,
     record: Record,
-    extra: &Vec<(String, String)>,
+    extra: &[(String, String)],
 ) {
     let mut root: record_capnp::record::Builder = record_msg.init_root();
     root.set_ts(record.ts);
@@ -96,7 +96,7 @@ fn build_record<T: Allocator>(
     }
     if !extra.is_empty() {
         let mut pairs = root.init_extra(extra.len() as u32);
-        for (i, &(ref name, ref value)) in extra.into_iter().enumerate() {
+        for (i, &(ref name, ref value)) in extra.iter().enumerate() {
             let mut pair = pairs.reborrow().get((i) as u32);
             pair.set_key(name);
             let mut v = pair.init_value();

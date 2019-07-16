@@ -24,14 +24,14 @@ use std::error::Error;
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
 
-const DEFAULT_INPUT_FORMAT: &'static str = "rfc5424";
-const DEFAULT_INPUT_TYPE: &'static str = "syslog-tls";
-const DEFAULT_OUTPUT_FORMAT: &'static str = "gelf";
-const DEFAULT_OUTPUT_FRAMING: &'static str = "noop";
+const DEFAULT_INPUT_FORMAT: &str = "rfc5424";
+const DEFAULT_INPUT_TYPE: &str = "syslog-tls";
+const DEFAULT_OUTPUT_FORMAT: &str = "gelf";
+const DEFAULT_OUTPUT_FRAMING: &str = "noop";
 #[cfg(feature = "kafka")]
-const DEFAULT_OUTPUT_TYPE: &'static str = "kafka";
+const DEFAULT_OUTPUT_TYPE: &str = "kafka";
 #[cfg(not(feature = "kafka"))]
-const DEFAULT_OUTPUT_TYPE: &'static str = "tls";
+const DEFAULT_OUTPUT_TYPE: &str = "tls";
 const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
 #[cfg(feature = "coroutines")]
@@ -54,22 +54,22 @@ fn get_input_tcpco(_config: &Config) -> ! {
     panic!("Support for coroutines is not compiled in")
 }
 
-fn get_input(input_type: &str, config: &Config) -> Box<Input> {
+fn get_input(input_type: &str, config: &Config) -> Box<dyn Input> {
     match input_type {
-        "redis" => Box::new(RedisInput::new(config)) as Box<Input>,
-        "stdin" => Box::new(StdinInput::new(config)) as Box<Input>,
-        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(config)) as Box<Input>,
+        "redis" => Box::new(RedisInput::new(config)) as Box<dyn Input>,
+        "stdin" => Box::new(StdinInput::new(config)) as Box<dyn Input>,
+        "tcp" | "syslog-tcp" => Box::new(TcpInput::new(config)) as Box<dyn Input>,
         "tcp_co" | "tcpco" | "syslog-tcp_co" | "syslog-tcpco" => get_input_tcpco(config),
-        "tls" | "syslog-tls" => Box::new(TlsInput::new(config)) as Box<Input>,
+        "tls" | "syslog-tls" => Box::new(TlsInput::new(config)) as Box<dyn Input>,
         "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(config),
-        "udp" => Box::new(UdpInput::new(config)) as Box<Input>,
+        "udp" => Box::new(UdpInput::new(config)) as Box<dyn Input>,
         _ => panic!("Invalid input type: {}", input_type),
     }
 }
 
 #[cfg(feature = "kafka")]
-fn get_output_kafka(config: &Config) -> Box<Output> {
-    Box::new(KafkaOutput::new(config)) as Box<Output>
+fn get_output_kafka(config: &Config) -> Box<dyn Output> {
+    Box::new(KafkaOutput::new(config)) as Box<dyn Output>
 }
 
 #[cfg(not(feature = "kafka"))]
@@ -77,11 +77,11 @@ fn get_output_kafka(_config: &Config) -> ! {
     panic!("Support for Kafka hasn't been compiled in")
 }
 
-fn get_output(output_type: &str, config: &Config) -> Box<Output> {
+fn get_output(output_type: &str, config: &Config) -> Box<dyn Output> {
     match output_type {
-        "stdout" | "debug" => Box::new(DebugOutput::new(config)) as Box<Output>,
+        "stdout" | "debug" => Box::new(DebugOutput::new(config)) as Box<dyn Output>,
         "kafka" => get_output_kafka(config),
-        "tls" | "syslog-tls" => Box::new(TlsOutput::new(config)) as Box<Output>,
+        "tls" | "syslog-tls" => Box::new(TlsOutput::new(config)) as Box<dyn Output>,
         _ => panic!("Invalid output type: {}", output_type),
     }
 }
@@ -106,11 +106,11 @@ pub fn start(config_file: &str) {
     let input = get_input(input_type, &config);
     let decoder = match input_format {
         _ if input_format == "capnp" => {
-            Box::new(InvalidDecoder::new(&config)) as Box<Decoder + Send>
+            Box::new(InvalidDecoder::new(&config)) as Box<dyn Decoder + Send>
         }
-        "gelf" => Box::new(GelfDecoder::new(&config)) as Box<Decoder + Send>,
-        "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<Decoder + Send>,
-        "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<Decoder + Send>,
+        "gelf" => Box::new(GelfDecoder::new(&config)) as Box<dyn Decoder + Send>,
+        "ltsv" => Box::new(LTSVDecoder::new(&config)) as Box<dyn Decoder + Send>,
+        "rfc5424" => Box::new(RFC5424Decoder::new(&config)) as Box<dyn Decoder + Send>,
         _ => panic!("Unknown input format: {}", input_format),
     };
 
@@ -120,9 +120,9 @@ pub fn start(config_file: &str) {
             x.as_str().expect("output.format must be a string")
         });
     let encoder = match output_format {
-        "capnp" => Box::new(CapnpEncoder::new(&config)) as Box<Encoder + Send>,
-        "gelf" | "json" => Box::new(GelfEncoder::new(&config)) as Box<Encoder + Send>,
-        "ltsv" => Box::new(LTSVEncoder::new(&config)) as Box<Encoder + Send>,
+        "capnp" => Box::new(CapnpEncoder::new(&config)) as Box<dyn Encoder + Send>,
+        "gelf" | "json" => Box::new(GelfEncoder::new(&config)) as Box<dyn Encoder + Send>,
+        "ltsv" => Box::new(LTSVEncoder::new(&config)) as Box<dyn Encoder + Send>,
         _ => panic!("Unknown output format: {}", output_format),
     };
     let output_type = config
@@ -140,12 +140,12 @@ pub fn start(config_file: &str) {
             _ => DEFAULT_OUTPUT_FRAMING,
         },
     };
-    let merger: Option<Box<Merger>> = match output_framing {
+    let merger: Option<Box<dyn Merger>> = match output_framing {
         "noop" | "nop" | "none" => None,
         "capnp" => None,
-        "line" => Some(Box::new(LineMerger::new(&config)) as Box<Merger>),
-        "nul" => Some(Box::new(NulMerger::new(&config)) as Box<Merger>),
-        "syslen" => Some(Box::new(SyslenMerger::new(&config)) as Box<Merger>),
+        "line" => Some(Box::new(LineMerger::new(&config)) as Box<dyn Merger>),
+        "nul" => Some(Box::new(NulMerger::new(&config)) as Box<dyn Merger>),
+        "syslen" => Some(Box::new(SyslenMerger::new(&config)) as Box<dyn Merger>),
         _ => panic!("Invalid framing type: {}", output_framing),
     };
     let queue_size = config

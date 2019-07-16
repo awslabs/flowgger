@@ -18,7 +18,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-const DEFAULT_CIPHERS: &'static str =
+const DEFAULT_CIPHERS: &str =
     "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
      ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
      ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:\
@@ -60,20 +60,20 @@ struct TlsConfig {
 
 struct TlsWorker {
     arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-    merger: Option<Box<Merger + Send>>,
+    merger: Option<Box<dyn Merger + Send>>,
     tls_config: TlsConfig,
 }
 
 impl TlsWorker {
     fn new(
         arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-        merger: Option<Box<Merger + Send>>,
+        merger: Option<Box<dyn Merger + Send>>,
         tls_config: TlsConfig,
     ) -> TlsWorker {
         TlsWorker {
-            arx: arx,
-            merger: merger,
-            tls_config: tls_config,
+            arx,
+            merger,
+            tls_config,
         }
     }
 
@@ -82,7 +82,7 @@ impl TlsWorker {
         let hostname = connect_chosen
             .split(':')
             .next()
-            .expect(&format!("Invalid connection string: {}", connect_chosen));
+            .unwrap_or_else(|| panic!("Invalid connection string: {}", connect_chosen));
         let _ = writeln!(stderr(), "Connected to {}", connect_chosen);
         let sslclient = match self.tls_config.connector.connect(hostname, client) {
             Err(_) => {
@@ -177,10 +177,8 @@ impl TlsWorker {
 
 fn new_tcp(connect_chosen: &str) -> Result<TcpStream, io::Error> {
     match TcpStream::connect(connect_chosen) {
-        Ok(stream) => return Ok(stream),
-        Err(e) => {
-            return Err(e);
-        }
+        Ok(stream) => Ok(stream),
+        Err(e) => Err(e),
     }
 }
 
@@ -189,18 +187,18 @@ impl TlsOutput {
         let (tls_config, threads) = config_parse(config);
         TlsOutput {
             config: tls_config,
-            threads: threads,
+            threads,
         }
     }
 }
 
 impl Output for TlsOutput {
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<dyn Merger>>) {
         for _ in 0..self.threads {
             let arx = Arc::clone(&arx);
             let config = self.config.clone();
             let merger = match merger {
-                Some(ref merger) => Some(merger.clone_boxed()) as Option<Box<Merger + Send>>,
+                Some(ref merger) => Some(merger.clone_boxed()) as Option<Box<dyn Merger + Send>>,
                 None => None,
             };
             thread::spawn(move || {
@@ -349,19 +347,16 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     }
     let connector = connector_builder.build();
     rand::thread_rng().shuffle(&mut connect);
-    let cluster = Cluster {
-        connect: connect,
-        idx: 0,
-    };
+    let cluster = Cluster { connect, idx: 0 };
     let mx_cluster = Arc::new(Mutex::new(cluster));
     let tls_config = TlsConfig {
-        mx_cluster: mx_cluster,
+        mx_cluster,
         timeout: Some(Duration::from_secs(timeout)),
-        connector: connector,
-        async_: async_,
-        recovery_delay_init: recovery_delay_init,
-        recovery_delay_max: recovery_delay_max,
-        recovery_probe_time: recovery_probe_time,
+        connector,
+        async_,
+        recovery_delay_init,
+        recovery_delay_max,
+        recovery_probe_time,
     };
     (tls_config, threads)
 }

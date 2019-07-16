@@ -18,8 +18,8 @@ pub use crate::flowgger::record_capnp;
 use clap::{App, Arg};
 use std::io::{stderr, Write};
 
-const DEFAULT_CONFIG_FILE: &'static str = "flowgger.toml";
-const FLOWGGER_VERSION_STRING: &'static str = "0.2.6";
+const DEFAULT_CONFIG_FILE: &str = "flowgger.toml";
+const FLOWGGER_VERSION_STRING: &str = "0.2.7";
 
 fn main() {
     let matches = App::new("Flowgger")

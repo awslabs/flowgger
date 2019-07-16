@@ -9,13 +9,13 @@ pub use self::ltsv_encoder::LTSVEncoder;
 use crate::flowgger::record::Record;
 
 pub trait CloneBoxedEncoder {
-    fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a>
+    fn clone_boxed<'a>(&self) -> Box<dyn Encoder + Send + 'a>
     where
         Self: 'a;
 }
 
 impl<T: Encoder + Clone + Send> CloneBoxedEncoder for T {
-    fn clone_boxed<'a>(&self) -> Box<Encoder + Send + 'a>
+    fn clone_boxed<'a>(&self) -> Box<dyn Encoder + Send + 'a>
     where
         Self: 'a,
     {
@@ -23,8 +23,8 @@ impl<T: Encoder + Clone + Send> CloneBoxedEncoder for T {
     }
 }
 
-impl Clone for Box<Encoder> {
-    fn clone(&self) -> Box<Encoder> {
+impl Clone for Box<dyn Encoder> {
+    fn clone(&self) -> Box<dyn Encoder> {
         self.clone_boxed()
     }
 }

@@ -17,7 +17,7 @@ impl GelfEncoder {
             Some(extra) => extra
                 .as_table()
                 .expect("output.gelf_extra must be a list of key/value pairs")
-                .into_iter()
+                .iter()
                 .map(|(k, v)| {
                     (
                         k.to_owned(),
@@ -28,7 +28,7 @@ impl GelfEncoder {
                 })
                 .collect(),
         };
-        GelfEncoder { extra: extra }
+        GelfEncoder { extra }
     }
 }
 

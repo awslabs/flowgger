@@ -6,8 +6,8 @@ pub mod tcpco_input;
 
 pub use super::Input;
 
-const DEFAULT_FRAMING: &'static str = "line";
-const DEFAULT_LISTEN: &'static str = "0.0.0.0:514";
+const DEFAULT_FRAMING: &str = "line";
+const DEFAULT_LISTEN: &str = "0.0.0.0:514";
 #[cfg(feature = "coroutines")]
 const DEFAULT_THREADS: usize = 1;
 const DEFAULT_TIMEOUT: u64 = 3600;
@@ -59,9 +59,6 @@ pub fn config_parse(config: &Config) -> (TcpConfig, String, u64) {
                 .expect(r#"input.framing must be a string set to "line", "nul" or "syslen""#)
         })
         .to_owned();
-    let tcp_config = TcpConfig {
-        framing: framing,
-        threads: threads,
-    };
+    let tcp_config = TcpConfig { framing, threads };
     (tcp_config, listen, timeout)
 }

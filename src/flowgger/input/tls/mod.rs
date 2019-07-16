@@ -11,8 +11,8 @@ pub mod tlsco_input;
 
 pub use super::Input;
 
-const DEFAULT_CERT: &'static str = "flowgger.pem";
-const DEFAULT_CIPHERS: &'static str =
+const DEFAULT_CERT: &str = "flowgger.pem";
+const DEFAULT_CIPHERS: &str =
     "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:\
      ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:\
      ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-GCM-SHA384:\
@@ -22,13 +22,13 @@ const DEFAULT_CIPHERS: &'static str =
      ECDHE-RSA-DES-CBC3-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:\
      !EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA";
 const DEFAULT_COMPRESSION: bool = false;
-const DEFAULT_FRAMING: &'static str = "line";
-const DEFAULT_KEY: &'static str = "flowgger.pem";
-const DEFAULT_LISTEN: &'static str = "0.0.0.0:6514";
+const DEFAULT_FRAMING: &str = "line";
+const DEFAULT_KEY: &str = "flowgger.pem";
+const DEFAULT_LISTEN: &str = "0.0.0.0:6514";
 #[cfg(feature = "coroutines")]
 const DEFAULT_THREADS: usize = 1;
 const DEFAULT_TIMEOUT: u64 = 3600;
-const DEFAULT_TLS_COMPATIBILITY_LEVEL: &'static str = "default";
+const DEFAULT_TLS_COMPATIBILITY_LEVEL: &str = "default";
 const DEFAULT_VERIFY_PEER: bool = false;
 const TLS_VERIFY_DEPTH: u32 = 6;
 
@@ -177,9 +177,9 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
     }
     let acceptor = acceptor_builder.build();
     let tls_config = TlsConfig {
-        framing: framing,
-        threads: threads,
-        acceptor: acceptor,
+        framing,
+        threads,
+        acceptor,
     };
     (tls_config, listen, timeout)
 }
