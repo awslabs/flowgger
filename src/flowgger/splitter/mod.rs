@@ -1,8 +1,10 @@
+#[cfg(feature = "capnp-recompile")]
 mod capnp_splitter;
 mod line_splitter;
 mod nul_splitter;
 mod syslen_splitter;
 
+#[cfg(feature = "capnp-recompile")]
 pub use self::capnp_splitter::CapnpSplitter;
 pub use self::line_splitter::LineSplitter;
 pub use self::nul_splitter::NulSplitter;

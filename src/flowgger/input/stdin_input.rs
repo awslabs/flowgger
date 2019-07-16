@@ -2,9 +2,9 @@ use super::Input;
 use crate::flowgger::config::Config;
 use crate::flowgger::decoder::Decoder;
 use crate::flowgger::encoder::Encoder;
-use crate::flowgger::splitter::{
-    CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
-};
+#[cfg(feature = "capnp-recompile")]
+use crate::flowgger::splitter::CapnpSplitter;
+use crate::flowgger::splitter::{LineSplitter, NulSplitter, Splitter, SyslenSplitter};
 use std::io::{stdin, BufReader};
 use std::sync::mpsc::SyncSender;
 
@@ -33,6 +33,19 @@ impl StdinInput {
     }
 }
 
+#[cfg(feature = "capnp-recompile")]
+pub fn get_capnp_splitter<T>() -> Box<dyn Splitter<T>>
+where
+    T: std::io::Read,
+{
+    Box::new(CapnpSplitter) as Box<dyn Splitter<_>>
+}
+
+#[cfg(not(feature = "capnp-recompile"))]
+pub fn get_capnp_splitter() -> ! {
+    panic!("Support for CapNProto is not compiled in")
+}
+
 impl Input for StdinInput {
     fn accept(
         &self,
@@ -42,7 +55,7 @@ impl Input for StdinInput {
     ) {
         let reader = BufReader::new(stdin());
         let splitter = match &self.stdin_config.framing as &str {
-            "capnp" => Box::new(CapnpSplitter) as Box<dyn Splitter<_>>,
+            "capnp" => get_capnp_splitter(),
             "line" => Box::new(LineSplitter) as Box<dyn Splitter<_>>,
             "syslen" => Box::new(SyslenSplitter) as Box<dyn Splitter<_>>,
             "nul" => Box::new(NulSplitter) as Box<dyn Splitter<_>>,

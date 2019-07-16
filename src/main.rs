@@ -1,18 +1,23 @@
+#[cfg(feature = "capnp-recompile")]
 extern crate capnp;
 extern crate chrono;
 extern crate clap;
 #[cfg(feature = "coroutines")]
 extern crate coio;
 extern crate flate2;
-#[cfg(feature = "kafka")]
+#[cfg(feature = "kafka-output")]
 extern crate kafka;
+#[cfg(feature = "tls")]
 extern crate openssl;
 extern crate rand;
+#[cfg(feature = "redis-input")]
 extern crate redis;
+#[cfg(feature = "gelf")]
 extern crate serde_json;
 extern crate toml;
 
 mod flowgger;
+#[cfg(feature = "capnp-recompile")]
 pub use crate::flowgger::record_capnp;
 
 use clap::{App, Arg};
