@@ -30,7 +30,7 @@ pub mod record {
     }
     impl<'a> ::capnp::traits::FromStructReader<'a> for Reader<'a> {
         fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a> {
-            Reader { reader: reader }
+            Reader { reader }
         }
     }
 
@@ -173,7 +173,7 @@ pub mod record {
     }
     impl<'a> ::capnp::traits::FromStructBuilder<'a> for Builder<'a> {
         fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a> {
-            Builder { builder: builder }
+            Builder { builder }
         }
     }
 
@@ -212,17 +212,17 @@ pub mod record {
 
     impl<'a> Builder<'a> {
         pub fn as_reader(self) -> Reader<'a> {
-            ::capnp::traits::FromStructReader::new(self.builder.as_reader())
+            ::capnp::traits::FromStructReader::new(self.builder.into_reader())
         }
         pub fn reborrow<'b>(&'b mut self) -> Builder<'b> {
             Builder { ..*self }
         }
         pub fn reborrow_as_reader<'b>(&'b self) -> Reader<'b> {
-            ::capnp::traits::FromStructReader::new(self.builder.as_reader())
+            ::capnp::traits::FromStructReader::new(self.builder.into_reader())
         }
 
         pub fn total_size(&self) -> ::capnp::Result<::capnp::MessageSize> {
-            self.builder.as_reader().total_size()
+            self.builder.into_reader().total_size()
         }
         #[inline]
         pub fn get_ts(self) -> f64 {
@@ -448,7 +448,7 @@ pub mod record {
             data: 2,
             pointers: 9,
         };
-        pub const TYPE_ID: u64 = 0xe1068a6aee02baba;
+        pub const TYPE_ID: u64 = 0xe106_8a6a_ee02_baba;
     }
 }
 
@@ -480,7 +480,7 @@ pub mod pair {
     }
     impl<'a> ::capnp::traits::FromStructReader<'a> for Reader<'a> {
         fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a> {
-            Reader { reader: reader }
+            Reader { reader }
         }
     }
 
@@ -541,7 +541,7 @@ pub mod pair {
     }
     impl<'a> ::capnp::traits::FromStructBuilder<'a> for Builder<'a> {
         fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a> {
-            Builder { builder: builder }
+            Builder { builder }
         }
     }
 
@@ -580,17 +580,17 @@ pub mod pair {
 
     impl<'a> Builder<'a> {
         pub fn as_reader(self) -> Reader<'a> {
-            ::capnp::traits::FromStructReader::new(self.builder.as_reader())
+            ::capnp::traits::FromStructReader::new(self.builder.into_reader())
         }
         pub fn reborrow<'b>(&'b mut self) -> Builder<'b> {
             Builder { ..*self }
         }
         pub fn reborrow_as_reader<'b>(&'b self) -> Reader<'b> {
-            ::capnp::traits::FromStructReader::new(self.builder.as_reader())
+            ::capnp::traits::FromStructReader::new(self.builder.into_reader())
         }
 
         pub fn total_size(&self) -> ::capnp::Result<::capnp::MessageSize> {
-            self.builder.as_reader().total_size()
+            self.builder.into_reader().total_size()
         }
         #[inline]
         pub fn get_key(self) -> ::capnp::Result<::capnp::text::Builder<'a>> {
@@ -618,9 +618,9 @@ pub mod pair {
             self.builder.set_data_field::<u16>(0, 0);
             self.builder.get_pointer_field(1).clear();
             self.builder.set_bool_field(16, false);
-            self.builder.set_data_field::<f64>(1, 0u8 as f64);
-            self.builder.set_data_field::<i64>(1, 0u8 as i64);
-            self.builder.set_data_field::<u64>(1, 0u8 as u64);
+            self.builder.set_data_field::<f64>(1, f64::from(0u8));
+            self.builder.set_data_field::<i64>(1, i64::from(0u8));
+            self.builder.set_data_field::<u64>(1, u64::from(0u8));
             ::capnp::traits::FromStructBuilder::new(self.builder)
         }
     }
@@ -646,7 +646,7 @@ pub mod pair {
             data: 2,
             pointers: 2,
         };
-        pub const TYPE_ID: u64 = 0xb4a68d38a716233d;
+        pub const TYPE_ID: u64 = 0xb4a6_8d38_a716_233d;
     }
 
     pub mod value {
@@ -679,7 +679,7 @@ pub mod pair {
         }
         impl<'a> ::capnp::traits::FromStructReader<'a> for Reader<'a> {
             fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a> {
-                Reader { reader: reader }
+                Reader { reader }
             }
         }
 
@@ -717,35 +717,17 @@ pub mod pair {
             #[inline]
             pub fn which(self) -> ::std::result::Result<WhichReader<'a>, ::capnp::NotInSchema> {
                 match self.reader.get_data_field::<u16>(0) {
-                    0 => {
-                        return ::std::result::Result::Ok(String(
-                            self.reader
-                                .get_pointer_field(1)
-                                .get_text(::std::ptr::null(), 0),
-                        ));
-                    }
-                    1 => {
-                        return ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16)));
-                    }
-                    2 => {
-                        return ::std::result::Result::Ok(F64(self
-                            .reader
-                            .get_data_field::<f64>(1)));
-                    }
-                    3 => {
-                        return ::std::result::Result::Ok(I64(self
-                            .reader
-                            .get_data_field::<i64>(1)));
-                    }
-                    4 => {
-                        return ::std::result::Result::Ok(U64(self
-                            .reader
-                            .get_data_field::<u64>(1)));
-                    }
-                    5 => {
-                        return ::std::result::Result::Ok(Null(()));
-                    }
-                    x => return ::std::result::Result::Err(::capnp::NotInSchema(x)),
+                    0 => ::std::result::Result::Ok(String(
+                        self.reader
+                            .get_pointer_field(1)
+                            .get_text(::std::ptr::null(), 0),
+                    )),
+                    1 => ::std::result::Result::Ok(Bool(self.reader.get_bool_field(16))),
+                    2 => ::std::result::Result::Ok(F64(self.reader.get_data_field::<f64>(1))),
+                    3 => ::std::result::Result::Ok(I64(self.reader.get_data_field::<i64>(1))),
+                    4 => ::std::result::Result::Ok(U64(self.reader.get_data_field::<u64>(1))),
+                    5 => ::std::result::Result::Ok(Null(())),
+                    x => ::std::result::Result::Err(::capnp::NotInSchema(x)),
                 }
             }
         }
@@ -767,7 +749,7 @@ pub mod pair {
         }
         impl<'a> ::capnp::traits::FromStructBuilder<'a> for Builder<'a> {
             fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a> {
-                Builder { builder: builder }
+                Builder { builder }
             }
         }
 
@@ -806,17 +788,17 @@ pub mod pair {
 
         impl<'a> Builder<'a> {
             pub fn as_reader(self) -> Reader<'a> {
-                ::capnp::traits::FromStructReader::new(self.builder.as_reader())
+                ::capnp::traits::FromStructReader::new(self.builder.into_reader())
             }
             pub fn reborrow<'b>(&'b mut self) -> Builder<'b> {
                 Builder { ..*self }
             }
             pub fn reborrow_as_reader<'b>(&'b self) -> Reader<'b> {
-                ::capnp::traits::FromStructReader::new(self.builder.as_reader())
+                ::capnp::traits::FromStructReader::new(self.builder.into_reader())
             }
 
             pub fn total_size(&self) -> ::capnp::Result<::capnp::MessageSize> {
-                self.builder.as_reader().total_size()
+                self.builder.into_reader().total_size()
             }
             #[inline]
             pub fn set_string(&mut self, value: ::capnp::text::Reader) {
@@ -861,35 +843,17 @@ pub mod pair {
             #[inline]
             pub fn which(self) -> ::std::result::Result<WhichBuilder<'a>, ::capnp::NotInSchema> {
                 match self.builder.get_data_field::<u16>(0) {
-                    0 => {
-                        return ::std::result::Result::Ok(String(
-                            self.builder
-                                .get_pointer_field(1)
-                                .get_text(::std::ptr::null(), 0),
-                        ));
-                    }
-                    1 => {
-                        return ::std::result::Result::Ok(Bool(self.builder.get_bool_field(16)));
-                    }
-                    2 => {
-                        return ::std::result::Result::Ok(F64(self
-                            .builder
-                            .get_data_field::<f64>(1)));
-                    }
-                    3 => {
-                        return ::std::result::Result::Ok(I64(self
-                            .builder
-                            .get_data_field::<i64>(1)));
-                    }
-                    4 => {
-                        return ::std::result::Result::Ok(U64(self
-                            .builder
-                            .get_data_field::<u64>(1)));
-                    }
-                    5 => {
-                        return ::std::result::Result::Ok(Null(()));
-                    }
-                    x => return ::std::result::Result::Err(::capnp::NotInSchema(x)),
+                    0 => ::std::result::Result::Ok(String(
+                        self.builder
+                            .get_pointer_field(1)
+                            .get_text(::std::ptr::null(), 0),
+                    )),
+                    1 => ::std::result::Result::Ok(Bool(self.builder.get_bool_field(16))),
+                    2 => ::std::result::Result::Ok(F64(self.builder.get_data_field::<f64>(1))),
+                    3 => ::std::result::Result::Ok(I64(self.builder.get_data_field::<i64>(1))),
+                    4 => ::std::result::Result::Ok(U64(self.builder.get_data_field::<u64>(1))),
+                    5 => ::std::result::Result::Ok(Null(())),
+                    x => ::std::result::Result::Err(::capnp::NotInSchema(x)),
                 }
             }
         }
@@ -911,7 +875,7 @@ pub mod pair {
                 data: 2,
                 pointers: 2,
             };
-            pub const TYPE_ID: u64 = 0x8a994a2aad4d9204;
+            pub const TYPE_ID: u64 = 0x8a99_4a2a_ad4d_9204;
         }
         pub enum Which<A0> {
             String(A0),

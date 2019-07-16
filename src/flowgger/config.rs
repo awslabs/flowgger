@@ -27,7 +27,7 @@ impl Config {
                 ))
             }
         };
-        Ok(Config { config: config })
+        Ok(Config { config })
     }
 
     pub fn lookup<'a>(&'a self, path: &'a str) -> Option<&'a toml::Value> {

@@ -19,10 +19,7 @@ pub struct TlsCoInput {
 impl TlsCoInput {
     pub fn new(config: &Config) -> TlsCoInput {
         let (tls_config, listen, _timeout) = config_parse(&config);
-        TlsCoInput {
-            listen: listen,
-            tls_config: tls_config,
-        }
+        TlsCoInput { listen, tls_config }
     }
 }
 

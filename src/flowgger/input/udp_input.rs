@@ -8,7 +8,7 @@ use std::net::UdpSocket;
 use std::str;
 use std::sync::mpsc::SyncSender;
 
-const DEFAULT_LISTEN: &'static str = "0.0.0.0:514";
+const DEFAULT_LISTEN: &str = "0.0.0.0:514";
 const MAX_UDP_PACKET_SIZE: usize = 65_527;
 const MAX_COMPRESSION_RATIO: usize = 5;
 
@@ -24,7 +24,7 @@ impl UdpInput {
                 x.as_str().expect("input.listen must be an ip:port string")
             })
             .to_owned();
-        UdpInput { listen: listen }
+        UdpInput { listen }
     }
 }
 
@@ -32,13 +32,13 @@ impl Input for UdpInput {
     fn accept(
         &self,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder + Send>,
-        encoder: Box<Encoder + Send>,
+        decoder: Box<dyn Decoder + Send>,
+        encoder: Box<dyn Encoder + Send>,
     ) {
         let socket = UdpSocket::bind(&self.listen as &str)
-            .expect(&format!("Unable to listen to {}", self.listen));
+            .unwrap_or_else(|_| panic!("Unable to listen to {}", self.listen));
         let tx = tx.clone();
-        let (decoder, encoder): (Box<Decoder>, Box<Encoder>) =
+        let (decoder, encoder): (Box<dyn Decoder>, Box<dyn Encoder>) =
             (decoder.clone_boxed(), encoder.clone_boxed());
         let mut buf = [0; MAX_UDP_PACKET_SIZE];
         loop {
@@ -57,8 +57,8 @@ impl Input for UdpInput {
 fn handle_record_maybe_compressed(
     line: &[u8],
     tx: &SyncSender<Vec<u8>>,
-    decoder: &Box<Decoder>,
-    encoder: &Box<Encoder>,
+    decoder: &Box<dyn Decoder>,
+    encoder: &Box<dyn Encoder>,
 ) -> Result<(), &'static str> {
     if line.len() >= 8
         && (line[0] == 0x78 && (line[1] == 0x01 || line[1] == 0x9c || line[1] == 0xda))
@@ -82,8 +82,8 @@ fn handle_record_maybe_compressed(
 fn handle_record(
     line: &[u8],
     tx: &SyncSender<Vec<u8>>,
-    decoder: &Box<Decoder>,
-    encoder: &Box<Encoder>,
+    decoder: &Box<dyn Decoder>,
+    encoder: &Box<dyn Encoder>,
 ) -> Result<(), &'static str> {
     let line = match str::from_utf8(line) {
         Err(_) => return Err("Invalid UTF-8 input"),

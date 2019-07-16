@@ -19,10 +19,7 @@ pub struct TcpCoInput {
 impl TcpCoInput {
     pub fn new(config: &Config) -> TcpCoInput {
         let (tcp_config, listen, _timeout) = config_parse(&config);
-        TcpCoInput {
-            listen: listen,
-            tcp_config: tcp_config,
-        }
+        TcpCoInput { listen, tcp_config }
     }
 }
 

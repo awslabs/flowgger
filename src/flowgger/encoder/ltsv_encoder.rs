@@ -14,7 +14,7 @@ impl LTSVEncoder {
             Some(extra) => extra
                 .as_table()
                 .expect("output.ltsv_extra must be a list of key/value pairs")
-                .into_iter()
+                .iter()
                 .map(|(k, v)| {
                     (
                         k.to_owned(),
@@ -25,7 +25,7 @@ impl LTSVEncoder {
                 })
                 .collect(),
         };
-        LTSVEncoder { extra: extra }
+        LTSVEncoder { extra }
     }
 }
 

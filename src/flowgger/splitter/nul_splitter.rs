@@ -12,8 +12,8 @@ impl<T: Read> Splitter<T> for NulSplitter {
         &self,
         buf_reader: BufReader<T>,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder>,
-        encoder: Box<Encoder>,
+        decoder: Box<dyn Decoder>,
+        encoder: Box<dyn Encoder>,
     ) {
         for line in buf_reader.split(0) {
             let line = match line {
@@ -51,8 +51,8 @@ impl<T: Read> Splitter<T> for NulSplitter {
 fn handle_line(
     line: &str,
     tx: &SyncSender<Vec<u8>>,
-    decoder: &Box<Decoder>,
-    encoder: &Box<Encoder>,
+    decoder: &Box<dyn Decoder>,
+    encoder: &Box<dyn Encoder>,
 ) -> Result<(), &'static str> {
     let decoded = decoder.decode(line)?;
     let reencoded = encoder.encode(decoded)?;

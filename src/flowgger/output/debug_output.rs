@@ -15,7 +15,7 @@ impl DebugOutput {
 }
 
 impl Output for DebugOutput {
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<dyn Merger>>) {
         let merger = match merger {
             Some(merger) => Some(merger.clone_boxed()),
             None => None,

@@ -21,8 +21,8 @@ impl TlsInput {
     pub fn new(config: &Config) -> TlsInput {
         let (tls_config, listen, timeout) = config_parse(config);
         TlsInput {
-            listen: listen,
-            tls_config: tls_config,
+            listen,
+            tls_config,
             timeout: Some(Duration::from_secs(timeout)),
         }
     }
@@ -32,8 +32,8 @@ impl Input for TlsInput {
     fn accept(
         &self,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder + Send>,
-        encoder: Box<Encoder + Send>,
+        decoder: Box<dyn Decoder + Send>,
+        encoder: Box<dyn Encoder + Send>,
     ) {
         let listener = TcpListener::bind(&self.listen as &str).unwrap();
         for client in listener.incoming() {
@@ -53,8 +53,8 @@ impl Input for TlsInput {
 fn handle_client(
     client: TcpStream,
     tx: SyncSender<Vec<u8>>,
-    decoder: Box<Decoder>,
-    encoder: Box<Encoder>,
+    decoder: Box<dyn Decoder>,
+    encoder: Box<dyn Encoder>,
     tls_config: TlsConfig,
 ) {
     if let Ok(peer_addr) = client.peer_addr() {
@@ -69,10 +69,10 @@ fn handle_client(
     };
     let reader = BufReader::new(sslclient);
     let splitter = match &tls_config.framing as &str {
-        "capnp" => Box::new(CapnpSplitter) as Box<Splitter<_>>,
-        "line" => Box::new(LineSplitter) as Box<Splitter<_>>,
-        "syslen" => Box::new(SyslenSplitter) as Box<Splitter<_>>,
-        "nul" => Box::new(NulSplitter) as Box<Splitter<_>>,
+        "capnp" => Box::new(CapnpSplitter) as Box<dyn Splitter<_>>,
+        "line" => Box::new(LineSplitter) as Box<dyn Splitter<_>>,
+        "syslen" => Box::new(SyslenSplitter) as Box<dyn Splitter<_>>,
+        "nul" => Box::new(NulSplitter) as Box<dyn Splitter<_>>,
         _ => panic!("Unsupported framing scheme"),
     };
     splitter.run(reader, tx, decoder, encoder);

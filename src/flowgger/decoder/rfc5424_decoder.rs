@@ -29,15 +29,15 @@ impl Decoder for RFC5424Decoder {
         let msgid = parts.next().ok_or("Missing message id")?;
         let (sd, msg) = parse_data(parts.next().ok_or("Missing message data")?)?;
         let record = Record {
-            ts: ts,
+            ts,
             hostname: hostname.to_owned(),
             facility: Some(pri_version.facility),
             severity: Some(pri_version.severity),
             appname: Some(appname.to_owned()),
             procid: Some(procid.to_owned()),
             msgid: Some(msgid.to_owned()),
-            sd: sd,
-            msg: msg,
+            sd,
+            msg,
             full_msg: None,
         };
         Ok(record)

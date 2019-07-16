@@ -81,10 +81,7 @@ impl LTSVDecoder {
                 }
             }
         };
-        LTSVDecoder {
-            schema: schema,
-            suffixes: suffixes,
-        }
+        LTSVDecoder { schema, suffixes }
     }
 }
 
@@ -201,12 +198,12 @@ impl Decoder for LTSVDecoder {
             ts: ts.ok_or("Missing timestamp")?,
             hostname: hostname.ok_or("Missing hostname")?,
             facility: None,
-            severity: severity,
+            severity,
             appname: None,
             procid: None,
             msgid: None,
             sd: if sd.pairs.is_empty() { None } else { Some(sd) },
-            msg: msg,
+            msg,
             full_msg: None,
         };
         Ok(record)
@@ -283,7 +280,7 @@ fn test_ltsv_suffixes() {
         .iter()
         .cloned()
         .any(|(k, v)| if let SDValue::Bool(v) = v {
-            k == "_done_bool" && v == true
+            k == "_done_bool" && v
         } else {
             false
         }));
@@ -333,7 +330,7 @@ fn test_ltsv_suffixes_2() {
         .iter()
         .cloned()
         .any(|(k, v)| if let SDValue::Bool(v) = v {
-            k == "_done_bool" && v == true
+            k == "_done_bool" && v
         } else {
             false
         }));
@@ -349,7 +346,7 @@ fn test_ltsv() {
     let msg = "time:1438790025.99\thost:testhostname\tname1:value1\tname 2: value \
                2\tn3:v3";
     let res = ltsv_decoder.decode(msg).unwrap();
-    assert!(res.ts == 1438790025.99);
+    assert!(res.ts == 1_438_790_025.99);
 }
 
 #[test]
@@ -363,7 +360,7 @@ fn test_ltsv2() {
                2\tn3:v3";
     let res = ltsv_decoder.decode(msg).unwrap();
     println!("{}", res.ts);
-    assert!(res.ts == 1438790025.637824);
+    assert!(res.ts == 1_438_790_025.637_824);
 }
 
 #[test]
@@ -377,7 +374,7 @@ fn test_ltsv_3() {
                -0700]\tdone:true\tscore:-1\tmean:0.42\tcounter:42\tlevel:3\thost:\
                testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = ltsv_decoder.decode(msg).unwrap();
-    assert!(res.ts == 971211336.3);
+    assert!(res.ts == 971_211_336.3);
     assert!(res.severity.unwrap() == 3);
 
     assert!(res.hostname == "testhostname");

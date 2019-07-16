@@ -11,7 +11,7 @@ use std::time::Duration;
 
 const KAFKA_DEFAULT_ACKS: i16 = 0;
 const KAFKA_DEFAULT_COALESCE: usize = 1;
-const KAFKA_DEFAULT_COMPRESSION: &'static str = "none";
+const KAFKA_DEFAULT_COMPRESSION: &str = "none";
 const KAFKA_DEFAULT_THREADS: u32 = 1;
 const KAFKA_DEFAULT_TIMEOUT: u64 = 60_000;
 
@@ -58,10 +58,10 @@ impl<'a> KafkaWorker<'a> {
         };
         let queue = Vec::with_capacity(config.coalesce);
         KafkaWorker {
-            arx: arx,
-            producer: producer,
-            config: config,
-            queue: queue,
+            arx,
+            producer,
+            config,
+            queue,
         }
     }
 
@@ -182,22 +182,22 @@ impl KafkaOutput {
             _ => panic!("Unsupported compression method"),
         };
         let kafka_config = KafkaConfig {
-            acks: acks,
-            brokers: brokers,
-            topic: topic,
-            timeout: timeout,
-            coalesce: coalesce,
-            compression: compression,
+            acks,
+            brokers,
+            topic,
+            timeout,
+            coalesce,
+            compression,
         };
         KafkaOutput {
             config: kafka_config,
-            threads: threads,
+            threads,
         }
     }
 }
 
 impl Output for KafkaOutput {
-    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<Merger>>) {
+    fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<dyn Merger>>) {
         if merger.is_some() {
             let _ = writeln!(stderr(), "Output framing is ignored with the Kafka output");
         }

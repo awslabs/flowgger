@@ -19,10 +19,10 @@ impl Merger for SyslenMerger {
         bytes.reserve(prefix_len + 1);
         unsafe {
             let bytes_ptr = bytes.as_mut_ptr();
-            ptr::copy(bytes_ptr, bytes_ptr.offset(prefix_len as isize), bytes_len);
+            ptr::copy(bytes_ptr, bytes_ptr.add(prefix_len), bytes_len);
             let prefix_ptr = prefix.as_ptr();
             ptr::copy(prefix_ptr, bytes_ptr, prefix_len);
-            ptr::write(bytes_ptr.offset((prefix_len + bytes_len) as isize), 0x0a);
+            ptr::write(bytes_ptr.add(prefix_len + bytes_len), 0x0a);
             bytes.set_len(prefix_len + bytes_len + 1);
         }
     }

@@ -9,8 +9,8 @@ use std::process::exit;
 use std::sync::mpsc::SyncSender;
 use std::thread;
 
-const DEFAULT_CONNECT: &'static str = "127.0.0.1";
-const DEFAULT_QUEUE_KEY: &'static str = "logs";
+const DEFAULT_CONNECT: &str = "127.0.0.1";
+const DEFAULT_QUEUE_KEY: &str = "logs";
 const DEFAULT_THREADS: u32 = 1;
 
 pub struct RedisInput {
@@ -23,8 +23,8 @@ struct RedisWorker {
     config: RedisConfig,
     redis_cnx: Connection,
     tx: SyncSender<Vec<u8>>,
-    decoder: Box<Decoder + Send>,
-    encoder: Box<Encoder + Send>,
+    decoder: Box<dyn Decoder + Send>,
+    encoder: Box<dyn Encoder + Send>,
 }
 
 #[derive(Clone)]
@@ -54,13 +54,10 @@ impl RedisInput {
                 x.as_integer()
                     .expect("input.redis_threads must be a 32-bit integer") as u32
             });
-        let redis_config = RedisConfig {
-            connect: connect,
-            queue_key: queue_key,
-        };
+        let redis_config = RedisConfig { connect, queue_key };
         RedisInput {
             config: redis_config,
-            threads: threads,
+            threads,
         }
     }
 }
@@ -70,29 +67,29 @@ impl RedisWorker {
         tid: u32,
         config: RedisConfig,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder + Send>,
-        encoder: Box<Encoder + Send>,
+        decoder: Box<dyn Decoder + Send>,
+        encoder: Box<dyn Encoder + Send>,
     ) -> RedisWorker {
         let redis_cnx = match redis::Client::open(format!("redis://{}/", config.connect).as_ref()) {
-            Err(_) => panic!(
-                "Invalid connection string for the Redis server: [{}]",
-                config.connect
+            Err(e) => panic!(
+                "Invalid connection string for the Redis server: [{}], error: {}",
+                config.connect, e
             ),
             Ok(client) => match client.get_connection() {
-                Err(_) => panic!(
-                    "Unable to connect to the Redis server: [{}]",
-                    config.connect
+                Err(e) => panic!(
+                    "Unable to connect to the Redis server: [{}], error: {}",
+                    config.connect, e
                 ),
                 Ok(redis_cnx) => redis_cnx,
             },
         };
         RedisWorker {
-            tid: tid,
-            config: config,
-            redis_cnx: redis_cnx,
-            tx: tx,
-            decoder: decoder,
-            encoder: encoder,
+            tid,
+            config,
+            redis_cnx,
+            tx,
+            decoder,
+            encoder,
         }
     }
 
@@ -108,7 +105,7 @@ impl RedisWorker {
             let dummy: RedisResult<String> = redis_cnx.rpoplpush(queue_key_tmp, queue_key);
             dummy.is_ok()
         } {}
-        let (decoder, encoder): (Box<Decoder>, Box<Encoder>) = (self.decoder, self.encoder);
+        let (decoder, encoder): (Box<dyn Decoder>, Box<dyn Encoder>) = (self.decoder, self.encoder);
         loop {
             let line: String = match redis_cnx.brpoplpush(queue_key, queue_key_tmp, 0) {
                 Err(e) => return Err(format!("Redis protocol error in BRPOPLPUSH: [{}]", e)),
@@ -129,8 +126,8 @@ impl Input for RedisInput {
     fn accept(
         &self,
         tx: SyncSender<Vec<u8>>,
-        decoder: Box<Decoder + Send>,
-        encoder: Box<Encoder + Send>,
+        decoder: Box<dyn Decoder + Send>,
+        encoder: Box<dyn Encoder + Send>,
     ) {
         let mut jids = Vec::new();
         for tid in 0..self.threads {
@@ -154,10 +151,10 @@ impl Input for RedisInput {
 }
 
 fn handle_record(
-    line: &String,
+    line: &str,
     tx: &SyncSender<Vec<u8>>,
-    decoder: &Box<Decoder>,
-    encoder: &Box<Encoder>,
+    decoder: &Box<dyn Decoder>,
+    encoder: &Box<dyn Encoder>,
 ) -> Result<(), &'static str> {
     let decoded = decoder.decode(line)?;
     let reencoded = encoder.encode(decoded)?;

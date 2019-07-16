@@ -95,13 +95,13 @@ impl Decoder for GelfDecoder {
             ts: ts.unwrap_or_else(|| utils::PreciseTimestamp::now().as_f64()),
             hostname: hostname.ok_or("Missing hostname")?,
             facility: None,
-            severity: severity,
+            severity,
             appname: None,
             procid: None,
             msgid: None,
             sd: if sd.pairs.is_empty() { None } else { Some(sd) },
-            msg: msg,
-            full_msg: full_msg,
+            msg,
+            full_msg,
         };
         Ok(record)
     }
@@ -111,7 +111,7 @@ impl Decoder for GelfDecoder {
 fn test_gelf() {
     let msg = r#"{"version":"1.1", "host": "example.org","short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}"#;
     let res = GelfDecoder.decode(msg).unwrap();
-    assert!(res.ts == 1385053862.3072);
+    assert!(res.ts == 1_385_053_862.307_2);
     assert!(res.hostname == "example.org");
     assert!(res.msg.unwrap() == "A short message that helps you identify what is going on");
     assert!(res.full_msg.unwrap() == "Backtrace here\n\nmore stuff");
