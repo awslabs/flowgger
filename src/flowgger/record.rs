@@ -8,6 +8,7 @@ pub enum SDValue {
     Null,
 }
 
+#[cfg(feature = "ltsv")]
 #[derive(Debug, Clone)]
 pub enum SDValueType {
     String,

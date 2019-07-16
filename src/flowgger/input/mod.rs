@@ -1,17 +1,23 @@
+#[cfg(feature = "redis-input")]
 mod redis_input;
 mod stdin_input;
 mod tcp;
+#[cfg(feature = "tls")]
 mod tls;
+#[cfg(feature = "syslog")]
 mod udp_input;
 
+#[cfg(feature = "redis-input")]
 pub use self::redis_input::RedisInput;
 pub use self::stdin_input::StdinInput;
 pub use self::tcp::tcp_input::TcpInput;
 #[cfg(feature = "coroutines")]
 pub use self::tcp::tcpco_input::TcpCoInput;
+#[cfg(feature = "tls")]
 pub use self::tls::tls_input::TlsInput;
 #[cfg(feature = "coroutines")]
 pub use self::tls::tlsco_input::TlsCoInput;
+#[cfg(feature = "syslog")]
 pub use self::udp_input::UdpInput;
 
 use crate::flowgger::decoder::Decoder;

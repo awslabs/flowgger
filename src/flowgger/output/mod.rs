@@ -1,11 +1,13 @@
 mod debug_output;
-#[cfg(feature = "kafka")]
+#[cfg(feature = "kafka-output")]
 mod kafka_output;
+#[cfg(feature = "tls")]
 mod tls_output;
 
 pub use self::debug_output::DebugOutput;
-#[cfg(feature = "kafka")]
+#[cfg(feature = "kafka-output")]
 pub use self::kafka_output::KafkaOutput;
+#[cfg(feature = "tls")]
 pub use self::tls_output::TlsOutput;
 
 use crate::flowgger::merger::Merger;
