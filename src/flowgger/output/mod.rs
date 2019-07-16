@@ -1,10 +1,14 @@
 mod debug_output;
+#[cfg(feature = "file")]
+mod file_output;
 #[cfg(feature = "kafka-output")]
 mod kafka_output;
 #[cfg(feature = "tls")]
 mod tls_output;
 
 pub use self::debug_output::DebugOutput;
+#[cfg(feature = "file")]
+pub use self::file_output::FileOutput;
 #[cfg(feature = "kafka-output")]
 pub use self::kafka_output::KafkaOutput;
 #[cfg(feature = "tls")]
