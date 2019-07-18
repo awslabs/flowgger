@@ -155,7 +155,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
     for (i, c) in sd.char_indices() {
         let is_sd_name = match c as u32 {
             32 | 34 | 61 | 93 => false,
-            33...126 => true,
+            33..=126 => true,
             _ => false,
         };
         match (c, esc, is_sd_name, in_name, name.is_some(), in_value) {
