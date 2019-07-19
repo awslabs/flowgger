@@ -1,3 +1,5 @@
+#[cfg(feature = "file")]
+mod file;
 #[cfg(feature = "redis-input")]
 mod redis_input;
 mod stdin_input;
@@ -7,6 +9,8 @@ mod tls;
 #[cfg(feature = "syslog")]
 mod udp_input;
 
+#[cfg(feature = "file")]
+pub use self::file::FileInput;
 #[cfg(feature = "redis-input")]
 pub use self::redis_input::RedisInput;
 pub use self::stdin_input::StdinInput;

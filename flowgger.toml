@@ -7,6 +7,10 @@
 ### Standard input
 # type = "stdin"
 
+### File input
+# type = "file"
+# src = "/var/lib/docker/containers/*/*.log"
+
 ### Syslog over UDP
 # type = "udp"
 # listen = "0.0.0.0:514"

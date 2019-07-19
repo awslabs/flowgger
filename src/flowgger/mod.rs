@@ -26,6 +26,8 @@ use self::encoder::Encoder;
 use self::encoder::GelfEncoder;
 #[cfg(feature = "ltsv")]
 use self::encoder::LTSVEncoder;
+#[cfg(feature = "file")]
+use self::input::FileInput;
 #[cfg(feature = "redis-input")]
 use self::input::RedisInput;
 #[cfg(feature = "tls")]
@@ -117,6 +119,16 @@ fn get_input_udp(_config: &Config) -> ! {
     panic!("Support for syslog is not compiled in")
 }
 
+#[cfg(feature = "file")]
+fn get_input_file(config: &Config) -> Box<dyn Input> {
+    Box::new(FileInput::new(&config)) as Box<dyn Input>
+}
+
+#[cfg(not(feature = "file"))]
+fn get_input_file(_config: &Config) -> ! {
+    panic!("Support for file is not compiled in")
+}
+
 fn get_input(input_type: &str, config: &Config) -> Box<dyn Input> {
     match input_type {
         "redis" => get_input_redis(config),
@@ -126,6 +138,7 @@ fn get_input(input_type: &str, config: &Config) -> Box<dyn Input> {
         "tls" | "syslog-tls" => get_input_tls(config),
         "tls_co" | "tlsco" | "syslog-tls_co" | "syslog-tlsco" => get_input_tlsco(config),
         "udp" => get_input_udp(config),
+        "file" => get_input_file(config),
         _ => panic!("Invalid input type: {}", input_type),
     }
 }

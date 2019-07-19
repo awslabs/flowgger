@@ -5,8 +5,12 @@ extern crate clap;
 #[cfg(feature = "coroutines")]
 extern crate coio;
 extern crate flate2;
+#[cfg(feature = "file")]
+extern crate glob;
 #[cfg(feature = "kafka-output")]
 extern crate kafka;
+#[cfg(feature = "file")]
+extern crate notify;
 #[cfg(feature = "tls")]
 extern crate openssl;
 extern crate rand;
