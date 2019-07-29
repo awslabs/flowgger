@@ -1,4 +1,5 @@
 use chrono::{DateTime, FixedOffset, Timelike};
+#[cfg(feature = "gelf")]
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub struct PreciseTimestamp {
@@ -6,6 +7,7 @@ pub struct PreciseTimestamp {
 }
 
 impl PreciseTimestamp {
+    #[cfg(feature = "gelf")]
     #[inline]
     pub fn now() -> Self {
         let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();

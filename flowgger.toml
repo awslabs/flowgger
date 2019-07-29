@@ -12,13 +12,13 @@
 # src = "/var/lib/docker/containers/*/*.log"
 
 ### Syslog over UDP
-# type = "udp"
-# listen = "0.0.0.0:514"
+type = "udp"
+listen = "0.0.0.0:514"
 
 ### TCP
-type = "tcp"
-listen = "0.0.0.0:6514"
-timeout = 3600
+# type = "tcp"
+# listen = "0.0.0.0:6514"
+# timeout = 3600
 
 ### TCP, using coroutines
 # type = "tcp_co"
@@ -68,7 +68,7 @@ timeout = 3600
 # counter = "u64"
 
 ### Syslog
-format = "rfc5424"
+#format = "rfc5424"
 
 ####################
 #   Output type    #
@@ -116,7 +116,7 @@ type = "stdout"
 ####################
 
 ### JSON (GELF)
-format = "gelf"
+# format = "gelf"
 # framing = "nul"
 # [output.gelf_extra]
 # x-header1 = "x-header1 value"

@@ -50,7 +50,11 @@ pub struct Record {
     pub sd: Option<StructuredData>,
 }
 
+#[cfg(feature = "capnp-recompile")]
 pub const FACILITY_MAX: u8 = 0xff >> 3;
+#[cfg(feature = "capnp-recompile")]
 pub const FACILITY_MISSING: u8 = 0xff;
+#[cfg(any(feature = "capnp-recompile", feature = "gelf"))]
 pub const SEVERITY_MAX: u8 = (1 << 3) - 1;
+#[cfg(feature = "capnp-recompile")]
 pub const SEVERITY_MISSING: u8 = 0xff;

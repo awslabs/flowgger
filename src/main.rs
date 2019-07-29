@@ -1,34 +1,11 @@
-#[cfg(feature = "capnp-recompile")]
-extern crate capnp;
-extern crate chrono;
-extern crate clap;
-#[cfg(feature = "coroutines")]
-extern crate coio;
-extern crate flate2;
-#[cfg(feature = "file")]
-extern crate glob;
-#[cfg(feature = "kafka-output")]
-extern crate kafka;
-#[cfg(feature = "file")]
-extern crate notify;
-#[cfg(feature = "tls")]
-extern crate openssl;
-extern crate rand;
-#[cfg(feature = "redis-input")]
-extern crate redis;
-#[cfg(feature = "gelf")]
-extern crate serde_json;
-extern crate toml;
 
-mod flowgger;
-#[cfg(feature = "capnp-recompile")]
-pub use crate::flowgger::record_capnp;
+extern crate flowgger;
 
 use clap::{App, Arg};
 use std::io::{stderr, Write};
 
 const DEFAULT_CONFIG_FILE: &str = "flowgger.toml";
-const FLOWGGER_VERSION_STRING: &str = "0.2.7";
+const FLOWGGER_VERSION_STRING: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
     let matches = App::new("Flowgger")

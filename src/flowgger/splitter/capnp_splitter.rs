@@ -2,7 +2,7 @@ use super::Splitter;
 use crate::flowgger::decoder::Decoder;
 use crate::flowgger::encoder::Encoder;
 use crate::flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
-use crate::record_capnp;
+use crate::flowgger::record_capnp;
 use capnp;
 use capnp::message::ReaderOptions;
 use std::io::{stderr, BufReader, Read, Write};

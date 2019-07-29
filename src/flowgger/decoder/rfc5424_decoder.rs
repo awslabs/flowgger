@@ -67,7 +67,6 @@ impl BOM {
 }
 
 fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
-    println!("line: {}", line);
     if !line.starts_with('<') {
         return Err("The priority should be inside brackets");
     }
@@ -78,7 +77,6 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
         .parse()
         .or(Err("Invalid priority"))?;
     let version = parts.next().ok_or("Missing version")?;
-    println!("version: {}", version);
     if version != "1" {
         return Err("Unsupported version");
     }
