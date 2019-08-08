@@ -22,9 +22,10 @@ kafka-output = ["kafka"]
 tls = ["openssl"]
 gelf = ["serde", "serde_json"]
 ltsv = []
-syslog = []
+syslog = ["rfc5424", "rfc3164"]
+rfc3164=[]
+rfc5424=[]
 file = ["notify", "glob"]
-gnou=[]
 
 [build-dependencies.capnpc]
 version = "*"
@@ -46,6 +47,7 @@ redis = { version = "0.10", optional = true }
 serde = { version = "1", optional = true }
 serde_json = { version = "~0.8", optional = true }
 toml = "0.2"
+regex = "*"
 
 [profile.release]
 opt-level = 3

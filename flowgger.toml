@@ -68,7 +68,8 @@ listen = "0.0.0.0:514"
 # counter = "u64"
 
 ### Syslog
-#format = "rfc5424"
+#format = "rfc3164"
+format = "rfc5424"
 
 ####################
 #   Output type    #

@@ -12,6 +12,7 @@ mod utils;
 extern crate capnp;
 extern crate chrono;
 extern crate clap;
+extern crate regex;
 #[cfg(feature = "coroutines")]
 extern crate coio;
 extern crate flate2;
@@ -37,8 +38,10 @@ use self::config::Config;
 use self::decoder::GelfDecoder;
 #[cfg(feature = "ltsv")]
 use self::decoder::LTSVDecoder;
-#[cfg(feature = "syslog")]
+#[cfg(feature = "rfc5424")]
 use self::decoder::RFC5424Decoder;
+#[cfg(feature = "rfc3164")]
+use self::decoder::RFC3164Decoder;
 use self::decoder::{Decoder, InvalidDecoder};
 #[cfg(feature = "capnp-recompile")]
 use self::encoder::CapnpEncoder;
@@ -254,13 +257,23 @@ fn get_ltvs_decoder(_config: &Config) -> ! {
     panic!("Support for Gelf hasn't been compiled in")
 }
 
-#[cfg(feature = "syslog")]
-fn get_syslog_decoder(config: &Config) -> Box<dyn Decoder + Send> {
+#[cfg(feature = "rfc5424")]
+fn get_syslog_decoder_rfc5424(config: &Config) -> Box<dyn Decoder + Send> {
     Box::new(RFC5424Decoder::new(config)) as Box<dyn Decoder + Send>
 }
 
-#[cfg(not(feature = "syslog"))]
-fn get_syslog_decoder(_config: &Config) -> ! {
+#[cfg(feature = "rfc3164")]
+fn get_syslog_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
+    Box::new(RFC3164Decoder::new(config)) as Box<dyn Decoder + Send>
+}
+
+#[cfg(not(feature = "rfc5424"))]
+fn get_syslog_decoder_rfc5424(_config: &Config) -> ! {
+    panic!("Support for syslog hasn't been compiled in")
+}
+
+#[cfg(not(feature = "rfc3164"))]
+fn get_syslog_decoder_rfc3164(_config: &Config) -> ! {
     panic!("Support for syslog hasn't been compiled in")
 }
 
@@ -289,7 +302,8 @@ pub fn start(config_file: &str) {
         }
         "gelf" => get_gelf_decoder(&config),
         "ltsv" => get_ltvs_decoder(&config),
-        "rfc5424" => get_syslog_decoder(&config),
+        "rfc5424" => get_syslog_decoder_rfc5424(&config),
+        "rfc3164" => get_syslog_decoder_rfc3164(&config),
         _ => panic!("Unknown input format: {}", input_format),
     };
 
