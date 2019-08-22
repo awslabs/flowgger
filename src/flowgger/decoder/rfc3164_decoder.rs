@@ -20,12 +20,21 @@ impl RFC3164Decoder {
 }
 
 impl Decoder for RFC3164Decoder {
+    /// Implementation of the RF3164 decoder. Decode a string into a record object
+    ///
+    /// # Arguments
+    /// * `line` - String to decode
+    ///
+    /// # Returns
+    /// * Record object containing the log info extracted
+    ///
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
 
         // Get the optional pri part and remove it from the string
         let (pri, msg) =  parse_strip_pri(line)?;
 
         // Regex must extract 3 groups: date/time, hostname, and message, or the entry is invalid
+        // We don't try to extract app name/prod id as there is no standard as to how they are provided in rfc3164
         let caps = self.rfc_regex.captures(msg).ok_or("Malformed RFC3164 event: Invalid format")?;
         if caps.len() == 4 {
 
@@ -82,16 +91,14 @@ fn parse_ts(ts_str: &str) -> Result<f64, &'static str> {
     }
 }
 
+#[cfg(test)]
+use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
+
 #[test]
-fn test_rfc3164() {
+fn test_rfc3164_encode() {
     let msg = r#"Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
-
-    // Compute the timestamp we expect
-    let d = chrono::NaiveDate::from_ymd(Utc::now().year(), 8, 6);
-    let t = chrono::NaiveTime::from_hms(11, 15, 24);
-    let dt = NaiveDateTime::new(d, t);
-    let expected_ts = utils::PreciseTimestamp::from_naive_datetime(dt).as_f64();
+    let expected_ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 
     let decoder = RFC3164Decoder::new(&cfg);
     let res = decoder.decode(msg).unwrap();
@@ -107,15 +114,10 @@ fn test_rfc3164() {
 }
 
 #[test]
-fn test_rfc3164_with_pri() {
+fn test_rfc3164_encode_with_pri() {
     let msg = r#"<13>Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
-
-    // Compute the timestamp we expect
-    let d = chrono::NaiveDate::from_ymd(Utc::now().year(), 8, 6);
-    let t = chrono::NaiveTime::from_hms(11, 15, 24);
-    let dt = NaiveDateTime::new(d, t);
-    let expected_ts = utils::PreciseTimestamp::from_naive_datetime(dt).as_f64();
+    let expected_ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 
     let decoder = RFC3164Decoder::new(&cfg);
     let res = decoder.decode(msg).unwrap();

@@ -43,6 +43,10 @@ use self::decoder::RFC5424Decoder;
 #[cfg(feature = "rfc3164")]
 use self::decoder::RFC3164Decoder;
 use self::decoder::{Decoder, InvalidDecoder};
+#[cfg(feature = "rfc3164")]
+use self::encoder::RFC3164Encoder;
+#[cfg(feature = "rfc5424")]
+use self::encoder::RFC5424Encoder;
 #[cfg(feature = "capnp-recompile")]
 use self::encoder::CapnpEncoder;
 use self::encoder::Encoder;
@@ -258,23 +262,43 @@ fn get_ltvs_decoder(_config: &Config) -> ! {
 }
 
 #[cfg(feature = "rfc5424")]
-fn get_syslog_decoder_rfc5424(config: &Config) -> Box<dyn Decoder + Send> {
+fn get_decoder_rfc5424(config: &Config) -> Box<dyn Decoder + Send> {
     Box::new(RFC5424Decoder::new(config)) as Box<dyn Decoder + Send>
 }
 
+#[cfg(feature = "rfc5424")]
+fn get_encoder_rfc5424(config: &Config) -> Box<dyn Encoder + Send> {
+    Box::new(RFC5424Encoder::new(config)) as Box<dyn Encoder + Send>
+}
+
 #[cfg(feature = "rfc3164")]
-fn get_syslog_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
+fn get_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
     Box::new(RFC3164Decoder::new(config)) as Box<dyn Decoder + Send>
 }
 
+#[cfg(feature = "rfc3164")]
+fn get_encoder_rfc3164(config: &Config) -> Box<dyn Encoder + Send> {
+    Box::new(RFC3164Encoder::new(config)) as Box<dyn Encoder + Send>
+}
+
 #[cfg(not(feature = "rfc5424"))]
-fn get_syslog_decoder_rfc5424(_config: &Config) -> ! {
-    panic!("Support for syslog hasn't been compiled in")
+fn get_decoder_rfc5424(_config: &Config) -> ! {
+    panic!("Support for rfc5424 hasn't been compiled in")
 }
 
 #[cfg(not(feature = "rfc3164"))]
-fn get_syslog_decoder_rfc3164(_config: &Config) -> ! {
-    panic!("Support for syslog hasn't been compiled in")
+fn get_decoder_rfc3164(_config: &Config) -> ! {
+    panic!("Support for rfc3164 hasn't been compiled in")
+}
+
+#[cfg(not(feature = "rfc3164"))]
+fn get_encoder_rfc3164(_config: &Config) -> ! {
+    panic!("Support for rfc3164 hasn't been compiled in")
+}
+
+#[cfg(not(feature = "rfc3164"))]
+fn get_encoder_rfc5424(_config: &Config) -> ! {
+    panic!("Support for rfc3164 hasn't been compiled in")
 }
 
 pub fn start(config_file: &str) {
@@ -302,8 +326,8 @@ pub fn start(config_file: &str) {
         }
         "gelf" => get_gelf_decoder(&config),
         "ltsv" => get_ltvs_decoder(&config),
-        "rfc5424" => get_syslog_decoder_rfc5424(&config),
-        "rfc3164" => get_syslog_decoder_rfc3164(&config),
+        "rfc5424" => get_decoder_rfc5424(&config),
+        "rfc3164" => get_decoder_rfc3164(&config),
         _ => panic!("Unknown input format: {}", input_format),
     };
 
@@ -316,6 +340,8 @@ pub fn start(config_file: &str) {
         "capnp" => get_capnp_encoder(&config),
         "gelf" | "json" => get_gelf_encoder(&config),
         "ltsv" => get_ltvs_encoder(&config),
+        "rfc3164" => get_encoder_rfc3164(&config),
+        "rfc5424" => get_encoder_rfc5424(&config),
         _ => panic!("Unknown output format: {}", output_format),
     };
     let output_type = config

@@ -1,3 +1,6 @@
+#[cfg(test)]
+pub mod test_utils;
+
 use chrono::{DateTime, NaiveDateTime, FixedOffset, Timelike};
 #[cfg(feature = "gelf")]
 use std::time::{SystemTime, UNIX_EPOCH};
