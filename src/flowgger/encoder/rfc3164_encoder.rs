@@ -7,8 +7,7 @@ use chrono::NaiveDateTime;
 pub struct RFC3164Encoder;
 
 impl RFC3164Encoder {
-    pub fn new(config: &Config) -> RFC3164Encoder {
-        let _ = config;
+    pub fn new(_config: &Config) -> RFC3164Encoder {
         RFC3164Encoder
     }
 }

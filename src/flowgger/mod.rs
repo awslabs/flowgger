@@ -12,7 +12,6 @@ mod utils;
 extern crate capnp;
 extern crate chrono;
 extern crate clap;
-extern crate regex;
 #[cfg(feature = "coroutines")]
 extern crate coio;
 extern crate flate2;

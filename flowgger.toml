@@ -69,7 +69,7 @@ listen = "0.0.0.0:514"
 
 ### Syslog
 #format = "rfc3164"
-format = "rfc5424"
+format = "rfc3164"
 
 ####################
 #   Output type    #
@@ -78,12 +78,12 @@ format = "rfc5424"
 [output]
 
 ### Debug output (stdout)
-type = "stdout"
+#type = "stdout"
 
 ### File output
-#type = "file"
-#file_path = "output.log"
-#file_buffer_size = 1024
+type = "file"
+file_path = "output.log"
+file_buffer_size = 1024
 
 ### Kafka output
 # type = "kafka"
@@ -139,6 +139,6 @@ type = "stdout"
 
 ### Syslog
 framing = "line"
-format = "rfc5424"
+format = "rfc3164"
 #format = "rfc3164"
 

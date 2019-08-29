@@ -10,8 +10,7 @@ const DEFAULT_SYSLOG_VERSION: char = '1';
 pub struct RFC5424Encoder;
 
 impl RFC5424Encoder {
-    pub fn new(config: &Config) -> RFC5424Encoder {
-        let _ = config;
+    pub fn new(_config: &Config) -> RFC5424Encoder {
         RFC5424Encoder
     }
 }

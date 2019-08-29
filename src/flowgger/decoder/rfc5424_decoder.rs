@@ -8,8 +8,7 @@ use chrono::DateTime;
 pub struct RFC5424Decoder;
 
 impl RFC5424Decoder {
-    pub fn new(config: &Config) -> RFC5424Decoder {
-        let _ = config;
+    pub fn new(_config: &Config) -> RFC5424Decoder {
         RFC5424Decoder
     }
 }

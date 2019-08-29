@@ -2,20 +2,16 @@ use super::Decoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
 use crate::flowgger::utils;
-use regex::Regex;
 use chrono::{NaiveDateTime, Datelike, Utc};
+
 
 #[derive(Clone)]
 pub struct RFC3164Decoder {
-    rfc_regex:Regex,
 }
 
 impl RFC3164Decoder {
-    pub fn new(config: &Config) -> RFC3164Decoder {
-        let _ = config;
-        let re = Regex::new(r"^([A-Z,a-z]{3}[\s]*[0-9]*[\s]*[0-9]{2}:[0-9]{2}:[0-9]{2})[\s]*([\S]*)[\s]*(.*)").unwrap();
-
-        RFC3164Decoder {rfc_regex:re}
+    pub fn new(_config: &Config) -> RFC3164Decoder {
+        RFC3164Decoder {}
     }
 }
 
@@ -31,23 +27,31 @@ impl Decoder for RFC3164Decoder {
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
 
         // Get the optional pri part and remove it from the string
-        let (pri, msg) =  parse_strip_pri(line)?;
+        let (pri, _msg) =  parse_strip_pri(line)?;
 
-        // Regex must extract 3 groups: date/time, hostname, and message, or the entry is invalid
-        // We don't try to extract app name/prod id as there is no standard as to how they are provided in rfc3164
-        let caps = self.rfc_regex.captures(msg).ok_or("Malformed RFC3164 event: Invalid format")?;
-        if caps.len() == 4 {
+        // The event may have several consecutive spaces as separator
+        let tokens_vec = _msg.split_whitespace().collect::<Vec<&str>>();
 
-            let ts = parse_ts(caps.get(1).unwrap().as_str())?;
+        // If we have less than 4 tokens, the input can't be valid
+        if tokens_vec.len() > 3 {
+            // Date is made of the first 3 space separated tokens, rebuild it
+            let _date_str = tokens_vec[0..3].join(" ");
+            let _hostname = tokens_vec[3];
+
+            // All that remains is the message that may contain several spaces, so rebuild it
+            let _message = tokens_vec[4..].join(" ");
+
+
+            let ts = parse_ts(&_date_str)?;
             let record = Record {
                 ts,
-                hostname: caps.get(2).unwrap().as_str().to_owned(),
+                hostname: _hostname.to_owned(),
                 facility: pri.facility,
                 severity: pri.severity,
                 appname: None,
                 procid: None,
                 msgid: None,
-                msg: Some(caps.get(3).unwrap().as_str().to_owned()),
+                msg: Some(_message.to_owned()),
                 full_msg: Some(line.to_owned()),
                 sd: None,
             };
@@ -95,7 +99,7 @@ fn parse_ts(ts_str: &str) -> Result<f64, &'static str> {
 use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
 
 #[test]
-fn test_rfc3164_encode() {
+fn test_rfc3164_decode() {
     let msg = r#"Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
     let expected_ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
@@ -114,7 +118,7 @@ fn test_rfc3164_encode() {
 }
 
 #[test]
-fn test_rfc3164_encode_with_pri() {
+fn test_rfc3164_decode_with_pri() {
     let msg = r#"<13>Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
     let expected_ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
