@@ -8,8 +8,7 @@ use chrono::DateTime;
 pub struct RFC5424Decoder;
 
 impl RFC5424Decoder {
-    pub fn new(config: &Config) -> RFC5424Decoder {
-        let _ = config;
+    pub fn new(_config: &Config) -> RFC5424Decoder {
         RFC5424Decoder
     }
 }
@@ -38,7 +37,7 @@ impl Decoder for RFC5424Decoder {
             msgid: Some(msgid.to_owned()),
             sd,
             msg,
-            full_msg: None,
+            full_msg: Some(line.to_owned()),
         };
         Ok(record)
     }
@@ -67,7 +66,6 @@ impl BOM {
 }
 
 fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
-    println!("line: {}", line);
     if !line.starts_with('<') {
         return Err("The priority should be inside brackets");
     }
@@ -78,7 +76,6 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
         .parse()
         .or(Err("Invalid priority"))?;
     let version = parts.next().ok_or("Missing version")?;
-    println!("version: {}", version);
     if version != "1" {
         return Err("Unsupported version");
     }

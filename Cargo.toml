@@ -1,9 +1,17 @@
 [package]
 edition = "2018"
 name = "flowgger"
-version = "0.2.7"
-authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org"]
+version = "0.2.8"
+authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org>", "Vivien Chene <viv.chene@gmail.com>"]
 build = "build.rs"
+
+[[bin]]
+name = "flowgger"
+path = "src/main.rs"
+
+[lib]
+name = "flowgger"
+path = "src/lib.rs"
 
 [features]
 capnp-recompile = ["capnpc", "capnp"]
@@ -14,7 +22,9 @@ kafka-output = ["kafka"]
 tls = ["openssl"]
 gelf = ["serde", "serde_json"]
 ltsv = []
-syslog = []
+syslog = ["rfc5424", "rfc3164"]
+rfc3164=[]
+rfc5424=[]
 file = ["notify", "glob"]
 
 [build-dependencies.capnpc]
