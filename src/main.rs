@@ -1,4 +1,3 @@
-
 extern crate flowgger;
 
 use clap::{App, Arg};

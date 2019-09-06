@@ -48,6 +48,9 @@ serde = { version = "1", optional = true }
 serde_json = { version = "~0.8", optional = true }
 toml = "0.5"
 
+[dev-dependencies]
+tempdir = "0.3"
+
 [profile.release]
 opt-level = 3
 debug = false

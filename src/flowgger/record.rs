@@ -90,7 +90,6 @@ pub const SEVERITY_MAX: u8 = (1 << 3) - 1;
 #[cfg(feature = "capnp-recompile")]
 pub const SEVERITY_MISSING: u8 = 0xff;
 
-
 #[test]
 fn test_structured_data_display() {
     let expected_string = r#"[someid a="b" c="123456"]"#;
@@ -98,8 +97,8 @@ fn test_structured_data_display() {
         sd_id: Some("someid".to_string()),
         pairs: vec![
             ("a".to_string(), SDValue::String("b".to_string())),
-            ("c".to_string(), SDValue::U64(123456))
-        ]
+            ("c".to_string(), SDValue::U64(123456)),
+        ],
     };
 
     let result = data.to_string();

@@ -4,10 +4,10 @@ mod capnp_encoder;
 mod gelf_encoder;
 #[cfg(feature = "ltsv")]
 mod ltsv_encoder;
-#[cfg(feature = "rfc5424")]
-mod rfc5424_encoder;
 #[cfg(feature = "rfc3164")]
 mod rfc3164_encoder;
+#[cfg(feature = "rfc5424")]
+mod rfc5424_encoder;
 
 #[cfg(feature = "capnp-recompile")]
 pub use self::capnp_encoder::CapnpEncoder;
@@ -15,10 +15,10 @@ pub use self::capnp_encoder::CapnpEncoder;
 pub use self::gelf_encoder::GelfEncoder;
 #[cfg(feature = "ltsv")]
 pub use self::ltsv_encoder::LTSVEncoder;
-#[cfg(feature = "rfc5424")]
-pub use self::rfc5424_encoder::RFC5424Encoder;
 #[cfg(feature = "rfc3164")]
 pub use self::rfc3164_encoder::RFC3164Encoder;
+#[cfg(feature = "rfc5424")]
+pub use self::rfc5424_encoder::RFC5424Encoder;
 
 use crate::flowgger::record::Record;
 

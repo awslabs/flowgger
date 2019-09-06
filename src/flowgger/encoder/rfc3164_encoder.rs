@@ -26,7 +26,8 @@ impl Encoder for RFC3164Encoder {
 
         // If a priority is specified, add it
         if record.facility.is_some() && record.severity.is_some() {
-            let npri:u8  = ((record.facility.unwrap() << 3)&0xF8) +  (record.severity.unwrap()&0x7);
+            let npri: u8 =
+                ((record.facility.unwrap() << 3) & 0xF8) + (record.severity.unwrap() & 0x7);
             res.push_str(&format!("<{}>", npri));
         }
 
@@ -67,14 +68,14 @@ impl Encoder for RFC3164Encoder {
 }
 
 #[cfg(test)]
-use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
+use crate::flowgger::record::{SDValue, StructuredData};
 #[cfg(test)]
-use crate::flowgger::record::{StructuredData, SDValue};
+use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
 
 #[test]
 fn test_rfc3164_encode() {
     let expected_msg = r#"Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
-    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 
     let record = Record {
@@ -98,7 +99,7 @@ fn test_rfc3164_encode() {
 #[test]
 fn test_rfc3164_withpri_encode() {
     let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
-    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 
     let record = Record {
@@ -122,7 +123,7 @@ fn test_rfc3164_withpri_encode() {
 #[test]
 fn test_rfc3164_full_encode() {
     let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a="b" c="123456"] some test message"#;
-    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n",).unwrap();
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 
     let record = Record {
@@ -135,9 +136,13 @@ fn test_rfc3164_full_encode() {
         msgid: Some("42".to_string()),
         msg: Some(r#"some test message"#.to_string()),
         full_msg: Some(expected_msg.to_string()),
-        sd: Some(StructuredData { sd_id: Some("someid".to_string()), pairs: vec![
-            ("a".to_string(), SDValue::String("b".to_string())),
-            ("c".to_string(), SDValue::U64(123456))]})
+        sd: Some(StructuredData {
+            sd_id: Some("someid".to_string()),
+            pairs: vec![
+                ("a".to_string(), SDValue::String("b".to_string())),
+                ("c".to_string(), SDValue::U64(123456)),
+            ],
+        }),
     };
 
     let encoder = RFC3164Encoder::new(&cfg);

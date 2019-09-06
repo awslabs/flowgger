@@ -1,7 +1,7 @@
 use super::Encoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
-use chrono::{DateTime, NaiveDateTime, Utc, SecondsFormat};
+use chrono::{DateTime, NaiveDateTime, SecondsFormat, Utc};
 
 const DEFAULT_PRIORITY: &str = "<13>";
 const DEFAULT_SYSLOG_VERSION: char = '1';
@@ -29,10 +29,10 @@ impl Encoder for RFC5424Encoder {
 
         // If a priority is specified, add it
         if record.facility.is_some() && record.severity.is_some() {
-            let npri:u8  = ((record.facility.unwrap() << 3)&0xF8) +  (record.severity.unwrap()&0x7);
+            let npri: u8 =
+                ((record.facility.unwrap() << 3) & 0xF8) + (record.severity.unwrap() & 0x7);
             res.push_str(&format!("<{}>", npri));
-        }
-        else {
+        } else {
             res.push_str(DEFAULT_PRIORITY);
         }
         res.push(DEFAULT_SYSLOG_VERSION);
@@ -42,7 +42,8 @@ impl Encoder for RFC5424Encoder {
         let ts_s = record.ts as i64;
         let ts_ns = ((record.ts * 1000.0) as i64) * 1_000_000;
         let ts_ns_remainer = (ts_ns - (ts_s * 1_000_000_000)) as u32;
-        let dt = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(ts_s, ts_ns_remainer), Utc);
+        let dt =
+            DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(ts_s, ts_ns_remainer), Utc);
 
         // Add timestamp + space
         res.push_str(&dt.to_rfc3339_opts(SecondsFormat::Millis, true));
@@ -59,15 +60,13 @@ impl Encoder for RFC5424Encoder {
         }
         if let Some(procid) = record.procid {
             res.push_str(&procid.to_string());
-        }
-        else {
+        } else {
             res.push('-');
         }
         res.push(' ');
         if let Some(msgid) = record.msgid {
             res.push_str(&msgid);
-        }
-        else {
+        } else {
             res.push('-');
         }
         res.push(' ');
@@ -75,8 +74,7 @@ impl Encoder for RFC5424Encoder {
         if let Some(sd) = record.sd {
             res.push_str(&sd.to_string());
             res.push(' ');
-        }
-        else {
+        } else {
             res.push_str("- ");
         }
 
@@ -89,15 +87,14 @@ impl Encoder for RFC5424Encoder {
 }
 
 #[cfg(test)]
-use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_date_time;
+use crate::flowgger::record::{SDValue, StructuredData};
 #[cfg(test)]
-use crate::flowgger::record::{StructuredData, SDValue};
-
+use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_date_time;
 
 #[test]
 fn test_rfc5424_encode() {
     let expected_msg = r#"<13>1 2015-08-06T11:15:24.637Z testhostname - - - some test message"#;
-    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n",).unwrap();
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n").unwrap();
     let ts = ts_from_date_time(2015, 8, 6, 11, 15, 24, 637);
 
     let record = Record {
@@ -121,7 +118,7 @@ fn test_rfc5424_encode() {
 #[test]
 fn test_rfc5424_full_encode() {
     let expected_msg = r#"<25>1 2015-08-05T15:53:45.382Z testhostname appname 69 42 [origin@123 software="test sc\"ript" swVersion="0.0.1"] test message"#;
-    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n",).unwrap();
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n").unwrap();
     let ts = ts_from_date_time(2015, 8, 5, 15, 53, 45, 382);
 
     let record = Record {
@@ -134,9 +131,20 @@ fn test_rfc5424_full_encode() {
         msgid: Some("42".to_string()),
         msg: Some("test message".to_string()),
         full_msg: Some(expected_msg.to_string()),
-        sd: Some(StructuredData { sd_id: Some("origin@123".to_string()), pairs: vec![
-            ("software".to_string(), SDValue::String(r#"test sc\"ript"#.to_string())),
-            ("swVersion".to_string(), SDValue::String("0.0.1".to_string()))]})    };
+        sd: Some(StructuredData {
+            sd_id: Some("origin@123".to_string()),
+            pairs: vec![
+                (
+                    "software".to_string(),
+                    SDValue::String(r#"test sc\"ript"#.to_string()),
+                ),
+                (
+                    "swVersion".to_string(),
+                    SDValue::String("0.0.1".to_string()),
+                ),
+            ],
+        }),
+    };
 
     let encoder = RFC5424Encoder::new(&cfg);
     let res = encoder.encode(record).unwrap();

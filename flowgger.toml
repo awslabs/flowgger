@@ -83,7 +83,13 @@ format = "rfc3164"
 ### File output
 type = "file"
 file_path = "output.log"
-file_buffer_size = 1024
+# Optional: Enables bufferized output. If rotation is used, must be smaller than file_rotation_size.
+file_buffer_size = 512
+# Optional: Enables file rotation once the specified size is reached.
+file_rotation_size = 980
+# Optional, only used if file_rotation_size is set: Specifies number of rotation files to use. The default value is 50.
+# The last 'file_rotation_maxfiles' logs will be kept, the older logs will be overwritten and lost.
+#file_rotation_maxfiles = 2
 
 ### Kafka output
 # type = "kafka"

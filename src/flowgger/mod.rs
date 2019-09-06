@@ -37,15 +37,11 @@ use self::config::Config;
 use self::decoder::GelfDecoder;
 #[cfg(feature = "ltsv")]
 use self::decoder::LTSVDecoder;
-#[cfg(feature = "rfc5424")]
-use self::decoder::RFC5424Decoder;
 #[cfg(feature = "rfc3164")]
 use self::decoder::RFC3164Decoder;
-use self::decoder::{Decoder, InvalidDecoder};
-#[cfg(feature = "rfc3164")]
-use self::encoder::RFC3164Encoder;
 #[cfg(feature = "rfc5424")]
-use self::encoder::RFC5424Encoder;
+use self::decoder::RFC5424Decoder;
+use self::decoder::{Decoder, InvalidDecoder};
 #[cfg(feature = "capnp-recompile")]
 use self::encoder::CapnpEncoder;
 use self::encoder::Encoder;
@@ -53,6 +49,10 @@ use self::encoder::Encoder;
 use self::encoder::GelfEncoder;
 #[cfg(feature = "ltsv")]
 use self::encoder::LTSVEncoder;
+#[cfg(feature = "rfc3164")]
+use self::encoder::RFC3164Encoder;
+#[cfg(feature = "rfc5424")]
+use self::encoder::RFC5424Encoder;
 #[cfg(feature = "file")]
 use self::input::FileInput;
 #[cfg(feature = "redis-input")]
@@ -301,7 +301,6 @@ fn get_encoder_rfc5424(_config: &Config) -> ! {
 }
 
 pub fn start(config_file: &str) {
-
     let config = match Config::from_path(config_file) {
         Ok(config) => config,
         Err(e) => panic!(

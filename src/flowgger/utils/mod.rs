@@ -1,7 +1,8 @@
+pub mod rotating_file;
 #[cfg(test)]
 pub mod test_utils;
 
-use chrono::{DateTime, NaiveDateTime, FixedOffset, Timelike};
+use chrono::{DateTime, FixedOffset, NaiveDateTime, Timelike};
 #[cfg(feature = "gelf")]
 use std::time::{SystemTime, UNIX_EPOCH};
 

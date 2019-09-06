@@ -137,8 +137,9 @@ pub mod record {
         #[inline]
         pub fn get_pairs(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Reader<'a, crate::flowgger::record_capnp::pair::Owned>>
-        {
+        ) -> ::capnp::Result<
+            ::capnp::struct_list::Reader<'a, crate::flowgger::record_capnp::pair::Owned>,
+        > {
             ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(7))
         }
         pub fn has_pairs(&self) -> bool {
@@ -147,8 +148,9 @@ pub mod record {
         #[inline]
         pub fn get_extra(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Reader<'a, crate::flowgger::record_capnp::pair::Owned>>
-        {
+        ) -> ::capnp::Result<
+            ::capnp::struct_list::Reader<'a, crate::flowgger::record_capnp::pair::Owned>,
+        > {
             ::capnp::traits::FromPointerReader::get_from_pointer(&self.reader.get_pointer_field(8))
         }
         pub fn has_extra(&self) -> bool {
@@ -370,8 +372,9 @@ pub mod record {
         #[inline]
         pub fn get_pairs(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Builder<'a, crate::flowgger::record_capnp::pair::Owned>>
-        {
+        ) -> ::capnp::Result<
+            ::capnp::struct_list::Builder<'a, crate::flowgger::record_capnp::pair::Owned>,
+        > {
             ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(7))
         }
         #[inline]
@@ -401,8 +404,9 @@ pub mod record {
         #[inline]
         pub fn get_extra(
             self,
-        ) -> ::capnp::Result<::capnp::struct_list::Builder<'a, crate::flowgger::record_capnp::pair::Owned>>
-        {
+        ) -> ::capnp::Result<
+            ::capnp::struct_list::Builder<'a, crate::flowgger::record_capnp::pair::Owned>,
+        > {
             ::capnp::traits::FromPointerBuilder::get_from_pointer(self.builder.get_pointer_field(8))
         }
         #[inline]

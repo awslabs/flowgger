@@ -19,5 +19,12 @@ use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 
 pub trait Output {
+    /// Start the output processor
+    ///
+    /// # Parameters
+    /// - 'arx':    Synchronized data receiver
+    /// - 'merger': Optional merger, specifying how to frame the data.
+    ///             i.e. adding an EOL or split after specified size
+    ///
     fn start(&self, arx: Arc<Mutex<Receiver<Vec<u8>>>>, merger: Option<Box<dyn Merger>>);
 }
