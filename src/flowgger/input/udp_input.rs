@@ -150,7 +150,6 @@ mod test {
     use crate::flowgger::get_encoder_rfc3164;
     use flate2::write::{GzEncoder, ZlibEncoder};
     use flate2::Compression;
-    use std::net;
     use std::sync::mpsc::{sync_channel, Receiver};
 
     const DEFAULT_QUEUE_SIZE: usize = 10_000_000;

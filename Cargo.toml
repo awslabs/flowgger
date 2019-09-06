@@ -46,7 +46,7 @@ rand = "0.5"
 redis = { version = "0.10", optional = true }
 serde = { version = "1", optional = true }
 serde_json = { version = "~0.8", optional = true }
-toml = "0.2"
+toml = "0.5"
 
 [profile.release]
 opt-level = 3
