@@ -10,6 +10,7 @@ use std::thread;
 use std::io::stderr;
 const FILE_DEFAULT_BUFFER_SIZE: usize = 0;
 const FILE_DEFAULT_ROTATION_SIZE: usize = 0;
+const FILE_DEFAULT_ROTATION_TIME: u32 = 0;
 const FILE_DEFAULT_ROTATION_MAXFILES: i32 = 50;
 
 /// Output of type file, to store the data to a file
@@ -17,6 +18,7 @@ pub struct FileOutput {
     path: String,
     buffer_size: usize,
     rotation_size: usize,
+    rotation_time: u32,
     rotation_maxfiles: i32,
 }
 
@@ -30,6 +32,8 @@ impl FileOutput {
     ///                                     Data are only flushed to the file once the buffer isize is reached
     /// - 'output.file_rotation_size':      Must be an integer. Default is 0. If not 0, enables file rotation.
     ///                                     Files are rotated when this size is reached.
+    /// - 'output.file_rotation_time':      Must be an integer. Default is 0. If not 0, enables file rotation.
+    ///                                     Files are rotated after that period of time elapsed between writes.
     /// - 'output.file_rotation_maxfiles':  Must be an integer. Default is 2. Specifies count rotated files.
     ///                                     Unused if rotation is not enabled.
     ///
@@ -61,6 +65,16 @@ impl FileOutput {
                     as usize
             },
         );
+        // Get the optional file rotation ti;e. if none, set it to 0 to disable the feature
+        let rotation_time = config.lookup("output.file_rotation_time").map_or(
+            FILE_DEFAULT_ROTATION_TIME,
+            |rot_time| {
+                rot_time
+                    .as_integer()
+                    .expect("output.file_rotation_time should be an integer")
+                    as u32
+            },
+        );
         // Get the optional file rotation max files. Default is 2
         let rotation_maxfiles = config.lookup("output.file_rotation_maxfiles").map_or(
             FILE_DEFAULT_ROTATION_MAXFILES,
@@ -76,6 +90,7 @@ impl FileOutput {
             path,
             buffer_size,
             rotation_size,
+            rotation_time,
             rotation_maxfiles,
         }
     }
@@ -101,7 +116,7 @@ impl FileOutput {
         // Rotation option is set, open a rotating file writer
         if self.rotation_size > 0 {
             let mut rotating_file =
-                RotatingFile::new(&self.path, self.rotation_size, self.rotation_maxfiles);
+                RotatingFile::new(&self.path, self.rotation_size, self.rotation_time, self.rotation_maxfiles);
             file_writer = match rotating_file.open() {
                 Ok(_) => Some(Box::new(rotating_file)),
                 Err(e) => {
@@ -214,12 +229,14 @@ mod tests {
             expected_rotsize: usize,
             expected_rotfiles: i32,
             expected_buffsize: usize,
+            expected_time: u32,
         ) -> Box<dyn Write> {
             let fp = FileOutput::new(&cfg);
 
             assert_eq!(fp.rotation_size, expected_rotsize);
             assert_eq!(fp.rotation_maxfiles, expected_rotfiles);
             assert_eq!(fp.buffer_size, expected_buffsize);
+            assert_eq!(fp.rotation_time, expected_time);
             let writer_result = fp.open_writer();
             assert!(writer_result.is_some());
             writer_result.unwrap()
@@ -288,6 +305,16 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "output.file_rotation_time should be an integer")]
+    fn test_invalid_rotation_time() {
+        let cfg = Config::from_string(&format!(
+            "[output]\nfile_path = \"output_file\"\nfile_rotation_time= \"15s\"\n"
+        ))
+            .unwrap();
+        let _ = FileOutput::new(&cfg);
+    }
+
+    #[test]
     fn test_start_no_merger() -> Result<()> {
         let file_base = "test_start_no_merger";
         let test_object = WriterTest::new(file_base)?;
@@ -349,6 +376,7 @@ mod tests {
             15,
             FILE_DEFAULT_ROTATION_MAXFILES,
             FILE_DEFAULT_BUFFER_SIZE,
+            FILE_DEFAULT_ROTATION_TIME,
         );
 
         // We should have a RotatingFile instance unbuffered, check a 2 files are created after >15 bytes written
@@ -374,11 +402,30 @@ mod tests {
     }
 
     #[test]
+    fn test_log_rotate_time_nobuf() -> Result<()> {
+        let test_object = WriterTest::new("test_log_rotate_time_nobuf")?;
+        let cfg = Config::from_string(&format!(
+            "[output]\nfile_path = \"{}\"\nfile_rotation_size = 15\nfile_rotation_time = 2\n",
+            test_object.get_file_base()
+        ))
+            .unwrap();
+        let _writer = test_object.setup_writer(
+            cfg,
+            15,
+            FILE_DEFAULT_ROTATION_MAXFILES,
+            FILE_DEFAULT_BUFFER_SIZE,
+            2,
+        );
+
+        Ok(())
+    }
+
+    #[test]
     fn test_log_rotate_buf() -> Result<()> {
         let test_object = WriterTest::new("test_log_rotate_buf")?;
         let cfg = Config::from_string(&format!("[output]\nfile_path = \"{}\"\nfile_rotation_size = 15\nfile_buffer_size=10\nfile_rotation_maxfiles=6\n",
                                                test_object.get_file_base())).unwrap();
-        let mut writer = test_object.setup_writer(cfg, 15, 6, 10);
+        let mut writer = test_object.setup_writer(cfg, 15, 6, 10, FILE_DEFAULT_ROTATION_TIME);
 
         // We should have a BufWriter<RotatingFile> instance, check no new file created after >file size
         let file_rotated = &format!("{}.0", test_object.get_file_base());
@@ -440,6 +487,7 @@ mod tests {
             FILE_DEFAULT_ROTATION_SIZE,
             FILE_DEFAULT_ROTATION_MAXFILES,
             FILE_DEFAULT_BUFFER_SIZE,
+            FILE_DEFAULT_ROTATION_TIME,
         );
 
         // We should have a File instance
@@ -473,6 +521,7 @@ mod tests {
             FILE_DEFAULT_ROTATION_SIZE,
             FILE_DEFAULT_ROTATION_MAXFILES,
             10,
+            FILE_DEFAULT_ROTATION_TIME,
         );
 
         // We should have a BufWriter<File> instance. First write should not be flushed

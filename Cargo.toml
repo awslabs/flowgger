@@ -16,7 +16,8 @@ path = "src/lib.rs"
 [features]
 capnp-recompile = ["capnpc", "capnp"]
 coroutines = ["coio", "tls"]
-default = ["syslog", "kafka-output", "file", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
+default = ["syslog", "file", "redis", "gelf", "ltsv"]
+#default = ["syslog", "kafka-output", "file", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
 redis-input = ["redis"]
 kafka-output = ["kafka"]
 tls = ["openssl"]
@@ -47,6 +48,8 @@ redis = { version = "0.10", optional = true }
 serde = { version = "1", optional = true }
 serde_json = { version = "~0.8", optional = true }
 toml = "0.5"
+time = "0.1"
+
 
 [dev-dependencies]
 tempdir = "0.3"
