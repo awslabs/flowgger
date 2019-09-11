@@ -37,7 +37,7 @@ capnp = { version = "0.9", optional = true }
 chrono = "0.4"
 clap = "2"
 coio = { git = "https://github.com/zonyitoo/coio-rs", optional = true }
-flate2 = "1.0"
+flate2 = "<=1.0.7"
 glob = { version = "0.3", optional = true }
 kafka = { version = "0.7", features = ["snappy", "gzip", "security"], optional = true }
 log = "0.4"
@@ -45,9 +45,9 @@ notify = { version = "4.0", optional = true }
 openssl = { version = "~0.9", optional = true }
 rand = "0.5"
 redis = { version = "0.10", optional = true }
-serde = { version = "1", optional = true }
+serde = { version = "<=1.0.89", optional = true }
 serde_json = { version = "~0.8", optional = true }
-toml = "0.5"
+toml = "0.2"
 time = "0.1"
 
 
