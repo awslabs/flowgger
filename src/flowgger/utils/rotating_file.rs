@@ -11,29 +11,34 @@ use chrono::{DateTime, Utc};
 use std::ffi::OsStr;
 
 
+
 /// Writer providing a file rotating feature when a file reaches the configured size
 pub struct RotatingFile {
     basename: PathBuf,
     max_size: usize,
     max_time: u32,
     max_files: i32,
+    time_format: String,
 
     current_file: Option<File>,
     current_size: usize,
     next_rotation_time: Option<DateTime<Utc>>,
+
+    #[cfg(test)]
+    now_time_mock: DateTime<Utc>,
 }
 
 impl RotatingFile {
     /// Create a new rotating file, which implements the Write trait
-    /// Files are rotated dependingon the configured triggers. If no trigger is specified, no rotation will occur
+    /// Files are rotated depending on the configured triggers. If no trigger is specified, no rotation will occur
     /// and the data will be written to a single file, rotation is disabled.
     ///
     /// If the time trigger is specified (max_time >0):
     /// All file names are appended with their creation timestamp. i.e. configured file "abcd.log" might become
-    /// "abcd-20180108T0143Z.log".
+    /// "abcd-20180108T0143Z.log" if the time format is configured to be "%Y%m%dT%H%MZ"
     /// A file "expires" when its creation time + configured max_time is reached (based on current UTC time).
     /// Rotation occurs when a write is requested to an expired file. The file is then closed and a new one is created.
-    /// Notes:
+    /// # Notes:
     /// - the max_files has currently no impact on time trigger rotation, leading to an uncontrolled number of files being
     /// generated if not externally purged.
     /// - files are only being rotated on write operation. Empty files will not be created every x minutes if there was no write requests.
@@ -41,9 +46,9 @@ impl RotatingFile {
     /// A size trigger can be configured in addition to the time trigger (max_time >0 and max_size > 0).
     /// In which case, the behavior is the same than with a time trigger except that a rotation is triggered if the
     /// specified size is reached before the file expires.
-    /// The timestamp is per minute, therefore if the size trigger is reached within a minute of its creation, the size
-    /// Notes:
-    /// - will not be rotated before the next minute, possibly leading to a bigger size than the maximal limit specified.
+    /// # Notes:
+    /// If the timestamp format is not precise enough, i.e. only have minutes, if the size trigger is reached within a minute of
+    /// its creation, the size can become bigger than the limit specified
     ///
     /// If the time trigger is not specified (max_time = 0) but the size trigger is (max_size > 0):
     /// Rotation occurs when the data to write in the current file is going to reach the specified limit.
@@ -63,6 +68,8 @@ impl RotatingFile {
     ///             named 'basename.N' where'basename' is always the file being currently written
     ///             - 'basename.0' is always the most recent file that has been rotated
     ///             - 'basename.N' is always the oldest file
+    /// - time_format: Format of the timestamp to use when time rotation is enabled. Must conform to
+    ///             https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
     ///
     /// # Example
     /// From parameters:
@@ -79,36 +86,50 @@ impl RotatingFile {
     ///     - basename = 'logs/syslog.log'
     ///     - max_time = 2
     ///     - app started on 2018-01-08 at 01:43 UTC
+    ///     - time format is "%Y%m%dT%H%M%SZ"
     ///
     /// The following files will be generated:
-    ///     - Current file = 'logs/syslog-20180108T0143Z.log'
-    ///     - Older file = 'logs/syslog-20180108T0145Z.log'
-    ///     - Oldest file = 'logs/syslog-20180108T0147Z.log'
+    ///     - Current file = 'logs/syslog-20180108T014343Z.log'
+    ///     - Older file = 'logs/syslog-20180108T014543Z.log'
+    ///     - Oldest file = 'logs/syslog-20180108T014743Z.log'
     ///
-    pub fn new<P: AsRef<Path>>(basepath: P, max_size: usize, max_time: u32, max_files: i32) -> Self {
+    pub fn new<P: AsRef<Path>>(basepath: P, max_size: usize, max_time: u32, max_files: i32, time_format: &str) -> Self {
         let basename = basepath.as_ref().to_path_buf();
         Self {
             basename,
             max_size,
             max_time,
             max_files,
+            time_format: time_format.to_string(),
             current_file: None,
             current_size: 0,
             next_rotation_time: None,
+
+            #[cfg(test)]
+            now_time_mock: Utc::now(),
         }
+    }
+
+    fn get_current_date_time(&self) -> DateTime<Utc> {
+        #[cfg(test)]
+        return self.now_time_mock;
+
+        #[cfg(not(test))]
+        Utc::now()
     }
 
     /// Build an output file name appending the current timestamp, and compute the file expiration time
     fn build_timestamped_filename(&mut self) -> PathBuf {
-        let current_time  = Utc::now();
-        self.next_rotation_time = Some(current_time + Duration::minutes(self.max_time as i64));
+        let current_time  = self.get_current_date_time();
+        println!("time got {}", current_time);
+        self.next_rotation_time = Some(current_time + Duration::minutes(i64::from(self.max_time)));
 
-        let dt_str = current_time.format("%Y%m%dT%H%MZ").to_string();
+        let dt_str = current_time.format(&self.time_format).to_string();
         let mut new_file = self.basename.clone();
         new_file.set_file_name(&format!("{}-{}.{}",
-                                self.basename.file_stem().unwrap_or(OsStr::new("")).to_string_lossy(),
+                                self.basename.file_stem().unwrap_or_else(|| OsStr::new("")).to_string_lossy(),
                                 dt_str,
-                                self.basename.extension().unwrap_or(OsStr::new("text")).to_string_lossy()));
+                                self.basename.extension().unwrap_or_else(|| OsStr::new("")).to_string_lossy()));
         new_file
     }
 
@@ -236,6 +257,16 @@ impl RotatingFile {
         Ok(())
     }
 
+    /// Indicates if the file rotation is enabled
+    ///
+    /// # Returns
+    /// - true:     The rotation is triggered either on size or time
+    /// - false:    The rotation is not configured to be triggered
+    ///
+    pub fn is_enabled(&self) -> bool {
+        self.is_time_triggered() || self.is_size_triggered()
+    }
+
     /// Indicates if the file rotation is triggered by a time trigger (can may additionally be size triggered as well)
     ///
     /// # Returns
@@ -285,10 +316,8 @@ impl RotatingFile {
                 self.rotate_time()?;
             }
         }
-        else if self.is_size_triggered() {
-            if self.is_rotation_size_reached(bytes_to_write) {
-                self.rotate_size()?;
-            }
+        else if self.is_size_triggered() && self.is_rotation_size_reached(bytes_to_write) {
+            self.rotate_size()?;
         }
         Ok(())
     }
@@ -329,6 +358,13 @@ mod tests {
     use super::*;
     extern crate tempdir;
     use tempdir::TempDir;
+    use crate::flowgger::utils::test_utils::rfc_test_utils::utc_from_date_time;
+
+//    pub fn get_test_date_time() -> DateTime<Utc> {
+//        println!("time test ");
+//        utc_from_date_time(2015, 8, 6, 11, 15, 24, 637)
+////        fake_time
+//    }
 
     fn build_pattern_list(count: u32, length: usize) -> Vec<String> {
         let mut pattern_list = Vec::new();
@@ -343,20 +379,76 @@ mod tests {
     }
 
     #[test]
-    fn test_rotation_2files() -> Result<(), io::Error> {
-        let tmp_dir = TempDir::new("test_rotation")?;
+    fn test_rotation_time_files_time() -> Result<(), io::Error> {
+        // Create static time for the different writes to test to mock the current time during the test
+        let ts1 = utc_from_date_time(2015, 8, 6, 11, 15, 24, 637);
+        let ts2 = utc_from_date_time(2015, 8, 6, 11, 15, 34, 637);
+        let ts3 = utc_from_date_time(2015, 8, 6, 11, 16, 26, 637);
+        let ts4 = utc_from_date_time(2015, 8, 6, 11, 21, 28, 637);
+
+        // Build the expected filenames that should be created in the test
+        let tmp_dir = TempDir::new("test_rotation_time_files_time")?;
+        let file_base = tmp_dir.path().join("test_log.log");
+        let file1 = tmp_dir.path().join("test_log-20150806T1115Z.log");
+        let file2 = tmp_dir.path().join("test_log-20150806T1116Z.log");
+        let file3 = tmp_dir.path().join("test_log-20150806T1121Z.log");
+
+        // Create a list of 6 bytes patterns
+        let test_patterns = build_pattern_list(7, 6);
+
+        // Open the rotating file
+        let mut rotating_file = RotatingFile::new(&file_base, 16, 5, 10, "%Y%m%dT%H%MZ");
+        rotating_file.now_time_mock = ts1;
+        let result = rotating_file.open();
+        assert!(rotating_file.open().is_ok());
+
+        // Write more than the file is allowed in the same minute, no rotation yet
+        let _ = &rotating_file.write(test_patterns[0].as_bytes());
+        rotating_file.now_time_mock = ts2;
+        let _ = &rotating_file.write(test_patterns[1].as_bytes());
+        let _ = &rotating_file.write(test_patterns[2].as_bytes());
+        assert_eq!(
+            fs::read_to_string(file1.as_path()).unwrap(),
+            format!("{}{}{}", test_patterns[0], test_patterns[1], test_patterns[2])
+        );
+        assert!(std::fs::metadata(file2.as_path()).is_err());
+        assert!(std::fs::metadata(file3.as_path()).is_err());
+
+        // Write more than the file is allowed in another minute, before rotation time expires,
+        // we should have a rotation anyway
+        rotating_file.now_time_mock = ts3;
+        let _ = rotating_file.write(test_patterns[3].as_bytes());
+        assert_eq!(
+            fs::read_to_string(file1.as_path()).unwrap(),
+            format!("{}{}{}", test_patterns[0], test_patterns[1], test_patterns[2])
+        );
+        assert_eq!(fs::read_to_string(file2.as_path()).unwrap(), test_patterns[3]);
+        assert!(std::fs::metadata(file3.as_path()).is_err());
+
+        // Write after rotation time expire, rotation expected even if the file size is below the max
+        rotating_file.now_time_mock = ts4;
+        let _ = rotating_file.write(test_patterns[4].as_bytes());
+        assert_eq!(
+            fs::read_to_string(file1.as_path()).unwrap(),
+            format!("{}{}{}", test_patterns[0], test_patterns[1], test_patterns[2])
+        );
+        assert_eq!(fs::read_to_string(file2.as_path()).unwrap(), test_patterns[3]);
+        assert_eq!(fs::read_to_string(file3.as_path()).unwrap(), test_patterns[4]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_rotation_files_size() -> Result<(), io::Error> {
+        let tmp_dir = TempDir::new("test_rotation_files_size")?;
         let file_base = tmp_dir.path().join("test_log.log");
         let file_rotated = tmp_dir.path().join("test_log.0");
         let file_rotated2 = tmp_dir.path().join("test_log.1");
 
         let test_patterns = build_pattern_list(7, 6);
 
-        let mut rotating_file = RotatingFile::new(&file_base, 16, 0, 2);
+        let mut rotating_file = RotatingFile::new(&file_base, 16, 0, 2, "");
         let result = rotating_file.open();
-        if result.is_err() {
-            println!("Error opening log file {}: {}", file_base.to_string_lossy(), result.unwrap_err());
-            fs::write("d.d", "test")?;
-        }
         assert!(rotating_file.open().is_ok());
 
         // No rotation yet
@@ -410,7 +502,7 @@ mod tests {
     fn test_file_invalid_path() {
         let file_base = "/some/crazy/path/test_log.log";
 
-        let mut rotating_file = RotatingFile::new(file_base, 16, 0, 2);
+        let mut rotating_file = RotatingFile::new(file_base, 16, 0, 2, "");
         assert!(rotating_file.open().is_err());
     }
 }

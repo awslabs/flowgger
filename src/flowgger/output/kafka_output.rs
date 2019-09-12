@@ -131,9 +131,8 @@ impl KafkaOutput {
         let brokers = config
             .lookup("output.kafka_brokers")
             .expect("output.kafka_brokers is required")
-            .as_slice()
-            .expect("Invalid list of Kafka brokers")
-            .to_vec();
+            .as_array()
+            .expect("Invalid list of Kafka brokers");
         let brokers = brokers
             .iter()
             .map(|x| {

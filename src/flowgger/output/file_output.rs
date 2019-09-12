@@ -9,6 +9,7 @@ use std::thread;
 
 use std::io::stderr;
 const FILE_DEFAULT_BUFFER_SIZE: usize = 0;
+const FILE_DEFAULT_TIME_FORMAT: &str = "%Y%m%dT%H%M%SZ";
 const FILE_DEFAULT_ROTATION_SIZE: usize = 0;
 const FILE_DEFAULT_ROTATION_TIME: u32 = 0;
 const FILE_DEFAULT_ROTATION_MAXFILES: i32 = 50;
@@ -20,6 +21,7 @@ pub struct FileOutput {
     rotation_size: usize,
     rotation_time: u32,
     rotation_maxfiles: i32,
+    time_format: String,
 }
 
 impl FileOutput {
@@ -36,7 +38,11 @@ impl FileOutput {
     ///                                     Files are rotated after that period of time elapsed between writes.
     /// - 'output.file_rotation_maxfiles':  Must be an integer. Default is 2. Specifies count rotated files.
     ///                                     Unused if rotation is not enabled.
-    ///
+    /// - 'output.file_rotation_maxfiles':  Must be an integer. Default is 2. Specifies count rotated files.
+    ///                                     Unused if rotation is not enabled.
+    /// - 'output.file_rotation_timeformat':Must be a String. Default is set to "%Y%m%dT%H%M%SZ".
+    ///                                     When time rotation is enabled, format of the timestamp added to the
+    ///                                     output files as per https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
     /// # Parameters
     /// - 'Config':  Configuration parameters
     ///
@@ -85,6 +91,14 @@ impl FileOutput {
                     as i32
             },
         );
+        let time_format = config
+            .lookup("output.file_rotation_timeformat")
+            .map_or(FILE_DEFAULT_TIME_FORMAT.to_string(), |bs| {
+                bs.as_str()
+                    .expect("output.file_rotation_timeformat should be a string")
+                    .to_string()
+            });
+
 
         FileOutput {
             path,
@@ -92,6 +106,7 @@ impl FileOutput {
             rotation_size,
             rotation_time,
             rotation_maxfiles,
+            time_format,
         }
     }
 
@@ -113,10 +128,13 @@ impl FileOutput {
     fn open_writer(&self) -> Option<Box<dyn Write + Send>> {
         let file_writer: Option<Box<dyn Write + Send>>;
 
-        // Rotation option is set, open a rotating file writer
-        if self.rotation_size > 0 {
-            let mut rotating_file =
-                RotatingFile::new(&self.path, self.rotation_size, self.rotation_time, self.rotation_maxfiles);
+        // Rotation option is enabled, open a rotating file writer
+        let mut rotating_file = RotatingFile::new(&self.path,
+                                                  self.rotation_size,
+                                                  self.rotation_time,
+                                                  self.rotation_maxfiles,
+                                                  &self.time_format);
+        if rotating_file.is_enabled() {
             file_writer = match rotating_file.open() {
                 Ok(_) => Some(Box::new(rotating_file)),
                 Err(e) => {
@@ -271,6 +289,13 @@ mod tests {
     #[should_panic(expected = "output.file_path must be a string")]
     fn test_invalid_file_path() {
         let cfg = Config::from_string(&format!("[output]\nfile_path = 123\n")).unwrap();
+        let _ = FileOutput::new(&cfg);
+    }
+
+    #[test]
+    #[should_panic(expected = "output.file_rotation_timeformat should be a string")]
+    fn test_invalid_time_format() {
+        let cfg = Config::from_string(&format!("[output]\nfile_path = \"output_file\"\nfile_rotation_timeformat = 123\n")).unwrap();
         let _ = FileOutput::new(&cfg);
     }
 

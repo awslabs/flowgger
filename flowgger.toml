@@ -87,10 +87,14 @@ file_path = "output.log"
 file_buffer_size = 512
 
 # Optional: Enables file rotation once the specified size is reached.
-file_rotation_size = 102400
+file_rotation_size = 2048
 
 # Optional: Enables file rotation based on time. Rotation occur every file_rotation_time minutes
-file_rotation_time = 60
+file_rotation_time = 2
+
+# Optional: When time rotation is enabled, format of the timestamp added to the filenames.
+# Default is set to "%Y%m%dT%H%M%SZ". Format must conform to https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
+file_rotation_timeformat = "%Y%m%dT%H%M%SZ"
 
 # Optional, only used if either file_rotation_size or file_rotation_time is set:
 # Specifies number of rotation files to use. The default value is 50.

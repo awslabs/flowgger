@@ -229,9 +229,8 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     let connect = config
         .lookup("output.connect")
         .expect("output.connect is required")
-        .as_slice()
-        .expect("output.connect must be a list")
-        .to_vec();
+        .as_array()
+        .expect("output.connect must be a list");
     let mut connect: Vec<String> = connect
         .iter()
         .map(|x| {
