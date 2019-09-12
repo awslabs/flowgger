@@ -399,7 +399,6 @@ mod tests {
         // Open the rotating file
         let mut rotating_file = RotatingFile::new(&file_base, 16, 5, 10, "%Y%m%dT%H%MZ");
         rotating_file.now_time_mock = ts1;
-        let result = rotating_file.open();
         assert!(rotating_file.open().is_ok());
 
         // Write more than the file is allowed in the same minute, no rotation yet
@@ -448,7 +447,6 @@ mod tests {
         let test_patterns = build_pattern_list(7, 6);
 
         let mut rotating_file = RotatingFile::new(&file_base, 16, 0, 2, "");
-        let result = rotating_file.open();
         assert!(rotating_file.open().is_ok());
 
         // No rotation yet

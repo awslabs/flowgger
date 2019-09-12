@@ -1,14 +1,27 @@
 use super::Encoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
-use chrono::NaiveDateTime;
+use chrono::{NaiveDateTime, Utc};
+use std::io::{stderr, Write};
 
 #[derive(Clone)]
-pub struct RFC3164Encoder;
+pub struct RFC3164Encoder {
+    header_time_format: Option<String>,
+}
 
 impl RFC3164Encoder {
-    pub fn new(_config: &Config) -> RFC3164Encoder {
-        RFC3164Encoder
+    pub fn new(config: &Config) -> RFC3164Encoder {
+        let header_time_format = config
+            .lookup("output.rfc3164_prepend_timestamp")
+            .map_or(None, |bs| {
+                Some(bs.as_str()
+                    .expect("output.rfc3164_prepend_timestamp should be a string")
+                    .to_string())
+            });
+
+        let _ = writeln!(stderr(), "time thingy {:?}", header_time_format);
+
+        RFC3164Encoder { header_time_format }
     }
 }
 
@@ -23,6 +36,14 @@ impl Encoder for RFC3164Encoder {
     ///
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
         let mut res = String::new();
+
+        // First, if specified, prepend a header
+        if self.header_time_format.is_some() {
+            let current_time  = Utc::now();
+            let format_str = self.header_time_format.as_ref().unwrap();
+            let dt_str = current_time.format(format_str).to_string();
+            res.push_str(&dt_str);
+        }
 
         // If a priority is specified, add it
         if record.facility.is_some() && record.severity.is_some() {
@@ -107,6 +128,33 @@ fn test_rfc3164_withpri_encode() {
         hostname: "testhostname".to_string(),
         facility: Some(2),
         severity: Some(7),
+        appname: None,
+        procid: None,
+        msgid: None,
+        msg: Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()),
+        full_msg: Some(expected_msg.to_string()),
+        sd: None,
+    };
+
+    let encoder = RFC3164Encoder::new(&cfg);
+    let res = encoder.encode(record).unwrap();
+    assert_eq!(String::from_utf8_lossy(&res), expected_msg);
+}
+
+#[test]
+fn test_rfc3164_encode_with_prepend() {
+    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nrfc3164_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"").unwrap();
+    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+    let dt = Utc::now();
+    let dt_str = dt.format("[%Y-%m-%dT%H:%MZ]").to_string();
+    let expected_msg = format!(r#"{}Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#, dt_str);
+
+
+    let record = Record {
+        ts,
+        hostname: "testhostname".to_string(),
+        facility: None,
+        severity: None,
         appname: None,
         procid: None,
         msgid: None,
