@@ -121,7 +121,6 @@ impl RotatingFile {
     /// Build an output file name appending the current timestamp, and compute the file expiration time
     fn build_timestamped_filename(&mut self) -> PathBuf {
         let current_time  = self.get_current_date_time();
-        println!("time got {}", current_time);
         self.next_rotation_time = Some(current_time + Duration::minutes(i64::from(self.max_time)));
 
         let dt_str = current_time.format(&self.time_format).to_string();

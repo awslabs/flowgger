@@ -2,7 +2,6 @@ use super::Encoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
 use chrono::{NaiveDateTime, Utc};
-use std::io::{stderr, Write};
 
 #[derive(Clone)]
 pub struct RFC3164Encoder {
@@ -18,8 +17,6 @@ impl RFC3164Encoder {
                     .expect("output.rfc3164_prepend_timestamp should be a string")
                     .to_string())
             });
-
-        let _ = writeln!(stderr(), "time thingy {:?}", header_time_format);
 
         RFC3164Encoder { header_time_format }
     }
