@@ -156,4 +156,5 @@ file_rotation_timeformat = "%Y%m%dT%H%M%SZ"
 ### Syslog
 framing = "line"
 format = "rfc3164"
-#format = "rfc3164"
+# Format of the optional timestamp to be prepended to each event
+rfc3164_prepend_timestamp="[%Y-%m-%dT%H:%M:%S%.6fZ]"
