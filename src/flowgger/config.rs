@@ -178,4 +178,11 @@ mod test {
     fn test_config_from_path_no_file() {
         let _config = Config::from_path("doesnotexist.toml").unwrap();
     }
+
+    #[test]
+    fn test_config_clone() {
+        let config = Config::from_path("tests/resources/good_config.toml").unwrap();
+        let _config_cloned = config.clone();
+        assert_eq!(config.config, _config_cloned.config);
+    }
 }

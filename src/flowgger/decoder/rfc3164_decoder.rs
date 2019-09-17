@@ -143,3 +143,23 @@ fn test_rfc3164_decode_with_pri() {
     assert_eq!(res.msg, Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
 }
+
+#[test]
+fn test_rfc3164_decode_invalid_event() {
+    let msg = "test message";
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
+
+    let decoder = RFC3164Decoder::new(&cfg);
+    let res = decoder.decode(msg);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_rfc3164_decode_invalid_date() {
+    let msg = r#"Aug  36 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
+
+    let decoder = RFC3164Decoder::new(&cfg);
+    let res = decoder.decode(msg);
+    assert!(res.is_err());
+}
