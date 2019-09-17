@@ -135,9 +135,12 @@ impl RotatingFile {
 
     /// Open the base file and ready for logging and set it as current file
     /// Should typically be called after object creation in order to be able to start writing
-    /// The file opened is the basename specified at object creation.
+    /// The file opened is the 'basename' specified at object creation.
+    /// Ex: for RotatingFile::new(basepath='a/file.log',...) the file opened will be 'a/file.log'
+    ///
     /// If the time rotation is enabled, this filename will be appended a timestamp with the format
     /// YYYYMMDD'T'HHmmZ. Example: 20180108T0143Z
+    /// Ex: for RotatingFile::new(basepath='a/file.log',...) the file opened will be 'a/file-20180108T0143Z.log'
     ///
     /// # Returns
     /// - 'Ok': The file has successfully been open
@@ -360,12 +363,6 @@ mod tests {
     use tempdir::TempDir;
     use crate::flowgger::utils::test_utils::rfc_test_utils::utc_from_date_time;
 
-//    pub fn get_test_date_time() -> DateTime<Utc> {
-//        println!("time test ");
-//        utc_from_date_time(2015, 8, 6, 11, 15, 24, 637)
-////        fake_time
-//    }
-
     fn build_pattern_list(count: u32, length: usize) -> Vec<String> {
         let mut pattern_list = Vec::new();
         for i in 0..count {
@@ -399,7 +396,6 @@ mod tests {
         // Open the rotating file
         let mut rotating_file = RotatingFile::new(&file_base, 16, 5, 10, "%Y%m%dT%H%MZ");
         rotating_file.now_time_mock = ts1;
-        let result = rotating_file.open();
         assert!(rotating_file.open().is_ok());
 
         // Write more than the file is allowed in the same minute, no rotation yet
@@ -448,7 +444,6 @@ mod tests {
         let test_patterns = build_pattern_list(7, 6);
 
         let mut rotating_file = RotatingFile::new(&file_base, 16, 0, 2, "");
-        let result = rotating_file.open();
         assert!(rotating_file.open().is_ok());
 
         // No rotation yet

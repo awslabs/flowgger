@@ -71,7 +71,7 @@ impl FileOutput {
                     as usize
             },
         );
-        // Get the optional file rotation ti;e. if none, set it to 0 to disable the feature
+        // Get the optional file rotation time. if none, set it to 0 to disable the feature
         let rotation_time = config.lookup("output.file_rotation_time").map_or(
             FILE_DEFAULT_ROTATION_TIME,
             |rot_time| {

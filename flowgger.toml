@@ -92,7 +92,7 @@ file_rotation_size = 2048
 # Optional: Enables file rotation based on time. Rotation occur every file_rotation_time minutes
 file_rotation_time = 2
 
-# Optional: When time rotation is enabled, format of the timestamp added to the filenames.
+# Optional: When time rotation is enabled, the timestamp format is appended to the filenames.
 # Default is set to "%Y%m%dT%H%M%SZ". Format must conform to https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
 file_rotation_timeformat = "%Y%m%dT%H%M%SZ"
 
