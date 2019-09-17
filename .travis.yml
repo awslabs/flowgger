@@ -6,7 +6,7 @@ language: rust
 services: docker
 sudo: required
 
-rust: nightly
+rust: stable
 
 env:
   global:
