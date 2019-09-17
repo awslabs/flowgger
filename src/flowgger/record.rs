@@ -92,15 +92,41 @@ pub const SEVERITY_MISSING: u8 = 0xff;
 
 #[test]
 fn test_structured_data_display() {
-    let expected_string = r#"[someid a="b" c="123456"]"#;
+    let expected_string = r#"[someid a="a string" b="123456" c="true" d="123.456" e="-123456" f]"#;
+    let expected_debug = r#"StructuredData { sd_id: Some("someid"), pairs: [("a", String("a string")), ("b", U64(123456)), ("c", Bool(true)), ("d", F64(123.456)), ("e", I64(-123456)), ("_f", Null)] }"#;
     let data = StructuredData {
         sd_id: Some("someid".to_string()),
         pairs: vec![
-            ("a".to_string(), SDValue::String("b".to_string())),
-            ("c".to_string(), SDValue::U64(123456)),
+            ("a".to_string(), SDValue::String("a string".to_string())),
+            ("b".to_string(), SDValue::U64(123456)),
+            ("c".to_string(), SDValue::Bool(true)),
+            ("d".to_string(), SDValue::F64(123.456)),
+            ("e".to_string(), SDValue::I64(-123456)),
+            ("_f".to_string(), SDValue::Null),
         ],
     };
 
+    // Verify both debug and string conversion
     let result = data.to_string();
+    assert_eq!(format!("{:?}", data), expected_debug);
     assert_eq!(result, expected_string);
+}
+
+#[test]
+fn test_record_display() {
+    let expected_debug = r#"Record { ts: 123.456, hostname: "hostname", facility: Some(3), severity: Some(8), appname: Some("app"), procid: Some("123"), msgid: None, msg: Some("msg"), full_msg: None, sd: None }"#;
+    let record = Record {
+        ts: 123.456,
+        hostname: "hostname".to_string(),
+        facility: Some(3),
+        severity: Some(8),
+        appname: Some("app".to_string()),
+        procid: Some("123".to_string()),
+        msgid: None,
+        msg: Some("msg".to_string()),
+        full_msg: None,
+        sd: None,
+    };
+
+    assert_eq!(format!("{:?}", record), expected_debug);
 }
