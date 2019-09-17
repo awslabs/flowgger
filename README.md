@@ -2,7 +2,7 @@
 
 ![Flowgger](https://raw.github.com/awslabs/flowgger/master/flowgger.png)
 
-[![Build Status](https://travis-ci.org/awslabs/flowgger.svg?branch=master)](https://travis-ci.org/awslabs/flowgger) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/jedisct1/flowgger/blob/master/LICENSE) [![Docker Pulls](https://img.shields.io/docker/pulls/mashape/kong.svg)](https://hub.docker.com/r/jedisct1/flowgger)
+[![Build Status](https://travis-ci.org/awslabs/flowgger.svg?branch=master)](https://travis-ci.org/awslabs/flowgger) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
 
 Flowgger is a fast, simple and lightweight data collector written in Rust.
 
@@ -23,4 +23,4 @@ as well as multiple input formats: JSON (GELF), LTSV, Cap'n Proto and
 RFC5424. Normalized messages can be sent to Kafka, Graylog, to downstream
 Flowgger servers, or to other log collectors for further processing.
 
-# [Jump to the Flowgger documentation](https://github.com/jedisct1/flowgger/wiki)
+# [Jump to the Flowgger documentation](https://github.com/awslabs/flowgger/wiki)
