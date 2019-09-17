@@ -166,6 +166,13 @@ fn test_rfc3164_encode_with_prepend() {
 }
 
 #[test]
+#[should_panic(expected = "output.rfc3164_prepend_timestamp should be a string")]
+fn test_rfc3164_invalid_prepend() {
+    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nrfc3164_prepend_timestamp=123").unwrap();
+    let _ = RFC3164Encoder::new(&cfg);
+}
+
+#[test]
 fn test_rfc3164_full_encode() {
     let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a="b" c="123456"] some test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
