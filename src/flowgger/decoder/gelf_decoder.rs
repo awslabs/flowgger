@@ -11,12 +11,26 @@ use serde_json::value::Value;
 pub struct GelfDecoder;
 
 impl GelfDecoder {
+    /// The GELF decoder doesn't support any configuration, the config is passed as an argument
+    /// just to respect the interface https://docs.graylog.org/en/3.1/pages/gelf.html
     pub fn new(_config: &Config) -> GelfDecoder {
         GelfDecoder
     }
 }
 
 impl Decoder for GelfDecoder {
+    /// Implements decode from a GELF formated text line to a Record object
+    /// https://docs.graylog.org/en/3.1/pages/gelf.html
+    ///
+    /// # Parameters
+    /// - `line`: A string slice containing a JSON with valid GELF data
+    ///
+    /// # Returns
+    /// A `Result` that contain:
+    ///
+    /// - `Ok`: A record containing all the line parsed as a Record data struct
+    /// - `Err`: if there was any error parsing the line, that could be missing values, bad json or wrong
+    /// types associated with specific fields
     fn decode(&self, line: &str) -> Result<Record, &'static str> {
         let mut sd = StructuredData::new(None);
         let mut ts = None;
@@ -107,40 +121,81 @@ impl Decoder for GelfDecoder {
     }
 }
 
-#[test]
-fn test_gelf() {
-    let msg = r#"{"version":"1.1", "host": "example.org","short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}"#;
-    let res = GelfDecoder.decode(msg).unwrap();
-    assert!(res.ts == 1_385_053_862.307_2);
-    assert!(res.hostname == "example.org");
-    assert!(res.msg.unwrap() == "A short message that helps you identify what is going on");
-    assert!(res.full_msg.unwrap() == "Backtrace here\n\nmore stuff");
-    assert!(res.severity.unwrap() == 1);
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::flowgger::record::SEVERITY_MAX;
 
-    let sd = res.sd.unwrap();
-    let pairs = sd.pairs;
-    assert!(pairs
-        .iter()
-        .cloned()
-        .any(|(k, v)| if let SDValue::U64(v) = v {
-            k == "_user_id" && v == 9001
-        } else {
-            false
-        }));
-    assert!(pairs
-        .iter()
-        .cloned()
-        .any(|(k, v)| if let SDValue::String(v) = v {
-            k == "_some_info" && v == "foo"
-        } else {
-            false
-        }));
-    assert!(pairs
-        .iter()
-        .cloned()
-        .any(|(k, v)| if let SDValue::String(v) = v {
-            k == "_some_env_var" && v == "bar"
-        } else {
-            false
-        }));
+    #[test]
+    fn test_gelf_decoder() {
+        let msg = r#"{"version":"1.1", "host": "example.org","short_message": "A short message that helps you identify what is going on", "full_message": "Backtrace here\n\nmore stuff", "timestamp": 1385053862.3072, "level": 1, "_user_id": 9001, "_some_info": "foo", "_some_env_var": "bar"}"#;
+        let res = GelfDecoder.decode(msg).unwrap();
+        assert!(res.ts == 1_385_053_862.307_2);
+        assert!(res.hostname == "example.org");
+        assert!(res.msg.unwrap() == "A short message that helps you identify what is going on");
+        assert!(res.full_msg.unwrap() == "Backtrace here\n\nmore stuff");
+        assert!(res.severity.unwrap() == 1);
+
+        let sd = res.sd.unwrap();
+        let pairs = sd.pairs;
+        assert!(pairs
+            .iter()
+            .cloned()
+            .any(|(k, v)| if let SDValue::U64(v) = v {
+                k == "_user_id" && v == 9001
+            } else {
+                false
+            }));
+        assert!(pairs
+            .iter()
+            .cloned()
+            .any(|(k, v)| if let SDValue::String(v) = v {
+                k == "_some_info" && v == "foo"
+            } else {
+                false
+            }));
+        assert!(pairs
+            .iter()
+            .cloned()
+            .any(|(k, v)| if let SDValue::String(v) = v {
+                k == "_some_env_var" && v == "bar"
+            } else {
+                false
+            }));
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid value type in structured data")]
+    fn test_gelf_decoder_bad_key() {
+        let msg = r#"{"some_key": []}"#;
+        let _res = GelfDecoder.decode(&msg).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid GELF timestamp")]
+    fn test_gelf_decoder_bad_timestamp() {
+        let msg = r#"{"timestamp": "a string not a timestamp", "host": "anhostname"}"#;
+        let _res = GelfDecoder.decode(&msg).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid GELF input, unable to parse as a JSON object")]
+    fn test_gelf_decoder_invalid_input() {
+        let _res = GelfDecoder.decode("{some_key = \"some_value\"}").unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Unsupported GELF version")]
+    fn test_gelf_decoder_wrong_version() {
+        let msg = r#"{"version":"42"}"#;
+        let _res = GelfDecoder.decode(msg).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid severity level (too high)")]
+    fn test_gelf_decoder_severity_to_high() {
+        let _res = GelfDecoder
+            .decode(format!("{{\"level\": {}}}", SEVERITY_MAX + 1).as_str())
+            .unwrap();
+    }
 }

@@ -2,7 +2,7 @@
 edition = "2018"
 name = "flowgger"
 version = "0.2.8"
-authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org>", "Vivien Chene <viv.chene@gmail.com>"]
+authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org>", "Vivien Chene <viv.chene@gmail.com>", "Francesco Berni <kurojishi@kurojishi.me>"]
 build = "build.rs"
 
 [[bin]]
