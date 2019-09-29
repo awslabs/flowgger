@@ -4,7 +4,6 @@ use chrono;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;
-use openssl::x509::X509_FILETYPE_PEM;
 use rand;
 use rand::Rng;
 
@@ -313,32 +312,32 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
     if recovery_delay_max < recovery_delay_init {
         panic!("output.tls_recovery_delay_max cannot be less than output.tls_recovery_delay_init");
     }
-    let mut connector_builder = SslConnectorBuilder::new(SslMethod::tls()).unwrap();
+    let mut connector_builder = SslConnector::builder(SslMethod::tls()).unwrap();
     {
         let mut ctx = &mut connector_builder;
         if !verify_peer {
-            ctx.set_verify(SSL_VERIFY_NONE);
+            ctx.set_verify(SslVerifyMode::NONE);
         } else {
             ctx.set_verify_depth(TLS_VERIFY_DEPTH);
-            ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
+            ctx.set_verify(SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT);
             if let Some(ca_file) = ca_file {
                 ctx.set_ca_file(&ca_file)
                     .expect("Unable to read the trusted CA file");
             }
         }
-        let mut opts =
-            SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+        let mut opts = SslOptions::CIPHER_SERVER_PREFERENCE
+            | SslOptions::NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
         if !compression {
-            opts |= SSL_OP_NO_COMPRESSION;
+            opts |= SslOptions::NO_COMPRESSION;
         }
         ctx.set_options(opts);
         set_fs(&mut ctx);
         if let Some(cert) = cert {
-            ctx.set_certificate_file(&Path::new(&cert), X509_FILETYPE_PEM)
+            ctx.set_certificate_file(&Path::new(&cert), SslFiletype::PEM)
                 .expect("Unable to read the TLS certificate");
         }
         if let Some(key) = key {
-            ctx.set_private_key_file(&Path::new(&key), X509_FILETYPE_PEM)
+            ctx.set_private_key_file(&Path::new(&key), SslFiletype::PEM)
                 .expect("Unable to read the TLS key");
         }
         ctx.set_cipher_list(&ciphers)

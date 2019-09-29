@@ -2,7 +2,6 @@ use crate::flowgger::config::Config;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;
-use openssl::x509::X509_FILETYPE_PEM;
 use std::path::{Path, PathBuf};
 
 pub mod tls_input;
@@ -144,9 +143,9 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
         })
         .to_owned();
     let mut acceptor_builder = (if tls_modern {
-        SslAcceptorBuilder::mozilla_modern_raw(SslMethod::tls())
+        SslAcceptor::mozilla_modern(SslMethod::tls())
     } else {
-        SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())
+        SslAcceptor::mozilla_intermediate(SslMethod::tls())
     })
     .unwrap();
     {
@@ -156,21 +155,21 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
                 .expect("Unable to read the trusted CA file");
         }
         if !verify_peer {
-            ctx.set_verify(SSL_VERIFY_NONE);
+            ctx.set_verify(SslVerifyMode::NONE);
         } else {
             ctx.set_verify_depth(TLS_VERIFY_DEPTH);
-            ctx.set_verify(SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
+            ctx.set_verify(SslVerifyMode::PEER | SslVerifyMode::FAIL_IF_NO_PEER_CERT);
         }
-        let mut opts =
-            SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
+        let mut opts = SslOptions::CIPHER_SERVER_PREFERENCE
+            | SslOptions::NO_SESSION_RESUMPTION_ON_RENEGOTIATION;
         if !compression {
-            opts |= SSL_OP_NO_COMPRESSION;
+            opts |= SslOptions::NO_COMPRESSION;
         }
         ctx.set_options(opts);
         set_fs(&mut ctx);
         ctx.set_certificate_chain_file(&Path::new(&cert))
             .expect("Unable to read the TLS certificate chain");
-        ctx.set_private_key_file(&Path::new(&key), X509_FILETYPE_PEM)
+        ctx.set_private_key_file(&Path::new(&key), SslFiletype::PEM)
             .expect("Unable to read the TLS key");
         ctx.set_cipher_list(&ciphers)
             .expect("Unsupported cipher suite");
