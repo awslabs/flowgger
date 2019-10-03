@@ -5,11 +5,13 @@ use crate::flowgger::encoder::Encoder;
 use crate::flowgger::splitter::{
     CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
 };
-use coio::net::{TcpListener, TcpStream};
-use coio::Scheduler;
+use futures::future;
+use futures::stream::Stream;
 use std::io::{stderr, BufReader, Write};
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
+use tokio;
+use tokio::net::{TcpListener, TcpStream};
 
 pub struct TlsCoInput {
     listen: String,
@@ -32,26 +34,26 @@ impl Input for TlsCoInput {
     ) {
         let tls_config = self.tls_config.clone();
         let threads = tls_config.threads;
+
         let listen: SocketAddr = self.listen.parse().unwrap();
-        Scheduler::new()
-            .with_workers(threads)
-            .run(move || {
-                let listener = TcpListener::bind(listen).unwrap();
-                for client in listener.incoming() {
-                    match client {
-                        Ok((client, _addr)) => {
-                            let tx = tx.clone();
-                            let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                            let tls_config = tls_config.clone();
-                            Scheduler::spawn(move || {
-                                handle_client(client, tx, decoder, encoder, tls_config);
-                            });
-                        }
-                        Err(_) => {}
-                    }
-                }
-            })
-            .unwrap();
+
+        let listener = TcpListener::bind(&listen).unwrap();
+
+        tokio::run(future::lazy(move || {
+            listener
+                .incoming()
+                .map_err(|e| println!("error when accepting incoming TCP connection: {:?}", e))
+                .for_each(|socket| {
+                    let tx = tx.clone();
+                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+                    let tls_config = tls_config.clone();
+                    tokio::spawn(future::lazy(|| {
+                        handle_client(socket, tx, decoder, encoder, tls_config);
+                        Ok(())
+                    }))
+                });
+            Ok(())
+        }));
     }
 }
 
