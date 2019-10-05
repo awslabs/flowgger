@@ -1,5 +1,5 @@
 FROM rust:1.38 AS builder
-MAINTAINER Frank Denis, Damian Czaja
+LABEL maintainer="Frank Denis, Damian Czaja <trojan295@gmail.com>"
 
 ENV LIBRESSL_VERSION 2.9.2
 ENV LIBRESSL_SHA256 c4c78167fae325b47aebd8beb54b6041d6f6a56b3743f4bd5d79b15642f9d5d4
