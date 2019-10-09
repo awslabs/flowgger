@@ -13,8 +13,6 @@ extern crate capnp;
 extern crate chrono;
 extern crate clap;
 extern crate flate2;
-#[cfg(feature = "coroutines")]
-extern crate futures;
 #[cfg(feature = "file")]
 extern crate glob;
 #[cfg(feature = "kafka-output")]
@@ -28,10 +26,7 @@ extern crate rand;
 extern crate redis;
 #[cfg(feature = "gelf")]
 extern crate serde_json;
-#[cfg(feature = "coroutines")]
-extern crate tokio;
 extern crate toml;
-
 #[cfg(feature = "capnp-recompile")]
 pub mod record_capnp;
 

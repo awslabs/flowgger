@@ -5,13 +5,10 @@ use crate::flowgger::encoder::Encoder;
 use crate::flowgger::splitter::{
     CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
 };
-use futures::future;
-use futures::Stream;
+use may::net::{TcpListener, TcpStream};
 use std::io::BufReader;
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
-use tokio;
-use tokio::net::{TcpListener, TcpStream};
 
 pub struct TcpCoInput {
     listen: String,
@@ -33,25 +30,19 @@ impl Input for TcpCoInput {
         encoder: Box<Encoder + Send>,
     ) {
         let tcp_config = self.tcp_config.clone();
-        let threads = tcp_config.threads;
-        let listen: SocketAddr = self.listen.parse().unwrap();
+        may::config().set_workers(tcp_config.threads);
 
+        let listen: SocketAddr = self.listen.parse().unwrap();
         let listener = TcpListener::bind(&listen).unwrap();
 
-        let server = listener
-            .incoming()
-            .map_err(|e| println!("error when accepting incoming TCP connection: {:?}", e))
-            .for_each(move |socket| {
-                let tx = tx.clone();
-                let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                let tcp_config = tcp_config.clone();
-                tokio::spawn(future::lazy(move || {
-                    handle_client(socket, tx, decoder, encoder, tcp_config);
-                    Ok(())
-                }))
+        while let Ok((socket, _)) = listener.accept() {
+            let tx = tx.clone();
+            let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+            let tcp_config = tcp_config.clone();
+            go!(move || {
+                handle_client(socket, tx, decoder, encoder, tcp_config);
             });
-
-        tokio::run(server);
+        }
     }
 }
 

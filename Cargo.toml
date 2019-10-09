@@ -15,7 +15,7 @@ path = "src/lib.rs"
 
 [features]
 capnp-recompile = ["capnpc", "capnp"]
-coroutines = ["tokio", "tls", "futures"]
+coroutines = ["may", "tls", "futures"]
 default = ["syslog", "kafka-output", "file", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
 redis-input = ["redis"]
 kafka-output = ["kafka"]
@@ -45,7 +45,7 @@ rand = "0.5"
 redis = { version = "0.10", optional = true }
 serde = { version = "1", optional = true }
 serde_json = { version = "~0.8", optional = true }
-tokio = { version = "0.1", optional = true }
+may = { version = "~0.3", optional = true }
 toml = "0.5"
 time = "0.1"
 futures = { version = "0.1", optional = true}

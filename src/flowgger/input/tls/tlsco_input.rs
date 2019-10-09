@@ -5,13 +5,10 @@ use crate::flowgger::encoder::Encoder;
 use crate::flowgger::splitter::{
     CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
 };
-use futures::future;
-use futures::stream::Stream;
+use may::net::{TcpListener, TcpStream};
 use std::io::{stderr, BufReader, Write};
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
-use tokio;
-use tokio::net::{TcpListener, TcpStream};
 
 pub struct TlsCoInput {
     listen: String,
@@ -33,27 +30,19 @@ impl Input for TlsCoInput {
         encoder: Box<Encoder + Send>,
     ) {
         let tls_config = self.tls_config.clone();
-        let threads = tls_config.threads;
+        may::config().set_io_workers(tls_config.threads);
 
         let listen: SocketAddr = self.listen.parse().unwrap();
-
         let listener = TcpListener::bind(&listen).unwrap();
 
-        tokio::run(future::lazy(move || {
-            listener
-                .incoming()
-                .map_err(|e| println!("error when accepting incoming TCP connection: {:?}", e))
-                .for_each(|socket| {
-                    let tx = tx.clone();
-                    let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                    let tls_config = tls_config.clone();
-                    tokio::spawn(future::lazy(|| {
-                        handle_client(socket, tx, decoder, encoder, tls_config);
-                        Ok(())
-                    }))
-                });
-            Ok(())
-        }));
+        while let Ok((socket, _)) = listener.accept() {
+            let tx = tx.clone();
+            let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+            let tls_config = tls_config.clone();
+            go!(move || {
+                handle_client(socket, tx, decoder, encoder, tls_config);
+            });
+        }
     }
 }
 
