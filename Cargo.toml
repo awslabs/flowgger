@@ -15,7 +15,7 @@ path = "src/lib.rs"
 
 [features]
 capnp-recompile = ["capnpc", "capnp"]
-coroutines = ["may", "tls", "futures"]
+coroutines = ["may", "tls"]
 default = ["syslog", "kafka-output", "file", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
 redis-input = ["redis"]
 kafka-output = ["kafka"]
@@ -48,7 +48,6 @@ serde_json = { version = "~0.8", optional = true }
 may = { version = "~0.3", optional = true }
 toml = "0.5"
 time = "0.1"
-futures = { version = "0.1", optional = true}
 
 [dev-dependencies]
 tempdir = "0.3"

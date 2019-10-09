@@ -12,18 +12,18 @@
 # src = "/var/lib/docker/containers/*/*.log"
 
 ### Syslog over UDP
-#type = "udp"
-#listen = "0.0.0.0:514"
+type = "udp"
+listen = "0.0.0.0:514"
 
 ### TCP
 # type = "tcp"
 # listen = "0.0.0.0:6514"
 # timeout = 3600
 
-# TCP, using coroutines
-type = "tcp_co"
-listen = "0.0.0.0:6514"
-tcp_threads = 1
+### TCP, using coroutines
+# type = "tcp_co"
+# listen = "0.0.0.0:6514"
+# tcp_threads = 1
 
 ### TLS
 # type = "tls"
