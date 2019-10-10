@@ -15,7 +15,7 @@ path = "src/lib.rs"
 
 [features]
 capnp-recompile = ["capnpc", "capnp"]
-coroutines = ["coio", "tls"]
+coroutines = ["may", "tls"]
 default = ["syslog", "kafka-output", "file", "redis", "capnp-recompile", "tls", "gelf", "ltsv"]
 redis-input = ["redis"]
 kafka-output = ["kafka"]
@@ -35,7 +35,6 @@ optional = true
 capnp = { version = "0.9", optional = true }
 chrono = "0.4"
 clap = "2"
-coio = { git = "https://github.com/zonyitoo/coio-rs", optional = true }
 flate2 = "1"
 glob = { version = "0.3", optional = true }
 kafka = { version = "0.8", features = ["snappy", "gzip", "security"], optional = true }
@@ -46,9 +45,9 @@ rand = "0.5"
 redis = { version = "0.10", optional = true }
 serde = { version = "1", optional = true }
 serde_json = { version = "~0.8", optional = true }
+may = { version = "~0.3", optional = true }
 toml = "0.5"
 time = "0.1"
-
 
 [dev-dependencies]
 tempdir = "0.3"

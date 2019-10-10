@@ -5,8 +5,7 @@ use crate::flowgger::encoder::Encoder;
 use crate::flowgger::splitter::{
     CapnpSplitter, LineSplitter, NulSplitter, Splitter, SyslenSplitter,
 };
-use coio::net::{TcpListener, TcpStream};
-use coio::Scheduler;
+use may::net::{TcpListener, TcpStream};
 use std::io::{stderr, BufReader, Write};
 use std::net::SocketAddr;
 use std::sync::mpsc::SyncSender;
@@ -31,27 +30,19 @@ impl Input for TlsCoInput {
         encoder: Box<Encoder + Send>,
     ) {
         let tls_config = self.tls_config.clone();
-        let threads = tls_config.threads;
+        may::config().set_io_workers(tls_config.threads);
+
         let listen: SocketAddr = self.listen.parse().unwrap();
-        Scheduler::new()
-            .with_workers(threads)
-            .run(move || {
-                let listener = TcpListener::bind(listen).unwrap();
-                for client in listener.incoming() {
-                    match client {
-                        Ok((client, _addr)) => {
-                            let tx = tx.clone();
-                            let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
-                            let tls_config = tls_config.clone();
-                            Scheduler::spawn(move || {
-                                handle_client(client, tx, decoder, encoder, tls_config);
-                            });
-                        }
-                        Err(_) => {}
-                    }
-                }
-            })
-            .unwrap();
+        let listener = TcpListener::bind(&listen).unwrap();
+
+        while let Ok((socket, _)) = listener.accept() {
+            let tx = tx.clone();
+            let (decoder, encoder) = (decoder.clone_boxed(), encoder.clone_boxed());
+            let tls_config = tls_config.clone();
+            go!(move || {
+                handle_client(socket, tx, decoder, encoder, tls_config);
+            });
+        }
     }
 }
 

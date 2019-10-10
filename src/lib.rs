@@ -1,3 +1,7 @@
+#[cfg(feature = "coroutines")]
+#[macro_use]
+extern crate may;
+
 pub mod flowgger;
 
 /// Start a flowgger instance starting from a file path
