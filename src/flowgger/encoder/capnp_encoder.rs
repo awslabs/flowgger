@@ -104,3 +104,69 @@ fn build_record<T: Allocator>(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::flowgger::record::{SDValue, StructuredData};
+
+    #[test]
+    fn test_capnp_encode() {
+        let config = Config::from_string("").unwrap();
+        let encoder = CapnpEncoder::new(&config);
+
+        let sd = StructuredData {
+            sd_id: Some("someid".to_string()),
+            pairs: vec![("_some_info".to_string(), SDValue::String("foo".to_string()))],
+        };
+        let record = Record {
+            ts: 1385053862.3072,
+            hostname: "example.org".to_string(),
+            facility: None,
+            severity: Some(1),
+            appname: Some("appname".to_string()),
+            procid: Some("44".to_string()),
+            msgid: None,
+            msg: Some("A short message that helps you identify what is going on".to_string()),
+            full_msg: Some("Backtrace here\n\nmore stuff".to_string()),
+            sd: Some(sd),
+        };
+
+        assert_eq!(
+            String::from_utf8_lossy(&encoder.encode(record).unwrap()),
+            "\u{0}\u{0}\u{0}\u{0}%\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{2}\u{0}\t\u{0}*������A�\u{1}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}!\u{0}\u{0}\u{0}b\u{0}\u{0}\u{0}%\u{0}\u{0}\u{0}B\u{0}\u{0}\u{0}%\u{0}\u{0}\u{0}\u{1a}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}!\u{0}\u{0}\u{0}�\u{1}\u{0}\u{0}=\u{0}\u{0}\u{0}�\u{0}\u{0}\u{0}I\u{0}\u{0}\u{0}:\u{0}\u{0}\u{0}I\u{0}\u{0}\u{0}\'\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}example.org\u{0}\u{0}\u{0}\u{0}\u{0}appname\u{0}44\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}A short message that helps you identify what is going on\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}Backtrace here\n\nmore stuff\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}someid\u{0}\u{0}\u{4}\u{0}\u{0}\u{0}\u{2}\u{0}\u{2}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{5}\u{0}\u{0}\u{0}Z\u{0}\u{0}\u{0}\t\u{0}\u{0}\u{0}\"\u{0}\u{0}\u{0}_some_info\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}foo\u{0}\u{0}\u{0}\u{0}\u{0}"
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_wrong_extra_field_value_type_config() {
+        let config = Config::from_string("[output.capnp_extra]\nx-header1 = 123").unwrap();
+        CapnpEncoder::new(&config);
+    }
+
+    #[test]
+    fn test_add_extra_fields() {
+        let config =
+            Config::from_string("[output.capnp_extra]\nx-header1 = \"header1 value\"").unwrap();
+        let encoder = CapnpEncoder::new(&config);
+
+        let record = Record {
+            ts: 1385053862.3072,
+            hostname: "example.org".to_string(),
+            facility: None,
+            severity: Some(1),
+            appname: Some("appname".to_string()),
+            procid: Some("44".to_string()),
+            msgid: None,
+            msg: Some("A short message that helps you identify what is going on".to_string()),
+            full_msg: Some("Backtrace here\n\nmore stuff".to_string()),
+            sd: None,
+        };
+
+        assert_eq!(
+            String::from_utf8_lossy(&encoder.encode(record).unwrap()),
+            "\u{0}\u{0}\u{0}\u{0}%\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{2}\u{0}\t\u{0}*������A�\u{1}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}!\u{0}\u{0}\u{0}b\u{0}\u{0}\u{0}%\u{0}\u{0}\u{0}B\u{0}\u{0}\u{0}%\u{0}\u{0}\u{0}\u{1a}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}!\u{0}\u{0}\u{0}�\u{1}\u{0}\u{0}=\u{0}\u{0}\u{0}�\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}A\u{0}\u{0}\u{0}\'\u{0}\u{0}\u{0}example.org\u{0}\u{0}\u{0}\u{0}\u{0}appname\u{0}44\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}A short message that helps you identify what is going on\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}Backtrace here\n\nmore stuff\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{4}\u{0}\u{0}\u{0}\u{2}\u{0}\u{2}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{5}\u{0}\u{0}\u{0}R\u{0}\u{0}\u{0}\t\u{0}\u{0}\u{0}r\u{0}\u{0}\u{0}x-header1\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}header1 value\u{0}\u{0}\u{0}"
+        );
+    }
+}
