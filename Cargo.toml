@@ -32,7 +32,7 @@ version = "*"
 optional = true
 
 [dependencies]
-capnp = { version = "0.9", optional = true }
+capnp = { version = "0.10", optional = true }
 chrono = "0.4"
 clap = "2"
 flate2 = "1"

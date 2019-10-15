@@ -2,6 +2,9 @@
 #[macro_use]
 extern crate may;
 
+#[cfg(feature = "capnp-recompile")]
+pub mod record_capnp;
+
 pub mod flowgger;
 
 /// Start a flowgger instance starting from a file path

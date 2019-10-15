@@ -2,7 +2,7 @@ use super::Splitter;
 use crate::flowgger::decoder::Decoder;
 use crate::flowgger::encoder::Encoder;
 use crate::flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
-use crate::flowgger::record_capnp;
+use crate::record_capnp;
 use capnp;
 use capnp::message::ReaderOptions;
 use std::io::{stderr, BufReader, Read, Write};
@@ -162,4 +162,62 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
         full_msg,
         sd,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_decode_message() {
+        let sd = StructuredData {
+            sd_id: Some("someid".to_string()),
+            pairs: vec![("_some_info".to_string(), SDValue::String("foo".to_string()))],
+        };
+        let expected = Record {
+            ts: 1385053862.3072,
+            hostname: "example.org".to_string(),
+            facility: None,
+            severity: Some(1),
+            appname: Some("appname".to_string()),
+            procid: Some("44".to_string()),
+            msgid: Some("".to_string()),
+            msg: Some("A short message that helps you identify what is going on".to_string()),
+            full_msg: Some("Backtrace here\n\nmore stuff".to_string()),
+            sd: Some(sd),
+        };
+
+        let capnp_message = vec![
+            0, 0, 0, 0, 38, 0, 0, 0, 0, 0, 0, 0, 2, 0, 9, 0, 42, 169, 147, 169, 143, 163, 212, 65,
+            255, 1, 0, 0, 0, 0, 0, 0, 33, 0, 0, 0, 98, 0, 0, 0, 37, 0, 0, 0, 66, 0, 0, 0, 37, 0, 0,
+            0, 26, 0, 0, 0, 37, 0, 0, 0, 10, 0, 0, 0, 37, 0, 0, 0, 202, 1, 0, 0, 65, 0, 0, 0, 218,
+            0, 0, 0, 77, 0, 0, 0, 58, 0, 0, 0, 77, 0, 0, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            101, 120, 97, 109, 112, 108, 101, 46, 111, 114, 103, 0, 0, 0, 0, 0, 97, 112, 112, 110,
+            97, 109, 101, 0, 52, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 65, 32, 115, 104,
+            111, 114, 116, 32, 109, 101, 115, 115, 97, 103, 101, 32, 116, 104, 97, 116, 32, 104,
+            101, 108, 112, 115, 32, 121, 111, 117, 32, 105, 100, 101, 110, 116, 105, 102, 121, 32,
+            119, 104, 97, 116, 32, 105, 115, 32, 103, 111, 105, 110, 103, 32, 111, 110, 0, 0, 0, 0,
+            0, 0, 0, 0, 66, 97, 99, 107, 116, 114, 97, 99, 101, 32, 104, 101, 114, 101, 10, 10,
+            109, 111, 114, 101, 32, 115, 116, 117, 102, 102, 0, 0, 0, 0, 0, 0, 115, 111, 109, 101,
+            105, 100, 0, 0, 4, 0, 0, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            5, 0, 0, 0, 90, 0, 0, 0, 9, 0, 0, 0, 34, 0, 0, 0, 95, 115, 111, 109, 101, 95, 105, 110,
+            102, 111, 0, 0, 0, 0, 0, 0, 102, 111, 111, 0, 0, 0, 0, 0,
+        ];
+        let mut reader = capnp_message.as_slice();
+
+        let message_reader =
+            capnp::serialize::read_message(&mut reader, ReaderOptions::new()).unwrap();
+        let record = handle_message(message_reader.get_root().unwrap()).unwrap();
+
+        assert_eq!(record.ts, expected.ts);
+        assert_eq!(record.hostname, expected.hostname);
+        assert_eq!(record.facility, expected.facility);
+        assert_eq!(record.severity, expected.severity);
+        assert_eq!(record.appname, expected.appname);
+        assert_eq!(record.procid, expected.procid);
+        assert_eq!(record.msgid, expected.msgid);
+        assert_eq!(record.msg, expected.msg);
+        assert_eq!(record.full_msg, expected.full_msg);
+        assert_eq!(record.sd.unwrap().sd_id, expected.sd.unwrap().sd_id);
+    }
 }

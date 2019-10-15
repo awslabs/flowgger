@@ -27,8 +27,6 @@ extern crate redis;
 #[cfg(feature = "gelf")]
 extern crate serde_json;
 extern crate toml;
-#[cfg(feature = "capnp-recompile")]
-pub mod record_capnp;
 
 use self::config::Config;
 #[cfg(feature = "gelf")]
