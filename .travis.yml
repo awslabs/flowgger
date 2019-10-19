@@ -12,7 +12,7 @@ env:
   global:
     - CRATE_NAME=flowgger
     - TARGET=x86_64-unknown-linux-gnu
-    - FEATURES="syslog kafka-output file redis tls gelf ltsv"
+    - FLOWGGER_FEATURES="syslog kafka-output file redis tls gelf ltsv"
 
 matrix:
   include:
