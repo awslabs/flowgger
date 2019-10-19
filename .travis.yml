@@ -33,8 +33,6 @@ matrix:
     #allow_failures:
     #  - env: TARGET=aarch64-unknown-linux-musl DISABLE_TESTS=1
 
-before_install: set -e
-
 install:
   - sh ci/install.sh
   - source ~/.cargo/env || true
@@ -42,15 +40,13 @@ install:
 script:
   - bash ci/script.sh
 
-after_script: set +e
-
 before_deploy:
   - sh ci/before_deploy.sh
-  - mv "target/${TARGET}/release/flowgger" "flowgger_${TARGET}"
+
 deploy:
   provider: releases
   api_key: "${GITHUB_APIKEY}"
-  file: "flowgger_${TARGET}"
+  file: "release/flowgger*"
   skip_cleanup: true
   on:
     tags: true
