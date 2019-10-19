@@ -77,8 +77,7 @@ impl FileOutput {
             |rot_time| {
                 rot_time
                     .as_integer()
-                    .expect("output.file_rotation_time should be an integer")
-                    as u32
+                    .expect("output.file_rotation_time should be an integer") as u32
             },
         );
         // Get the optional file rotation max files. Default is 2
@@ -91,14 +90,14 @@ impl FileOutput {
                     as i32
             },
         );
-        let time_format = config
-            .lookup("output.file_rotation_timeformat")
-            .map_or(FILE_DEFAULT_TIME_FORMAT.to_string(), |bs| {
+        let time_format = config.lookup("output.file_rotation_timeformat").map_or(
+            FILE_DEFAULT_TIME_FORMAT.to_string(),
+            |bs| {
                 bs.as_str()
                     .expect("output.file_rotation_timeformat should be a string")
                     .to_string()
-            });
-
+            },
+        );
 
         FileOutput {
             path,
@@ -129,11 +128,13 @@ impl FileOutput {
         let file_writer: Option<Box<dyn Write + Send>>;
 
         // Rotation option is enabled, open a rotating file writer
-        let mut rotating_file = RotatingFile::new(&self.path,
-                                                  self.rotation_size,
-                                                  self.rotation_time,
-                                                  self.rotation_maxfiles,
-                                                  &self.time_format);
+        let mut rotating_file = RotatingFile::new(
+            &self.path,
+            self.rotation_size,
+            self.rotation_time,
+            self.rotation_maxfiles,
+            &self.time_format,
+        );
         if rotating_file.is_enabled() {
             file_writer = match rotating_file.open() {
                 Ok(_) => Some(Box::new(rotating_file)),
@@ -220,24 +221,28 @@ mod tests {
     use std::sync::{Arc, Mutex};
     use std::{thread, time};
     extern crate tempdir;
-    use tempdir::TempDir;
     use std::io::Result;
+    use tempdir::TempDir;
 
     /// Helper for the test to initialize some test data, create a writer,  and verify it
     struct WriterTest {
         file_base: String,
         test_patterns: Vec<&'static str>,
-        _temp_dir:TempDir,
+        _temp_dir: TempDir,
     }
 
     impl WriterTest {
         fn new(file_name: &'static str) -> Result<Self> {
             let temp_dir = TempDir::new("test_file_output")?;
-            let file_base = temp_dir.path().join(file_name).to_string_lossy().to_string();
+            let file_base = temp_dir
+                .path()
+                .join(file_name)
+                .to_string_lossy()
+                .to_string();
             Ok(Self {
                 file_base,
                 test_patterns: vec!["abcdef", "ghijkl", "012345", "678901"],
-                _temp_dir:temp_dir,
+                _temp_dir: temp_dir,
             })
         }
 
@@ -295,7 +300,10 @@ mod tests {
     #[test]
     #[should_panic(expected = "output.file_rotation_timeformat should be a string")]
     fn test_invalid_time_format() {
-        let cfg = Config::from_string(&format!("[output]\nfile_path = \"output_file\"\nfile_rotation_timeformat = 123\n")).unwrap();
+        let cfg = Config::from_string(&format!(
+            "[output]\nfile_path = \"output_file\"\nfile_rotation_timeformat = 123\n"
+        ))
+        .unwrap();
         let _ = FileOutput::new(&cfg);
     }
 
@@ -335,13 +343,13 @@ mod tests {
         let cfg = Config::from_string(&format!(
             "[output]\nfile_path = \"output_file\"\nfile_rotation_time= \"15s\"\n"
         ))
-            .unwrap();
+        .unwrap();
         let _ = FileOutput::new(&cfg);
     }
 
     #[test]
     fn test_start_no_merger() -> Result<()> {
-        let file_base = "test_start_no_merger";
+        let file_base = "/tmp/test_start_no_merger";
         let test_object = WriterTest::new(file_base)?;
         let cfg =
             Config::from_string(&format!("[output]\nfile_path = \"{}\"\n", file_base)).unwrap();
@@ -360,7 +368,7 @@ mod tests {
 
     #[test]
     fn test_start_with_merger() -> Result<()> {
-        let file_base = "test_start_with_merger";
+        let file_base = "/tmp/test_start_with_merger";
         let test_object = WriterTest::new(file_base)?;
         let cfg =
             Config::from_string(&format!("[output]\nfile_path = \"{}\"\n", file_base)).unwrap();
@@ -433,7 +441,7 @@ mod tests {
             "[output]\nfile_path = \"{}\"\nfile_rotation_size = 15\nfile_rotation_time = 2\n",
             test_object.get_file_base()
         ))
-            .unwrap();
+        .unwrap();
         let _writer = test_object.setup_writer(
             cfg,
             15,
