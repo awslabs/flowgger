@@ -46,11 +46,11 @@ after_script: set +e
 
 before_deploy:
   - sh ci/before_deploy.sh
-
+  - mv "target/${TARGET}/release/flowgger" "flowgger_${TARGET}"
 deploy:
   provider: releases
   api_key: "${GITHUB_APIKEY}"
-  file: "target/${TARGET}/release/flowgger"
+  file: "flowgger_${TARGET}"
   skip_cleanup: true
   on:
     tags: true
