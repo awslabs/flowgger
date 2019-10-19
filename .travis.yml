@@ -17,21 +17,21 @@ matrix:
   include:
     - env: TARGET=x86_64-unknown-linux-gnu
     - env: TARGET=x86_64-unknown-linux-musl
-    - env: TARGET=i686-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=i686-unknown-linux-gnu DISABLE_TESTS=1
     # - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
     # - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=aarch64-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=armv7-unknown-linux-gnueabihf DISABLE_TESTS=1
-    - env: TARGET=mips-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=mips64-unknown-linux-gnuabi64 DISABLE_TESTS=1
-    - env: TARGET=mips64el-unknown-linux-gnuabi64 DISABLE_TESTS=1
-    - env: TARGET=mipsel-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=powerpc-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=powerpc64-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=powerpc64le-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-  allow_failures:
-    - env: TARGET=aarch64-unknown-linux-musl DISABLE_TESTS=1
+    # - env: TARGET=aarch64-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=armv7-unknown-linux-gnueabihf DISABLE_TESTS=1
+    # - env: TARGET=mips-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=mips64-unknown-linux-gnuabi64 DISABLE_TESTS=1
+    # - env: TARGET=mips64el-unknown-linux-gnuabi64 DISABLE_TESTS=1
+    # - env: TARGET=mipsel-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=powerpc-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=powerpc64-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=powerpc64le-unknown-linux-gnu DISABLE_TESTS=1
+    # - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+    #allow_failures:
+    #  - env: TARGET=aarch64-unknown-linux-musl DISABLE_TESTS=1
 
 before_install: set -e
 
@@ -46,6 +46,14 @@ after_script: set +e
 
 before_deploy:
   - sh ci/before_deploy.sh
+
+deploy:
+  provider: releases
+  api_key: "${GITHUB_APIKEY}"
+  file: "target/${TARGET}/release/flowgger"
+  skip_cleanup: true
+  on:
+    tags: true
 
 cache: cargo
 before_cache:
