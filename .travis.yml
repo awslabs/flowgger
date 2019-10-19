@@ -46,7 +46,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key: "${GITHUB_APIKEY}"
-  file: "release/flowgger*"
+  file: "flowgger_${TARGET}.zip"
   skip_cleanup: true
   on:
     tags: true

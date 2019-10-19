@@ -9,8 +9,9 @@ main() {
     test -f Cargo.lock || cargo generate-lockfile
 
     cross rustc --bin flowgger --target $TARGET --release --no-default-features -- -C lto
-
-    cp target/$TARGET/release/flowgger $release_dir/flowgger_$TARGET
+    cp target/$TARGET/release/flowgger $release_dir/flowgger
+    cp flowgger.toml $release_dir/
+    zip -jr flowgger_$TARGET.zip $release_dir
 }
 
 main
