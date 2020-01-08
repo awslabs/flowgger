@@ -1,7 +1,7 @@
 # Based on the "trust" template v0.1.1
 # https://github.com/japaric/trust/tree/v0.1.1
 
-dist: trusty
+dist: bionic
 language: rust
 services: docker
 sudo: required
@@ -12,6 +12,7 @@ env:
   global:
     - CRATE_NAME=flowgger
     - TARGET=x86_64-unknown-linux-gnu
+    - FLOWGGER_FEATURES="syslog kafka-output file redis tls gelf ltsv"
 
 matrix:
   include:
@@ -33,8 +34,6 @@ matrix:
   allow_failures:
     - env: TARGET=aarch64-unknown-linux-musl DISABLE_TESTS=1
 
-before_install: set -e
-
 install:
   - sh ci/install.sh
   - source ~/.cargo/env || true
@@ -42,10 +41,16 @@ install:
 script:
   - bash ci/script.sh
 
-after_script: set +e
-
 before_deploy:
   - sh ci/before_deploy.sh
+
+deploy:
+  provider: releases
+  api_key: "${GITHUB_APIKEY}"
+  file: "flowgger_${TARGET}.zip"
+  skip_cleanup: true
+  on:
+    tags: true
 
 cache: cargo
 before_cache:
