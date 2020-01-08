@@ -4,6 +4,10 @@ name = "flowgger"
 version = "0.2.8"
 authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org>", "Vivien Chene <viv.chene@gmail.com>", "Francesco Berni <kurojishi@kurojishi.me>"]
 build = "build.rs"
+repository = "https://github.com/awslabs/flowgger"
+description = "Flowgger is a fast, simple and lightweight data collector."
+license = "ISC"
+documentation="https://github.com/awslabs/flowgger/wiki"
 
 [[bin]]
 name = "flowgger"
