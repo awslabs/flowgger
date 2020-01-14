@@ -32,7 +32,7 @@ rfc5424=[]
 file = ["notify", "glob"]
 
 [build-dependencies.capnpc]
-version = "*"
+version = "0.10"
 optional = true
 
 [dependencies]
