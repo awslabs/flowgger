@@ -213,7 +213,7 @@ impl Decoder for LTSVDecoder {
             msgid: None,
             sd: if sd.pairs.is_empty() { None } else { Some(sd) },
             msg,
-            full_msg: None,
+            full_msg: Some(line.to_owned()),
         };
         Ok(record)
     }

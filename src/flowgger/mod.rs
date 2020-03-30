@@ -11,6 +11,7 @@ mod utils;
 #[cfg(feature = "capnp-recompile")]
 extern crate capnp;
 extern crate chrono;
+extern crate chrono_tz;
 extern crate clap;
 extern crate flate2;
 #[cfg(feature = "file")]
@@ -49,6 +50,8 @@ use self::encoder::LTSVEncoder;
 use self::encoder::RFC3164Encoder;
 #[cfg(feature = "rfc5424")]
 use self::encoder::RFC5424Encoder;
+#[cfg(feature = "passthrough")]
+use self::encoder::PassthroughEncoder;
 #[cfg(feature = "file")]
 use self::input::FileInput;
 #[cfg(feature = "redis-input")]
@@ -266,6 +269,11 @@ fn get_encoder_rfc5424(config: &Config) -> Box<dyn Encoder + Send> {
     Box::new(RFC5424Encoder::new(config)) as Box<dyn Encoder + Send>
 }
 
+#[cfg(feature = "passthrough")]
+fn get_encoder_passthrough(config: &Config) -> Box<dyn Encoder + Send> {
+    Box::new(PassthroughEncoder::new(config)) as Box<dyn Encoder + Send>
+}
+
 #[cfg(feature = "rfc3164")]
 fn get_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
     Box::new(RFC3164Decoder::new(config)) as Box<dyn Decoder + Send>
@@ -294,6 +302,11 @@ fn get_encoder_rfc3164(_config: &Config) -> ! {
 #[cfg(not(feature = "rfc3164"))]
 fn get_encoder_rfc5424(_config: &Config) -> ! {
     panic!("Support for rfc3164 hasn't been compiled in")
+}
+
+#[cfg(not(feature = "passthrough"))]
+fn get_encoder_passthrough(_config: &Config) -> ! {
+    panic!("Support for passthrough hasn't been compiled in")
 }
 
 pub fn start(config_file: &str) {
@@ -336,6 +349,7 @@ pub fn start(config_file: &str) {
         "ltsv" => get_ltvs_encoder(&config),
         "rfc3164" => get_encoder_rfc3164(&config),
         "rfc5424" => get_encoder_rfc5424(&config),
+        "passthrough" => get_encoder_passthrough(&config),
         _ => panic!("Unknown output format: {}", output_format),
     };
     let output_type = config

@@ -1,7 +1,7 @@
 [package]
 edition = "2018"
 name = "flowgger"
-version = "0.2.9"
+version = "0.2.10"
 authors = ["Frank Denis <github@pureftpd.org>", "Matteo Bigoi <bigo@crisidev.org>", "Vivien Chene <viv.chene@gmail.com>", "Francesco Berni <kurojishi@kurojishi.me>"]
 build = "build.rs"
 repository = "https://github.com/awslabs/flowgger"
@@ -26,9 +26,10 @@ kafka-output = ["kafka"]
 tls = ["openssl"]
 gelf = ["serde", "serde_json"]
 ltsv = []
-syslog = ["rfc5424", "rfc3164"]
+syslog = ["rfc5424", "rfc3164", "passthrough"]
 rfc3164=[]
 rfc5424=[]
+passthrough=[]
 file = ["notify", "glob"]
 
 [build-dependencies.capnpc]
@@ -38,6 +39,7 @@ optional = true
 [dependencies]
 capnp = { version = "0.10", optional = true }
 chrono = "0.4"
+chrono-tz = "0.5"
 clap = "2"
 flate2 = "1"
 glob = { version = "0.3", optional = true }
