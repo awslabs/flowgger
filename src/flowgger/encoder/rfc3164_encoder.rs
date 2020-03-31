@@ -1,7 +1,7 @@
-use super::Encoder;
+use super::{Encoder, config_get_prepend_ts, build_prepend_ts};
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
-use chrono::{NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 
 #[derive(Clone)]
 pub struct RFC3164Encoder {
@@ -10,13 +10,7 @@ pub struct RFC3164Encoder {
 
 impl RFC3164Encoder {
     pub fn new(config: &Config) -> RFC3164Encoder {
-        let header_time_format = config
-            .lookup("output.rfc3164_prepend_timestamp")
-            .map_or(None, |bs| {
-                Some(bs.as_str()
-                    .expect("output.rfc3164_prepend_timestamp should be a string")
-                    .to_string())
-            });
+        let header_time_format = config_get_prepend_ts(config);
 
         RFC3164Encoder { header_time_format }
     }
@@ -36,10 +30,7 @@ impl Encoder for RFC3164Encoder {
 
         // First, if specified, prepend a header
         if self.header_time_format.is_some() {
-            let current_time  = Utc::now();
-            let format_str = self.header_time_format.as_ref().unwrap();
-            let dt_str = current_time.format(format_str).to_string();
-            res.push_str(&dt_str);
+            res.push_str(&build_prepend_ts(self.header_time_format.as_ref().unwrap()));
         }
 
         // If a priority is specified, add it
@@ -89,6 +80,8 @@ impl Encoder for RFC3164Encoder {
 use crate::flowgger::record::{SDValue, StructuredData};
 #[cfg(test)]
 use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
+#[cfg(test)]
+use chrono::Utc;
 
 #[test]
 fn test_rfc3164_encode() {
@@ -140,7 +133,7 @@ fn test_rfc3164_withpri_encode() {
 
 #[test]
 fn test_rfc3164_encode_with_prepend() {
-    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nrfc3164_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"").unwrap();
+    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"").unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
     let dt = Utc::now();
     let dt_str = dt.format("[%Y-%m-%dT%H:%MZ]").to_string();
@@ -166,9 +159,9 @@ fn test_rfc3164_encode_with_prepend() {
 }
 
 #[test]
-#[should_panic(expected = "output.rfc3164_prepend_timestamp should be a string")]
+#[should_panic(expected = "output.syslog_prepend_timestamp should be a string")]
 fn test_rfc3164_invalid_prepend() {
-    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nrfc3164_prepend_timestamp=123").unwrap();
+    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=123").unwrap();
     let _ = RFC3164Encoder::new(&cfg);
 }
 

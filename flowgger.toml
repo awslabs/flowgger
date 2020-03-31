@@ -155,6 +155,7 @@ file_rotation_timeformat = "%Y%m%dT%H%M%SZ"
 
 ### Syslog
 framing = "line"
+# "rfc3164" or "rfc5424" or "passthrough"
 format = "rfc3164"
 # Format of the optional timestamp to be prepended to each event
-rfc3164_prepend_timestamp="[%Y-%m-%dT%H:%M:%S%.6fZ]"
+syslog_prepend_timestamp="[%Y-%m-%dT%H:%M:%S%.6fZ]"
