@@ -53,7 +53,7 @@ struct Pri {
 }
 
 fn decode_rfc_standard(pri: &Pri, msg: &str, line: &str) -> Result<Record, &'static str> {
-    // Decoding "usual" rfc input as advised in the rfc: [<pri>]<datetime> <hostname> <message>
+    // Decoding "recommended" rfc input as advised in the rfc: [<pri>]<datetime> <hostname> <message>
 
     // The event may have several consecutive spaces as separator
     let tokens_vec = msg.split_whitespace().collect::<Vec<&str>>();
