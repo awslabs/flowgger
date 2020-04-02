@@ -76,7 +76,7 @@ fn decode_rfc_standard(pri: &Pri, msg: &str, line: &str) -> Result<Record, &'sta
             procid: None,
             msgid: None,
             msg: Some(_message.to_owned()),
-            full_msg: Some(line.to_owned()),
+            full_msg: Some(line.trim_end().to_owned()),
             sd: None,
         };
         Ok(record)
@@ -111,7 +111,7 @@ fn decode_rfc_custom(pri: &Pri, msg: &str, line: &str) -> Result<Record, &'stati
             procid: None,
             msgid: None,
             msg: Some(_message.to_owned()),
-            full_msg: Some(line.to_owned()),
+            full_msg: Some(line.trim_end().to_owned()),
             sd: None,
         };
         Ok(record)
@@ -373,4 +373,22 @@ fn test_rfc3164_decode_custom_with_pri() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname: test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+}
+
+#[test]
+fn test_rfc3164_decode_custom_trimed() {
+    let msg = "<13>testhostname: 2019 Mar 27 12:09:39 UTC: appname: test message \n";
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
+    let expected_ts = ts_from_date_time(2019, 3, 27, 12, 9, 39, 0);
+
+    let decoder = RFC3164Decoder::new(&cfg);
+    let res = decoder.decode(msg).unwrap();
+    assert_eq!(res.facility, Some(1));
+    assert_eq!(res.severity, Some(5));
+    assert_eq!(res.ts, expected_ts);
+    assert_eq!(res.hostname, "testhostname");
+    assert_eq!(res.appname, None);
+    assert_eq!(res.procid, None);
+    assert_eq!(res.msgid, None);
+    assert_eq!(res.full_msg, Some("<13>testhostname: 2019 Mar 27 12:09:39 UTC: appname: test message".to_string()));
 }

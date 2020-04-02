@@ -37,7 +37,7 @@ impl Decoder for RFC5424Decoder {
             msgid: Some(msgid.to_owned()),
             sd,
             msg,
-            full_msg: Some(line.to_owned()),
+            full_msg: Some(line.trim_end().to_owned()),
         };
         Ok(record)
     }
