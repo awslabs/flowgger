@@ -74,7 +74,7 @@ fn build_record<T: Allocator>(
         root.set_full_msg(&full_msg);
     }
     if let Some(sd) = record.sd {
-        if let Some(sd_id) = sd.sd_id.as_ref()  {
+        if let Some(sd_id) = sd.sd_id.as_ref() {
             root.set_sd_id(sd_id);
         }
         let mut pairs = root.reborrow().init_pairs(sd.pairs.len() as u32);
