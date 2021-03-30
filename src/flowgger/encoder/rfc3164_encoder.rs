@@ -1,4 +1,4 @@
-use super::{Encoder, config_get_prepend_ts, build_prepend_ts};
+use super::{build_prepend_ts, config_get_prepend_ts, Encoder};
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
 use chrono::NaiveDateTime;
@@ -133,12 +133,17 @@ fn test_rfc3164_withpri_encode() {
 
 #[test]
 fn test_rfc3164_encode_with_prepend() {
-    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"").unwrap();
+    let cfg = Config::from_string(
+        "[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"",
+    )
+    .unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
     let dt = Utc::now();
     let dt_str = dt.format("[%Y-%m-%dT%H:%MZ]").to_string();
-    let expected_msg = format!(r#"{}Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#, dt_str);
-
+    let expected_msg = format!(
+        r#"{}Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#,
+        dt_str
+    );
 
     let record = Record {
         ts,
@@ -161,7 +166,8 @@ fn test_rfc3164_encode_with_prepend() {
 #[test]
 #[should_panic(expected = "output.syslog_prepend_timestamp should be a string")]
 fn test_rfc3164_invalid_prepend() {
-    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=123").unwrap();
+    let cfg = Config::from_string("[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=123")
+        .unwrap();
     let _ = RFC3164Encoder::new(&cfg);
 }
 

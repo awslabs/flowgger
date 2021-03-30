@@ -65,14 +65,8 @@ fn get_pairs(
     message_pairs: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
     message_extra: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
 ) -> Vec<(String, SDValue)> {
-    let pairs_count = message_pairs
-        .map(|x| x.len())
-        .or(Some(0))
-        .unwrap() as usize
-        + message_extra
-            .map(|x| x.len())
-            .or(Some(0))
-            .unwrap() as usize;
+    let pairs_count = message_pairs.map(|x| x.len()).or(Some(0)).unwrap() as usize
+        + message_extra.map(|x| x.len()).or(Some(0)).unwrap() as usize;
     let mut pairs = Vec::with_capacity(pairs_count);
     if let Some(message_pairs) = message_pairs {
         for message_pair in message_pairs.iter() {

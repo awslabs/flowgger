@@ -125,12 +125,12 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             x.as_bool()
                 .expect("input.tls_compression must be a boolean")
         });
-    let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| 
+    let timeout = config.lookup("input.timeout").map_or(DEFAULT_TIMEOUT, |x| {
         x.as_integer().expect("input.timeout must be an integer") as u64
-    );
-    let framing = if config.lookup("input.framed").map_or(false, |x| 
+    });
+    let framing = if config.lookup("input.framed").map_or(false, |x| {
         x.as_bool().expect("input.framed must be a boolean")
-    ) {
+    }) {
         "syslen"
     } else {
         DEFAULT_FRAMING

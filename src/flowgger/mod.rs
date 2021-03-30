@@ -54,12 +54,12 @@ use self::encoder::Encoder;
 use self::encoder::GelfEncoder;
 #[cfg(feature = "ltsv")]
 use self::encoder::LTSVEncoder;
+#[cfg(feature = "passthrough")]
+use self::encoder::PassthroughEncoder;
 #[cfg(feature = "rfc3164")]
 use self::encoder::RFC3164Encoder;
 #[cfg(feature = "rfc5424")]
 use self::encoder::RFC5424Encoder;
-#[cfg(feature = "passthrough")]
-use self::encoder::PassthroughEncoder;
 #[cfg(feature = "file")]
 use self::input::FileInput;
 #[cfg(feature = "redis-input")]

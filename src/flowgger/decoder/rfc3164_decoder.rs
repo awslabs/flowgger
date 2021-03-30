@@ -32,13 +32,13 @@ impl Decoder for RFC3164Decoder {
         let (pri, _msg) = parse_strip_pri(line)?;
 
         let mut res = decode_rfc_standard(&pri, _msg, line);
-        if let Ok (record) = res  {
+        if let Ok(record) = res {
             return Ok(record);
         }
 
         // Specific implementation
         res = decode_rfc_custom(&pri, _msg, line);
-        if let Ok (record) = res  {
+        if let Ok(record) = res {
             return Ok(record);
         }
 
@@ -158,7 +158,10 @@ fn parse_date_token<'a>(ts_tokens: &'a [&str]) -> Result<(f64, Vec<&'a str>), &'
     parse_date(ts_tokens, false).or_else(|_| parse_date(ts_tokens, true))
 }
 
-fn parse_date<'a>(ts_tokens: &'a [&str], has_year: bool) -> Result<(f64, Vec<&'a str>), &'static str> {
+fn parse_date<'a>(
+    ts_tokens: &'a [&str],
+    has_year: bool,
+) -> Result<(f64, Vec<&'a str>), &'static str> {
     // Decode the date/time from the given tokens with optional year specified
     let ts_str;
     let mut idx;
@@ -167,8 +170,7 @@ fn parse_date<'a>(ts_tokens: &'a [&str], has_year: bool) -> Result<(f64, Vec<&'a
     if has_year {
         idx = 4;
         ts_str = ts_tokens[0..idx].join(" ");
-    }
-    else {
+    } else {
         idx = 3;
         let current_year = Utc::now().year();
         ts_str = format!("{} {}", current_year, ts_tokens[0..idx].join(" "));
@@ -178,7 +180,11 @@ fn parse_date<'a>(ts_tokens: &'a [&str], has_year: bool) -> Result<(f64, Vec<&'a
         Ok(naive_dt) => {
             // See if the next token is a timezone
             let mut ts = 0.0;
-            let tz_res: Result<Tz, String> = if ts_tokens.len() > idx { ts_tokens[idx].parse() } else { Err("No timezone".to_string()) };
+            let tz_res: Result<Tz, String> = if ts_tokens.len() > idx {
+                ts_tokens[idx].parse()
+            } else {
+                Err("No timezone".to_string())
+            };
             if let Ok(tz) = tz_res {
                 let dt = tz.from_local_datetime(&naive_dt).single();
                 if dt.is_some() {
@@ -191,15 +197,15 @@ fn parse_date<'a>(ts_tokens: &'a [&str], has_year: bool) -> Result<(f64, Vec<&'a
                 ts = utils::PreciseTimestamp::from_naive_datetime(naive_dt).as_f64();
             }
             Ok((ts, ts_tokens[idx..].to_vec()))
-        },
-        Err(_err) => {
-            Err("Unable to parse date")
         }
+        Err(_err) => Err("Unable to parse date"),
     }
 }
 
 #[cfg(test)]
-use crate::flowgger::utils::test_utils::rfc_test_utils::{ts_from_partial_date_time, ts_from_date_time};
+use crate::flowgger::utils::test_utils::rfc_test_utils::{
+    ts_from_date_time, ts_from_partial_date_time,
+};
 
 #[test]
 fn test_rfc3164_decode_nopri() {
@@ -333,7 +339,10 @@ fn test_rfc3164_decode_custom_with_year() {
     assert_eq!(res.appname, None);
     assert_eq!(res.procid, None);
     assert_eq!(res.msgid, None);
-    assert_eq!(res.msg, Some(r#"appname 69 42 some test message"#.to_string()));
+    assert_eq!(
+        res.msg,
+        Some(r#"appname 69 42 some test message"#.to_string())
+    );
     assert_eq!(res.full_msg, Some(msg.to_string()));
 }
 
@@ -390,5 +399,8 @@ fn test_rfc3164_decode_custom_trimed() {
     assert_eq!(res.appname, None);
     assert_eq!(res.procid, None);
     assert_eq!(res.msgid, None);
-    assert_eq!(res.full_msg, Some("<13>testhostname: 2019 Mar 27 12:09:39 UTC: appname: test message".to_string()));
+    assert_eq!(
+        res.full_msg,
+        Some("<13>testhostname: 2019 Mar 27 12:09:39 UTC: appname: test message".to_string())
+    );
 }
