@@ -3,7 +3,6 @@ use crate::flowgger::decoder::Decoder;
 use crate::flowgger::encoder::Encoder;
 use crate::flowgger::record::{Record, SDValue, StructuredData, FACILITY_MAX, SEVERITY_MAX};
 use crate::record_capnp;
-use capnp;
 use capnp::message::ReaderOptions;
 use std::io::{stderr, BufReader, Read, Write};
 use std::sync::mpsc::SyncSender;
@@ -67,11 +66,11 @@ fn get_pairs(
     message_extra: Option<capnp::struct_list::Reader<record_capnp::pair::Owned>>,
 ) -> Vec<(String, SDValue)> {
     let pairs_count = message_pairs
-        .and_then(|x| Some(x.len()))
+        .map(|x| x.len())
         .or(Some(0))
         .unwrap() as usize
         + message_extra
-            .and_then(|x| Some(x.len()))
+            .map(|x| x.len())
             .or(Some(0))
             .unwrap() as usize;
     let mut pairs = Vec::with_capacity(pairs_count);
@@ -113,7 +112,7 @@ fn get_pairs(
 }
 
 fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData>, &'static str> {
-    let sd_id = message.get_sd_id().and_then(|x| Ok(x.to_owned())).ok();
+    let sd_id = message.get_sd_id().map(|x| x.to_owned()).ok();
     let pairs = message.get_pairs().ok();
     let extra = message.get_extra().ok();
     let pairs = if pairs.is_none() && extra.is_none() {
@@ -134,7 +133,7 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
     }
     let hostname = message
         .get_hostname()
-        .and_then(|x| Ok(x.to_owned()))
+        .map(|x| x.to_owned())
         .or(Err("Missing host name"))?;
     let facility = match message.get_facility() {
         facility if facility <= FACILITY_MAX => Some(facility),
@@ -144,11 +143,11 @@ fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'sta
         severity if severity <= SEVERITY_MAX => Some(severity),
         _ => None,
     };
-    let appname = message.get_appname().and_then(|x| Ok(x.to_owned())).ok();
-    let procid = message.get_procid().and_then(|x| Ok(x.to_owned())).ok();
-    let msgid = message.get_msgid().and_then(|x| Ok(x.to_owned())).ok();
-    let msg = message.get_msg().and_then(|x| Ok(x.to_owned())).ok();
-    let full_msg = message.get_full_msg().and_then(|x| Ok(x.to_owned())).ok();
+    let appname = message.get_appname().map(|x| x.to_owned()).ok();
+    let procid = message.get_procid().map(|x| x.to_owned()).ok();
+    let msgid = message.get_msgid().map(|x| x.to_owned()).ok();
+    let msg = message.get_msg().map(|x| x.to_owned()).ok();
+    let full_msg = message.get_full_msg().map(|x| x.to_owned()).ok();
     let sd = get_sd(message)?;
     Ok(Record {
         ts,

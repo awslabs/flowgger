@@ -29,10 +29,7 @@ pub struct StructuredData {
 impl StructuredData {
     pub fn new(sd_id: Option<&str>) -> StructuredData {
         StructuredData {
-            sd_id: match sd_id {
-                Some(sd_id) => Some(sd_id.to_owned()),
-                None => None,
-            },
+            sd_id: sd_id.map(|sd_id| sd_id.to_owned()),
             pairs: Vec::new(),
         }
     }

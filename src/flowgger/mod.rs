@@ -1,3 +1,11 @@
+#![allow(non_fmt_panic)]
+#![allow(clippy::upper_case_acronyms)]
+#![allow(clippy::unnecessary_wraps)]
+#![allow(clippy::manual_flatten)]
+#![allow(clippy::unnecessary_unwrap)]
+#![allow(clippy::manual_strip)]
+#![allow(clippy::borrowed_box)]
+
 mod config;
 mod decoder;
 mod encoder;
@@ -71,7 +79,6 @@ use self::output::KafkaOutput;
 #[cfg(feature = "tls")]
 use self::output::TlsOutput;
 use self::output::{DebugOutput, Output};
-use std::error::Error;
 use std::sync::mpsc::{sync_channel, Receiver, SyncSender};
 use std::sync::{Arc, Mutex};
 
@@ -315,7 +322,7 @@ pub fn start(config_file: &str) {
         Err(e) => panic!(
             "Unable to read the config file [{}]: {}",
             config_file,
-            e.description()
+            e.to_string()
         ),
     };
     let input_format = config

@@ -59,7 +59,7 @@ impl Encoder for RFC5424Encoder {
             res.push(' ');
         }
         if let Some(procid) = record.procid {
-            res.push_str(&procid.to_string());
+            res.push_str(&procid);
         } else {
             res.push('-');
         }

@@ -52,6 +52,4 @@ pub mod rfc_test_utils {
         let dt = new_date_time(year, month, day, hour, min, sec, msec);
         DateTime::from_utc(dt, Utc)
     }
-//
-
 }

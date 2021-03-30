@@ -1,10 +1,8 @@
 use crate::flowgger::config::Config;
 use crate::flowgger::merger::Merger;
-use chrono;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;
-use rand;
 use rand::Rng;
 
 use super::Output;
@@ -238,17 +236,17 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
                 .to_owned()
         })
         .collect();
-    let cert: Option<PathBuf> = config.lookup("output.tls_cert").and_then(|x| {
-        Some(PathBuf::from(
+    let cert: Option<PathBuf> = config.lookup("output.tls_cert").map(|x| {
+        PathBuf::from(
             x.as_str()
                 .expect("output.tls_cert must be a path to a .pem file"),
-        ))
+        )
     });
-    let key: Option<PathBuf> = config.lookup("output.tls_key").and_then(|x| {
-        Some(PathBuf::from(
+    let key: Option<PathBuf> = config.lookup("output.tls_key").map(|x| {
+        PathBuf::from(
             x.as_str()
                 .expect("output.tls_key must be a path to a .pem file"),
-        ))
+        )
     });
     let ciphers = config
         .lookup("output.tls_ciphers")
@@ -263,11 +261,11 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
             x.as_bool()
                 .expect("output.tls_verify_peer must be a boolean")
         });
-    let ca_file: Option<PathBuf> = config.lookup("output.tls_ca_file").and_then(|x| {
-        Some(PathBuf::from(
+    let ca_file: Option<PathBuf> = config.lookup("output.tls_ca_file").map(|x| {
+        PathBuf::from(
             x.as_str()
                 .expect("output.tls_ca_file must be a path to a file"),
-        ))
+        )
     });
     let compression = config
         .lookup("output.tls_compression")

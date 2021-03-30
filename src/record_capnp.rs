@@ -19,7 +19,7 @@ pub mod record {
   }
   impl <'a,> ::capnp::traits::FromStructReader<'a> for Reader<'a,>  {
     fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a,> {
-      Reader { reader: reader,  }
+      Reader { reader,  }
     }
   }
 
@@ -137,7 +137,7 @@ pub mod record {
   }
   impl <'a,> ::capnp::traits::FromStructBuilder<'a> for Builder<'a,>  {
     fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a, > {
-      Builder { builder: builder,  }
+      Builder { builder,  }
     }
   }
 
@@ -366,7 +366,7 @@ pub mod pair {
   }
   impl <'a,> ::capnp::traits::FromStructReader<'a> for Reader<'a,>  {
     fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a,> {
-      Reader { reader: reader,  }
+      Reader { reader,  }
     }
   }
 
@@ -420,7 +420,7 @@ pub mod pair {
   }
   impl <'a,> ::capnp::traits::FromStructBuilder<'a> for Builder<'a,>  {
     fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a, > {
-      Builder { builder: builder,  }
+      Builder { builder,  }
     }
   }
 
@@ -523,7 +523,7 @@ pub mod pair {
     }
     impl <'a,> ::capnp::traits::FromStructReader<'a> for Reader<'a,>  {
       fn new(reader: ::capnp::private::layout::StructReader<'a>) -> Reader<'a,> {
-        Reader { reader: reader,  }
+        Reader { reader,  }
       }
     }
 
@@ -606,7 +606,7 @@ pub mod pair {
     }
     impl <'a,> ::capnp::traits::FromStructBuilder<'a> for Builder<'a,>  {
       fn new(builder: ::capnp::private::layout::StructBuilder<'a>) -> Builder<'a, > {
-        Builder { builder: builder,  }
+        Builder { builder,  }
       }
     }
 

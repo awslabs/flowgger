@@ -75,7 +75,7 @@ fn decode_rfc_standard(pri: &Pri, msg: &str, line: &str) -> Result<Record, &'sta
             appname: None,
             procid: None,
             msgid: None,
-            msg: Some(_message.to_owned()),
+            msg: Some(_message),
             full_msg: Some(line.trim_end().to_owned()),
             sd: None,
         };
@@ -110,7 +110,7 @@ fn decode_rfc_custom(pri: &Pri, msg: &str, line: &str) -> Result<Record, &'stati
             appname: None,
             procid: None,
             msgid: None,
-            msg: Some(_message.to_owned()),
+            msg: Some(_message),
             full_msg: Some(line.trim_end().to_owned()),
             sd: None,
         };

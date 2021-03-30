@@ -148,7 +148,7 @@ impl RotatingFile {
     pub fn open(&mut self) -> io::Result<()> {
         // Either use a timstamped filename or the one provided
         let filepath = if self.is_time_triggered() {
-            self.build_timestamped_filename().clone()
+            self.build_timestamped_filename()
         } else {
             self.basename.clone()
         };
