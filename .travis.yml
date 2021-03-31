@@ -13,7 +13,6 @@ env:
     - CRATE_NAME=flowgger
     - TARGET=x86_64-unknown-linux-gnu
     - FLOWGGER_FEATURES="syslog kafka-output file redis tls gelf ltsv"
-    - openssl-sys = 0.9.61
 
 matrix:
   include:

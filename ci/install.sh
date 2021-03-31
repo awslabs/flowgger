@@ -10,7 +10,8 @@ main() {
 
     sudo apt-get -y install pkg-config libssl-dev
     
-    export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
+    # export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
+    export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
