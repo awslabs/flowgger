@@ -9,6 +9,8 @@ main() {
     sudo apt-get install musl-tools -y
 
     sudo apt-get -y install pkg-config libssl-dev
+    
+    export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
