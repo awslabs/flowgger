@@ -81,7 +81,7 @@ impl FileDiscovery {
                 Err(e) => panic!("Failed to read glob entry: {}", e),
             }
         }
-        if let Some(parent) = path_match.clone().parent() {
+        if let Some(parent) = path_match.parent() {
             self.add_initial_watches(PathBuf::from(parent))
         }
     }
@@ -102,7 +102,7 @@ impl FileDiscovery {
     }
 
     fn start_worker(&self, path: &Path, from_tail: bool) {
-        let p = path.to_owned().clone();
+        let p = path.to_owned();
         let t = self.log_tx.clone();
         let d: Box<dyn Decoder + Send> = self.decoder.clone_boxed();
         let e: Box<dyn Encoder + Send> = self.encoder.clone_boxed();

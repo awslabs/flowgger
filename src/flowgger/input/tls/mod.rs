@@ -113,11 +113,11 @@ pub fn config_parse(config: &Config) -> (TlsConfig, String, u64) {
             x.as_bool()
                 .expect("input.tls_verify_peer must be a boolean")
         });
-    let ca_file: Option<PathBuf> = config.lookup("input.tls_ca_file").and_then(|x| {
-        Some(PathBuf::from(
+    let ca_file: Option<PathBuf> = config.lookup("input.tls_ca_file").map(|x| {
+        PathBuf::from(
             x.as_str()
                 .expect("input.tls_ca_file must be a path to a file"),
-        ))
+        )
     });
     let compression = config
         .lookup("input.tls_compression")

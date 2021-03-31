@@ -1,7 +1,6 @@
 use super::Encoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue};
-use serde_json;
 use serde_json::builder::ObjectBuilder;
 use serde_json::value::Value;
 

@@ -1,4 +1,3 @@
-use std;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::stderr;
@@ -49,8 +48,8 @@ impl FileWorker {
             (self.decoder.clone_boxed(), self.encoder.clone_boxed());
         let mut finish = false;
         while !finish {
-            match rx.recv() {
-                Ok(_) => loop {
+            if rx.recv().is_ok() {
+                loop {
                     let r = reader.read_until(10, &mut buffer);
                     match r {
                         Ok(bytes_read) => {
@@ -71,8 +70,7 @@ impl FileWorker {
                             let _ = writeln!(stderr(), "{}: [{}]", e, line.trim());
                         }
                     }
-                },
-                Err(_) => {}
+                }
             }
         }
     }

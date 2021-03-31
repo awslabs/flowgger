@@ -2,7 +2,6 @@ use super::Encoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue, FACILITY_MISSING, SEVERITY_MISSING};
 use crate::record_capnp;
-use capnp;
 use capnp::message::{Allocator, Builder};
 
 #[derive(Clone)]
@@ -75,10 +74,9 @@ fn build_record<T: Allocator>(
         root.set_full_msg(&full_msg);
     }
     if let Some(sd) = record.sd {
-        sd.sd_id.as_ref().and_then(|sd_id| {
+        if let Some(sd_id) = sd.sd_id.as_ref() {
             root.set_sd_id(sd_id);
-            Some(())
-        });
+        }
         let mut pairs = root.reborrow().init_pairs(sd.pairs.len() as u32);
         for (i, (name, value)) in sd.pairs.into_iter().enumerate() {
             let mut pair = pairs.reborrow().get(i as u32);

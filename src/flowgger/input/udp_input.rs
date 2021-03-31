@@ -71,7 +71,6 @@ impl Input for UdpInput {
     ) {
         let socket = UdpSocket::bind(&self.listen)
             .unwrap_or_else(|_| panic!("Unable to listen to {}", self.listen));
-        let tx = tx.clone();
         let (decoder, encoder): (Box<dyn Decoder>, Box<dyn Encoder>) =
             (decoder.clone_boxed(), encoder.clone_boxed());
         let mut buf = [0; MAX_UDP_PACKET_SIZE];

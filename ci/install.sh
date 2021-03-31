@@ -4,6 +4,15 @@ main() {
     curl https://sh.rustup.rs -sSf | \
         sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
 
+    sudo apt-get update
+
+    sudo apt-get install musl-tools -y
+
+    sudo apt-get -y install pkg-config libssl-dev
+    
+    # export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
+    export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
+
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
         target=x86_64-unknown-linux-gnu
