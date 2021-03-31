@@ -4,7 +4,11 @@ main() {
     curl https://sh.rustup.rs -sSf | \
         sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
 
-    sudo apt-get install libssl-dev
+    sudo apt-get update
+
+    sudo apt-get install musl-tools -y
+
+    sudo apt-get -y install pkg-config libssl-dev
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
