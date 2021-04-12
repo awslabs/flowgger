@@ -19,7 +19,7 @@ set -ex
     fi
 
     # This fetches latest stable release
-    local citag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
+    citag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
                        | cut -d/ -f3 \
                        | grep -E '^v[0-9.]+$' \
                        | $sort --version-sort \
