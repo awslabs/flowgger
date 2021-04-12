@@ -1,6 +1,6 @@
 set -ex
 
-main() {
+#main() {
     curl https://sh.rustup.rs -sSf | \
         sh -s -- -y --default-toolchain $TRAVIS_RUST_VERSION
 
@@ -32,6 +32,6 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
-}
+#}
 
-main
+#main
