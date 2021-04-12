@@ -7,6 +7,11 @@ main() {
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
         target=x86_64-unknown-linux-gnu
+        sudo apt-get update
+
+        sudo apt-get install musl-tools -y
+        sudo apt-get -y install pkg-config libssl-dev
+
         sort=sort
     else
         target=x86_64-apple-darwin
