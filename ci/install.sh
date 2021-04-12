@@ -13,6 +13,7 @@ main() {
         sort=gsort  # for `sort --sort-version`, from brew's coreutils.
     fi
 
+ 
     # This fetches latest stable release
     local tag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
                        | cut -d/ -f3 \
