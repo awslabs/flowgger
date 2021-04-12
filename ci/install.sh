@@ -18,19 +18,18 @@ set -ex
         sort=gsort  # for `sort --sort-version`, from brew's coreutils.
     fi
 
- 
     # This fetches latest stable release
-    local tag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
+    local citag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
                        | cut -d/ -f3 \
                        | grep -E '^v[0-9.]+$' \
                        | $sort --version-sort \
                        | tail -n1)
-    echo cross version: $tag
+    echo cross version: $citag
     curl -LSfs https://japaric.github.io/trust/install.sh | \
         sh -s -- \
            --force \
            --git japaric/cross \
-           --tag $tag \
+           --tag $citag \
            --target $citarget
 #}
 
