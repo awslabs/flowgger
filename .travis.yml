@@ -62,6 +62,7 @@ branches:
     # release tags
     - /^\d+\.\d+\.\d+.*$/
     - master
+    - travis_test
 
 notifications:
   email:
