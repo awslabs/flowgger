@@ -10,7 +10,7 @@ set -ex
         sudo apt-get update
 
         sudo apt-get install musl-tools -y
-        sudo apt-get -y install pkg-config libssl-dev
+        sudo apt-get -y install pkg-config openssl libssl-dev
 
         sort=sort
     else
