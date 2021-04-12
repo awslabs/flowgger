@@ -11,7 +11,9 @@ set -ex
 
         sudo apt-get install musl-tools -y
         sudo apt-get -y install pkg-config openssl libssl-dev
+        export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
 
+        ls -la /usr/lib/aarch64-linux-gnu/pkgconfig
         sort=sort
     else
         citarget=x86_64-apple-darwin
