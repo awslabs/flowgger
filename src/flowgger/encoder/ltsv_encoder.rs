@@ -65,20 +65,27 @@ impl LTSVString {
 impl Encoder for LTSVEncoder {
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
         let mut res = LTSVString::new();
-        if let Some(sd) = record.sd {
-            for &(ref name, ref value) in &sd.pairs {
-                let name = if (*name).starts_with('_') {
-                    &name[1..] as &str
-                } else {
-                    name as &str
-                };
-                match *value {
-                    SDValue::String(ref value) => res.insert(name, value),
-                    SDValue::Bool(ref value) => res.insert(name, &value.to_string()),
-                    SDValue::F64(ref value) => res.insert(name, &value.to_string()),
-                    SDValue::I64(ref value) => res.insert(name, &value.to_string()),
-                    SDValue::U64(ref value) => res.insert(name, &value.to_string()),
-                    SDValue::Null => res.insert(name, ""),
+        if let Some(sd_vec) = record.sd {
+            for &ref sd in &sd_vec {
+                // Warning: LTSV doesn't have a concept of structued data. In case there are
+                // several, all their attributes will be aded as fields. So if several structured
+                // data have the same key, only the last value will show as it will overwrite the
+                // others. We could use the sd_id to prefix the field to sove this but this is a
+                // breaking change.
+                for &(ref name, ref value) in &sd.pairs {
+                    let name = if (*name).starts_with('_') {
+                        &name[1..] as &str
+                    } else {
+                        name as &str
+                    };
+                    match *value {
+                        SDValue::String(ref value) => res.insert(name, value),
+                        SDValue::Bool(ref value) => res.insert(name, &value.to_string()),
+                        SDValue::F64(ref value) => res.insert(name, &value.to_string()),
+                        SDValue::I64(ref value) => res.insert(name, &value.to_string()),
+                        SDValue::U64(ref value) => res.insert(name, &value.to_string()),
+                        SDValue::Null => res.insert(name, ""),
+                    }
                 }
             }
         }
@@ -115,4 +122,75 @@ impl Encoder for LTSVEncoder {
         }
         Ok(res.finalize().into_bytes())
     }
+}
+
+#[cfg(test)]
+use crate::flowgger::record::StructuredData;
+#[cfg(test)]
+use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
+
+#[test]
+fn test_ltsv_full_encode_no_sd() {
+    let full_msg = "<23>Aug  6 11:15:24 testhostname appname[69]: 42 - some test message";
+    let expected_msg = "host:testhostname\ttime:1628248524\tmessage:some test message\tfull_message:<23>Aug  6 11:15:24 testhostname appname[69]: 42 - some test message\tlevel:7\tfacility:2\tappname:appname\tprocid:69\tmsgid:42";
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"ltsv\"\n").unwrap();
+    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+
+    let record = Record {
+        ts,
+        hostname: "testhostname".to_string(),
+        facility: Some(2),
+        severity: Some(7),
+        appname: Some("appname".to_string()),
+        procid: Some("69".to_string()),
+        msgid: Some("42".to_string()),
+        msg: Some(r#"some test message"#.to_string()),
+        full_msg: Some(full_msg.to_string()),
+        sd: None,
+    };
+
+    let encoder = LTSVEncoder::new(&cfg);
+    let res = encoder.encode(record).unwrap();
+    assert_eq!(String::from_utf8_lossy(&res), expected_msg);
+}
+
+
+#[test]
+fn test_ltsv_full_encode_multiple_sd() {
+    let full_msg = "<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a=\"b\" c=\"123456\"][someid2 a2=\"b2\" c2=\"123456\"] some test message";
+    let expected_msg = "a:b\tc:123456\ta2:b2\tc2:123456\thost:testhostname\ttime:1628248524\tmessage:some test message\tfull_message:<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a=\"b\" c=\"123456\"][someid2 a2=\"b2\" c2=\"123456\"] some test message\tlevel:7\tfacility:2\tappname:appname\tprocid:69\tmsgid:42";
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"ltsv\"\n").unwrap();
+    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+
+    let record = Record {
+        ts,
+        hostname: "testhostname".to_string(),
+        facility: Some(2),
+        severity: Some(7),
+        appname: Some("appname".to_string()),
+        procid: Some("69".to_string()),
+        msgid: Some("42".to_string()),
+        msg: Some(r#"some test message"#.to_string()),
+        full_msg: Some(full_msg.to_string()),
+        sd: Some(vec![
+            StructuredData {
+                sd_id: Some("someid".to_string()),
+                pairs: vec![
+                    ("a".to_string(), SDValue::String("b".to_string())),
+                    ("c".to_string(), SDValue::U64(123456)),
+                ],
+            },
+            StructuredData {
+                sd_id: Some("someid2".to_string()),
+                pairs: vec![
+                    ("a2".to_string(), SDValue::String("b2".to_string())),
+                    ("c2".to_string(), SDValue::U64(123456)),
+                ],
+            },
+        ]),
+    };
+
+    let encoder = LTSVEncoder::new(&cfg);
+    let res = encoder.encode(record).unwrap();
+    assert_eq!(String::from_utf8_lossy(&res), expected_msg);
 }

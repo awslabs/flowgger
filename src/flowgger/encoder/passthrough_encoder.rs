@@ -18,7 +18,7 @@ impl Encoder for PassthroughEncoder {
     /// Implementation of a passthrough encoder.
     /// Just pass the full raw messages from input without rebuilding them.
     /// This allows passing several different formats, i.e. rfc3164 can accept different formats.
-    /// The actual output format is therefore the format set set as input.
+    /// The actual output format is therefore the format set as input.
     fn encode(&self, record: Record) -> Result<Vec<u8>, &'static str> {
         let mut res = String::new();
 
