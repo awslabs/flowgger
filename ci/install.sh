@@ -11,8 +11,13 @@ set -ex
 
         sudo apt-get install musl-tools -y
         sudo apt-get -y install pkg-config openssl libssl-dev
-        export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
 
+        which pkg-config
+        if [ -d "/usr/lib/pkgconfig" ]; then
+            export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig
+        else
+            export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
+        fi
         ls -la /usr/lib/aarch64-linux-gnu/pkgconfig
         sort=sort
     else
