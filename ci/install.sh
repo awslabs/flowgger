@@ -26,18 +26,19 @@ set -ex
     fi
 
     # This fetches latest stable release
-    citag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
-                       | cut -d/ -f3 \
-                       | grep -E '^v[0-9.]+$' \
-                       | $sort --version-sort \
-                       | tail -n1)
-    echo cross version: $citag
-    curl -LSfs https://japaric.github.io/trust/install.sh | \
-        sh -s -- \
-           --force \
-           --git japaric/cross \
-           --tag $citag \
-           --target $citarget
+    cargo install cross
+    # citag=$(git ls-remote --tags --refs --exit-code https://github.com/rust-embedded/cross \
+    #                    | cut -d/ -f3 \
+    #                    | grep -E '^v[0-9.]+$' \
+    #                    | $sort --version-sort \
+    #                    | tail -n1)
+    # echo cross version: $citag
+    # curl -LSfs https://japaric.github.io/trust/install.sh | \
+    #     sh -s -- \
+    #        --force \
+    #        --git japaric/cross \
+    #        --tag $citag \
+    #        --target $citarget
 #}
 
 #main
