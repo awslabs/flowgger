@@ -2,7 +2,7 @@
 
 ![Flowgger](https://raw.github.com/awslabs/flowgger/master/flowgger.png)
 
-[![Build Status](https://travis-ci.org/awslabs/flowgger.svg?branch=master)](https://travis-ci.org/awslabs/flowgger) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
+[![Build Status](https://app.travis-ci.com/awslabs/flowgger.svg?branch=master)](https://app.travis-ci.com/awslabs/flowgger) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
 
 Flowgger is a fast, simple and lightweight data collector written in Rust.
 
