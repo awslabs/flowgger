@@ -18,7 +18,7 @@ set -ex
         else
             export PKG_CONFIG_LIBDIR=/usr/lib/aarch64-linux-gnu/pkgconfig
         fi
-        ls -la /usr/lib/aarch64-linux-gnu/pkgconfig
+        ls -la $PKG_CONFIG_LIBDIR
         sort=sort
     else
         citarget=x86_64-apple-darwin
