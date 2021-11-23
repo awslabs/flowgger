@@ -13,19 +13,10 @@ main() {
         sort=gsort  # for `sort --sort-version`, from brew's coreutils.
     fi
 
-    # This fetches latest stable release
-    local tag=$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross \
-                       | cut -d/ -f3 \
-                       | grep -E '^v[0-9.]+$' \
-                       | $sort --version-sort \
-                       | tail -n1)
-    echo cross version: $tag
-    curl -LSfs https://japaric.github.io/trust/install.sh | \
-        sh -s -- \
-           --force \
-           --git japaric/cross \
-           --tag $tag \
-           --target $target
+    # Cross removed support of openssl, which breaks in musl. We're using an older version.
+    # Eventually we may want to create a specific docker file for cross as mentionned here
+    # https://github.com/rust-embedded/cross/issues/229
+    cargo install --version 0.1.16 cross --force
 }
 
 main
