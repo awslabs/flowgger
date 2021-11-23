@@ -27,7 +27,7 @@ main() {
     # Cross removed support of openssl, which breaks in musl. We're using an older version.
     # Eventually we may want to create a specific docker file for cross as mentionned here
     # https://github.com/rust-embedded/cross/issues/229
-    cargo install --version 0.1.16 cross
+    cargo install --version 0.1.16 cross --force
 }
 
 main
