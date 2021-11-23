@@ -63,8 +63,10 @@ impl Encoder for RFC3164Encoder {
         }
 
         // Encode structured data is present, although not part of rfc3164
-        if let Some(sd) = record.sd {
-            res.push_str(&sd.to_string());
+        if let Some(sd_vec) = record.sd {
+            for &ref sd in &sd_vec {
+                res.push_str(&sd.to_string());
+            }
             res.push(' ');
         }
 
@@ -181,13 +183,52 @@ fn test_rfc3164_full_encode() {
         msgid: Some("42".to_string()),
         msg: Some(r#"some test message"#.to_string()),
         full_msg: Some(expected_msg.to_string()),
-        sd: Some(StructuredData {
+        sd: Some(vec![StructuredData {
             sd_id: Some("someid".to_string()),
             pairs: vec![
                 ("a".to_string(), SDValue::String("b".to_string())),
                 ("c".to_string(), SDValue::U64(123456)),
             ],
-        }),
+        }]),
+    };
+
+    let encoder = RFC3164Encoder::new(&cfg);
+    let res = encoder.encode(record).unwrap();
+    assert_eq!(String::from_utf8_lossy(&res), expected_msg);
+}
+
+#[test]
+fn test_rfc3164_full_encode_multiple_sd() {
+    let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a="b" c="123456"][someid2 a2="b2" c2="123456"] some test message"#;
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
+    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+
+    let record = Record {
+        ts,
+        hostname: "testhostname".to_string(),
+        facility: Some(2),
+        severity: Some(7),
+        appname: Some("appname".to_string()),
+        procid: Some("69".to_string()),
+        msgid: Some("42".to_string()),
+        msg: Some(r#"some test message"#.to_string()),
+        full_msg: Some(expected_msg.to_string()),
+        sd: Some(vec![
+            StructuredData {
+                sd_id: Some("someid".to_string()),
+                pairs: vec![
+                    ("a".to_string(), SDValue::String("b".to_string())),
+                    ("c".to_string(), SDValue::U64(123456)),
+                ],
+            },
+            StructuredData {
+                sd_id: Some("someid2".to_string()),
+                pairs: vec![
+                    ("a2".to_string(), SDValue::String("b2".to_string())),
+                    ("c2".to_string(), SDValue::U64(123456)),
+                ],
+            },
+        ]),
     };
 
     let encoder = RFC3164Encoder::new(&cfg);

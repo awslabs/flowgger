@@ -26,7 +26,8 @@ impl Decoder for RFC5424Decoder {
         let appname = parts.next().ok_or("Missing application name")?;
         let procid = parts.next().ok_or("Missing process id")?;
         let msgid = parts.next().ok_or("Missing message id")?;
-        let (sd, msg) = parse_data(parts.next().ok_or("Missing message data")?)?;
+        let (sd_vec, msg) = parse_data(parts.next().ok_or("Missing message data")?)?;
+
         let record = Record {
             ts,
             hostname: hostname.to_owned(),
@@ -35,7 +36,7 @@ impl Decoder for RFC5424Decoder {
             appname: Some(appname.to_owned()),
             procid: Some(procid.to_owned()),
             msgid: Some(msgid.to_owned()),
-            sd,
+            sd: if sd_vec.is_empty() { None } else { Some(sd_vec) },
             msg,
             full_msg: Some(line.trim_end().to_owned()),
         };
@@ -118,6 +119,38 @@ fn unescape_sd_value(value: &str) -> String {
     res
 }
 
+fn parse_data(line: &str) -> Result<(Vec<StructuredData>, Option<String>), &'static str> {
+    let mut sd_vec:Vec<StructuredData> = Vec::new();
+    match line.chars().next().ok_or("Missing log message")? {
+        '-' => {
+            // No SD, just a message
+            return Ok((sd_vec, parse_msg(line, 1)));
+        }
+        '[' => {
+            // At least one SD
+            let (mut leftover, mut offset) = (line, 0);
+            let mut next_sd = true;
+            while next_sd {
+                let (sd, new_leftover, new_offset) = parse_sd_data(leftover, offset + 1)?;
+                // Unfortunately we have to reassign, https://github.com/rust-lang/rfcs/pull/2909 not yet implemented
+                leftover = new_leftover;
+                offset = new_offset;
+                sd_vec.push(sd);
+
+                match leftover[offset..].chars().next().ok_or("Missing log message")? {
+                    // Another SD
+                    '[' => next_sd = true,
+                    // Separator, the rest is the message
+                    ' ' => return Ok((sd_vec, parse_msg(leftover, offset))),
+                    _ => return Err("Malformated RFC5424 message"),
+                }
+            }
+            return Ok((sd_vec, parse_msg(leftover, 1)));
+        }
+        _ => return Err("Malformated RFC5424 message"),
+    };
+}
+
 fn parse_msg(line: &str, offset: usize) -> Option<String> {
     if offset > line.len() {
         None
@@ -129,15 +162,8 @@ fn parse_msg(line: &str, offset: usize) -> Option<String> {
     }
 }
 
-fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'static str> {
-    match line.chars().next().ok_or("Short message")? {
-        '-' => {
-            return Ok((None, parse_msg(line, 1)));
-        }
-        '[' => {}
-        _ => return Err("Short message"),
-    };
-    let mut parts = line[1..].splitn(2, ' ');
+fn parse_sd_data(line: &str, offset: usize) -> Result<(StructuredData, &str, usize), &'static str> {
+    let mut parts = line[offset..].splitn(2, ' ');
     let sd_id = parts.next().ok_or("Missing structured data id")?;
     let sd = parts.next().ok_or("Missing structured data")?;
     let mut in_name = false;
@@ -202,7 +228,7 @@ fn parse_data(line: &str) -> Result<(Option<StructuredData>, Option<String>), &'
     }
     match after_sd {
         None => Err("Missing ] after structured data"),
-        Some(offset) => Ok((Some(sd_res), parse_msg(sd, offset))),
+        Some(offset) => Ok((sd_res, sd, offset)),
     }
 }
 
@@ -218,9 +244,47 @@ fn test_rfc5424() {
     assert!(res.procid == Some("69".to_owned()));
     assert!(res.msgid == Some("42".to_owned()));
     assert!(res.msg == Some("test message".to_owned()));
-    let sd = res.sd.unwrap();
+    let sd_vec = res.sd.unwrap();
+    assert!(sd_vec.len() == 1);
+    let sd = &sd_vec[0];
     assert!(sd.sd_id == Some("origin@123".to_owned()));
-    let pairs = sd.pairs;
+    let pairs = &sd.pairs;
+
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_software" && v == "te\\st sc\"ript"
+        } else {
+            false
+        }));
+    assert!(pairs
+        .iter()
+        .cloned()
+        .any(|(k, v)| if let SDValue::String(v) = v {
+            k == "_swVersion" && v == "0.0.1"
+        } else {
+            false
+        }));
+}
+
+#[test]
+fn test_rfc5424_multiple_sd() {
+    let msg = r#"<23>1 2015-08-05T15:53:45.637824Z testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"][master@456 key="value" key2="value2"] test message"#;
+    let res = RFC5424Decoder.decode(msg).unwrap();
+    assert!(res.facility.unwrap() == 2);
+    assert!(res.severity.unwrap() == 7);
+    assert!(res.ts == 1438790025.637824);
+    assert!(res.hostname == "testhostname");
+    assert!(res.appname == Some("appname".to_owned()));
+    assert!(res.procid == Some("69".to_owned()));
+    assert!(res.msgid == Some("42".to_owned()));
+    assert!(res.msg == Some("test message".to_owned()));
+    let sd_vec = res.sd.unwrap();
+    assert!(sd_vec.len() == 2);
+    let sd = &sd_vec[0];
+    assert!(sd.sd_id == Some("origin@123".to_owned()));
+    let pairs = &sd.pairs;
 
     assert!(pairs
         .iter()

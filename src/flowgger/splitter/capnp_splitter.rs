@@ -112,7 +112,7 @@ fn get_pairs(
     pairs
 }
 
-fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData>, &'static str> {
+fn get_sd(message: record_capnp::record::Reader) -> Result<Option<Vec<StructuredData>>, &'static str> {
     let sd_id = message.get_sd_id().and_then(|x| Ok(x.to_owned())).ok();
     let pairs = message.get_pairs().ok();
     let extra = message.get_extra().ok();
@@ -124,7 +124,7 @@ fn get_sd(message: record_capnp::record::Reader) -> Result<Option<StructuredData
     } else {
         get_pairs(pairs, extra)
     };
-    Ok(Some(StructuredData { sd_id, pairs }))
+    Ok(Some(vec![StructuredData { sd_id, pairs }]))
 }
 
 fn handle_message(message: record_capnp::record::Reader) -> Result<Record, &'static str> {
@@ -184,7 +184,7 @@ mod tests {
             msgid: Some("".to_string()),
             msg: Some("A short message that helps you identify what is going on".to_string()),
             full_msg: Some("Backtrace here\n\nmore stuff".to_string()),
-            sd: Some(sd),
+            sd: Some(vec![sd]),
         };
 
         let capnp_message = vec![
@@ -218,6 +218,6 @@ mod tests {
         assert_eq!(record.msgid, expected.msgid);
         assert_eq!(record.msg, expected.msg);
         assert_eq!(record.full_msg, expected.full_msg);
-        assert_eq!(record.sd.unwrap().sd_id, expected.sd.unwrap().sd_id);
+        assert_eq!(record.sd.unwrap()[0].sd_id, expected.sd.unwrap()[0].sd_id);
     }
 }

@@ -78,7 +78,7 @@ pub struct Record {
     pub msgid: Option<String>,
     pub msg: Option<String>,
     pub full_msg: Option<String>,
-    pub sd: Option<StructuredData>,
+    pub sd: Option<Vec<StructuredData>>,
 }
 
 #[cfg(feature = "capnp-recompile")]

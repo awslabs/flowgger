@@ -71,8 +71,10 @@ impl Encoder for RFC5424Encoder {
         }
         res.push(' ');
 
-        if let Some(sd) = record.sd {
-            res.push_str(&sd.to_string());
+        if let Some(sd_vec) = record.sd {
+            for &ref sd in &sd_vec {
+                res.push_str(&sd.to_string());
+            }
             res.push(' ');
         } else {
             res.push_str("- ");
@@ -131,7 +133,7 @@ fn test_rfc5424_full_encode() {
         msgid: Some("42".to_string()),
         msg: Some("test message".to_string()),
         full_msg: Some(expected_msg.to_string()),
-        sd: Some(StructuredData {
+        sd: Some(vec![StructuredData {
             sd_id: Some("origin@123".to_string()),
             pairs: vec![
                 (
@@ -143,7 +145,58 @@ fn test_rfc5424_full_encode() {
                     SDValue::String("0.0.1".to_string()),
                 ),
             ],
-        }),
+        }]),
+    };
+
+    let encoder = RFC5424Encoder::new(&cfg);
+    let res = encoder.encode(record).unwrap();
+    assert_eq!(String::from_utf8_lossy(&res), expected_msg);
+}
+
+#[test]
+fn test_rfc5424_full_encode_multiple_sd() {
+    let expected_msg = r#"<25>1 2015-08-05T15:53:45.382Z testhostname appname 69 42 [origin@123 software="test sc\"ript" swVersion="0.0.1"][master@456 key1="value1" key2="value2"] test message"#;
+    let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n").unwrap();
+    let ts = ts_from_date_time(2015, 8, 5, 15, 53, 45, 382);
+
+    let record = Record {
+        ts,
+        hostname: "testhostname".to_string(),
+        facility: Some(3),
+        severity: Some(1),
+        appname: Some("appname".to_string()),
+        procid: Some("69".to_string()),
+        msgid: Some("42".to_string()),
+        msg: Some("test message".to_string()),
+        full_msg: Some(expected_msg.to_string()),
+        sd: Some(vec![
+            StructuredData {
+                sd_id: Some("origin@123".to_string()),
+                pairs: vec![
+                    (
+                        "software".to_string(),
+                        SDValue::String(r#"test sc\"ript"#.to_string()),
+                    ),
+                    (
+                        "swVersion".to_string(),
+                        SDValue::String("0.0.1".to_string()),
+                    ),
+                ],
+            },
+            StructuredData {
+                sd_id: Some("master@456".to_string()),
+                pairs: vec![
+                    (
+                        "key1".to_string(),
+                        SDValue::String(r#"value1"#.to_string()),
+                    ),
+                    (
+                        "key2".to_string(),
+                        SDValue::String("value2".to_string()),
+                    ),
+                ],
+            }
+        ]),
     };
 
     let encoder = RFC5424Encoder::new(&cfg);

@@ -218,6 +218,7 @@ fn test_rfc3164_decode_nopri() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -237,6 +238,7 @@ fn test_rfc3164_decode_with_pri() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -256,6 +258,7 @@ fn test_rfc3164_decode_with_pri_year() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -275,6 +278,7 @@ fn test_rfc3164_decode_with_pri_year_tz() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -294,6 +298,7 @@ fn test_rfc3164_decode_tz_no_year() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -335,6 +340,7 @@ fn test_rfc3164_decode_custom_with_year() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname 69 42 some test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -354,6 +360,7 @@ fn test_rfc3164_decode_custom_with_year_notz() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname: a test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -373,6 +380,7 @@ fn test_rfc3164_decode_custom_with_pri() {
     assert_eq!(res.msgid, None);
     assert_eq!(res.msg, Some(r#"appname: test message"#.to_string()));
     assert_eq!(res.full_msg, Some(msg.to_string()));
+    assert!(res.sd.is_none());
 }
 
 #[test]
@@ -391,4 +399,5 @@ fn test_rfc3164_decode_custom_trimed() {
     assert_eq!(res.procid, None);
     assert_eq!(res.msgid, None);
     assert_eq!(res.full_msg, Some("<13>testhostname: 2019 Mar 27 12:09:39 UTC: appname: test message".to_string()));
+    assert!(res.sd.is_none());
 }

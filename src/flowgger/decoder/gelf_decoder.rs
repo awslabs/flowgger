@@ -113,7 +113,7 @@ impl Decoder for GelfDecoder {
             appname: None,
             procid: None,
             msgid: None,
-            sd: if sd.pairs.is_empty() { None } else { Some(sd) },
+            sd: if sd.pairs.is_empty() { None } else { Some(vec![sd]) },
             msg,
             full_msg,
         };
@@ -136,8 +136,9 @@ mod test {
         assert!(res.full_msg.unwrap() == "Backtrace here\n\nmore stuff");
         assert!(res.severity.unwrap() == 1);
 
-        let sd = res.sd.unwrap();
-        let pairs = sd.pairs;
+        let sd = &res.sd.unwrap();
+        assert!(sd.len() == 1);
+        let pairs = &sd[0].pairs;
         assert!(pairs
             .iter()
             .cloned()

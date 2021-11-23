@@ -40,10 +40,10 @@ impl LTSVDecoder {
                         "f64" => SDValueType::F64,
                         "i64" => SDValueType::I64,
                         "u64" => SDValueType::U64,
-                        _ => panic!(format!(
+                        _ => panic!(
                             "Unsupported type in input.ltsv_schema for name [{}]",
                             name
-                        )),
+                        ),
                     };
                     schema.insert(name.to_owned(), sdtype);
                 }
@@ -73,10 +73,10 @@ impl LTSVDecoder {
                         "f64" => suffixes.s_f64 = Some(suffix),
                         "i64" => suffixes.s_i64 = Some(suffix),
                         "u64" => suffixes.s_u64 = Some(suffix),
-                        _ => panic!(format!(
+                        _ => panic!(
                             "Unsupported type in input.ltsv_suffixes for type [{}]",
                             sdtype
-                        )),
+                        ),
                     }
                 }
             }
@@ -211,7 +211,7 @@ impl Decoder for LTSVDecoder {
             appname: None,
             procid: None,
             msgid: None,
-            sd: if sd.pairs.is_empty() { None } else { Some(sd) },
+            sd: if sd.pairs.is_empty() { None } else { Some(vec![sd]) },
             msg,
             full_msg: Some(line.to_owned()),
         };
@@ -259,8 +259,8 @@ fn test_ltsv_suffixes() {
                -0700]\tdone:true\tscore:-1\tmean:0.42\tcounter:42\tlevel:3\thost:\
                testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = ltsv_decoder.decode(msg).unwrap();
-    let sd = res.sd.unwrap();
-    let pairs = sd.pairs;
+    let sd = &res.sd.unwrap()[0];
+    let pairs = &sd.pairs;
     assert!(pairs
         .iter()
         .cloned()
@@ -309,8 +309,8 @@ fn test_ltsv_suffixes_2() {
                -0700]\tdone_bool:true\tscore_i64:-1\tmean_f64:0.42\tcounter_u64:42\tlevel:3\thost:\
                testhostname\tname1:value1\tname 2: value 2\tn3:v3\tmessage:this is a test";
     let res = ltsv_decoder.decode(msg).unwrap();
-    let sd = res.sd.unwrap();
-    let pairs = sd.pairs;
+    let sd = &res.sd.unwrap()[0];
+    let pairs = &sd.pairs;
     assert!(pairs
         .iter()
         .cloned()
@@ -388,8 +388,11 @@ fn test_ltsv_3() {
 
     assert!(res.hostname == "testhostname");
     assert!(res.msg.unwrap() == "this is a test");
-    let sd = res.sd.unwrap();
-    let pairs = sd.pairs;
+
+    let sd = &res.sd.unwrap();
+    assert!(sd.len() == 1);
+    let pairs = &sd[0].pairs;
+
     assert!(pairs
         .iter()
         .cloned()
