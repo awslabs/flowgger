@@ -113,7 +113,11 @@ impl Decoder for GelfDecoder {
             appname: None,
             procid: None,
             msgid: None,
-            sd: if sd.pairs.is_empty() { None } else { Some(vec![sd]) },
+            sd: if sd.pairs.is_empty() {
+                None
+            } else {
+                Some(vec![sd])
+            },
             msg,
             full_msg,
         };

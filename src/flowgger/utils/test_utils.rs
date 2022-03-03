@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod rfc_test_utils {
     use crate::flowgger::utils;
-    use chrono::{Datelike, NaiveDateTime, Utc, DateTime};
+    use chrono::{DateTime, Datelike, NaiveDateTime, Utc};
 
     /// Converts a partial date to a timestamp in ms assuming the year is the current one
     #[inline]
@@ -18,7 +18,7 @@ pub mod rfc_test_utils {
         min: u32,
         sec: u32,
         msec: u32,
-    )  -> NaiveDateTime {
+    ) -> NaiveDateTime {
         // Compute the timestamp we expect
         let d = chrono::NaiveDate::from_ymd(year, month, day);
         let t = chrono::NaiveTime::from_hms_milli(hour, min, sec, msec);
@@ -52,6 +52,5 @@ pub mod rfc_test_utils {
         let dt = new_date_time(year, month, day, hour, min, sec, msec);
         DateTime::from_utc(dt, Utc)
     }
-//
-
+    //
 }

@@ -36,7 +36,11 @@ impl Decoder for RFC5424Decoder {
             appname: Some(appname.to_owned()),
             procid: Some(procid.to_owned()),
             msgid: Some(msgid.to_owned()),
-            sd: if sd_vec.is_empty() { None } else { Some(sd_vec) },
+            sd: if sd_vec.is_empty() {
+                None
+            } else {
+                Some(sd_vec)
+            },
             msg,
             full_msg: Some(line.trim_end().to_owned()),
         };
@@ -120,7 +124,7 @@ fn unescape_sd_value(value: &str) -> String {
 }
 
 fn parse_data(line: &str) -> Result<(Vec<StructuredData>, Option<String>), &'static str> {
-    let mut sd_vec:Vec<StructuredData> = Vec::new();
+    let mut sd_vec: Vec<StructuredData> = Vec::new();
     match line.chars().next().ok_or("Missing log message")? {
         '-' => {
             // No SD, just a message
@@ -137,7 +141,11 @@ fn parse_data(line: &str) -> Result<(Vec<StructuredData>, Option<String>), &'sta
                 offset = new_offset;
                 sd_vec.push(sd);
 
-                match leftover[offset..].chars().next().ok_or("Missing log message")? {
+                match leftover[offset..]
+                    .chars()
+                    .next()
+                    .ok_or("Missing log message")?
+                {
                     // Another SD
                     '[' => next_sd = true,
                     // Separator, the rest is the message

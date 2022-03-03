@@ -112,7 +112,9 @@ fn get_pairs(
     pairs
 }
 
-fn get_sd(message: record_capnp::record::Reader) -> Result<Option<Vec<StructuredData>>, &'static str> {
+fn get_sd(
+    message: record_capnp::record::Reader,
+) -> Result<Option<Vec<StructuredData>>, &'static str> {
     let sd_id = message.get_sd_id().and_then(|x| Ok(x.to_owned())).ok();
     let pairs = message.get_pairs().ok();
     let extra = message.get_extra().ok();

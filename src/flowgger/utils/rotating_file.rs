@@ -1,4 +1,6 @@
 extern crate time;
+use chrono::{DateTime, Utc};
+use std::ffi::OsStr;
 use std::fs::OpenOptions;
 use std::io::stderr;
 use std::path::{Path, PathBuf};
@@ -7,10 +9,6 @@ use std::{
     io::{self, Write},
 };
 use time::Duration;
-use chrono::{DateTime, Utc};
-use std::ffi::OsStr;
-
-
 
 /// Writer providing a file rotating feature when a file reaches the configured size
 pub struct RotatingFile {
@@ -93,7 +91,13 @@ impl RotatingFile {
     ///     - Older file = 'logs/syslog-20180108T014543Z.log'
     ///     - Oldest file = 'logs/syslog-20180108T014743Z.log'
     ///
-    pub fn new<P: AsRef<Path>>(basepath: P, max_size: usize, max_time: u32, max_files: i32, time_format: &str) -> Self {
+    pub fn new<P: AsRef<Path>>(
+        basepath: P,
+        max_size: usize,
+        max_time: u32,
+        max_files: i32,
+        time_format: &str,
+    ) -> Self {
         let basename = basepath.as_ref().to_path_buf();
         Self {
             basename,
@@ -120,15 +124,23 @@ impl RotatingFile {
 
     /// Build an output file name appending the current timestamp, and compute the file expiration time
     fn build_timestamped_filename(&mut self) -> PathBuf {
-        let current_time  = self.get_current_date_time();
+        let current_time = self.get_current_date_time();
         self.next_rotation_time = Some(current_time + Duration::minutes(i64::from(self.max_time)));
 
         let dt_str = current_time.format(&self.time_format).to_string();
         let mut new_file = self.basename.clone();
-        new_file.set_file_name(&format!("{}-{}.{}",
-                                self.basename.file_stem().unwrap_or_else(|| OsStr::new("")).to_string_lossy(),
-                                dt_str,
-                                self.basename.extension().unwrap_or_else(|| OsStr::new("")).to_string_lossy()));
+        new_file.set_file_name(&format!(
+            "{}-{}.{}",
+            self.basename
+                .file_stem()
+                .unwrap_or_else(|| OsStr::new(""))
+                .to_string_lossy(),
+            dt_str,
+            self.basename
+                .extension()
+                .unwrap_or_else(|| OsStr::new(""))
+                .to_string_lossy()
+        ));
         new_file
     }
 
@@ -246,7 +258,8 @@ impl RotatingFile {
             stderr(),
             "File {} reached time/size limit {}min/{}bytes, rotating",
             self.basename.to_string_lossy(),
-            self.max_time, self.max_size
+            self.max_time,
+            self.max_size
         );
 
         // Make sure that file is not gonna be used anymore
@@ -286,7 +299,7 @@ impl RotatingFile {
     /// - false:    The rotation is not configured to be size triggered
     ///
     pub fn is_size_triggered(&self) -> bool {
-        (self.max_time == 0) && (self.max_size >0)
+        (self.max_time == 0) && (self.max_size > 0)
     }
 
     /// Indicates if the file rotation condition for time trigger are reached:
@@ -307,18 +320,17 @@ impl RotatingFile {
     /// - true:     The current file must be rotated
     /// - false:    The current file does not need to be rotated
     ///
-    fn is_rotation_size_reached(&self, bytes_to_write:usize) -> bool {
+    fn is_rotation_size_reached(&self, bytes_to_write: usize) -> bool {
         (self.max_size > 0) && (self.current_size + bytes_to_write > self.max_size)
     }
 
     /// Verify whether a rotation is needed based on the configured triggers, and rotate the files
-    fn check_rotation_trigger(&mut self, bytes_to_write:usize) -> io::Result<()> {
+    fn check_rotation_trigger(&mut self, bytes_to_write: usize) -> io::Result<()> {
         if self.is_time_triggered() {
             if self.is_rotation_time_reached() || self.is_rotation_size_reached(bytes_to_write) {
                 self.rotate_time()?;
             }
-        }
-        else if self.is_size_triggered() && self.is_rotation_size_reached(bytes_to_write) {
+        } else if self.is_size_triggered() && self.is_rotation_size_reached(bytes_to_write) {
             self.rotate_size()?;
         }
         Ok(())
@@ -359,8 +371,8 @@ impl Write for RotatingFile {
 mod tests {
     use super::*;
     extern crate tempdir;
-    use tempdir::TempDir;
     use crate::flowgger::utils::test_utils::rfc_test_utils::utc_from_date_time;
+    use tempdir::TempDir;
 
     fn build_pattern_list(count: u32, length: usize) -> Vec<String> {
         let mut pattern_list = Vec::new();
@@ -404,7 +416,10 @@ mod tests {
         let _ = &rotating_file.write(test_patterns[2].as_bytes());
         assert_eq!(
             fs::read_to_string(file1.as_path()).unwrap(),
-            format!("{}{}{}", test_patterns[0], test_patterns[1], test_patterns[2])
+            format!(
+                "{}{}{}",
+                test_patterns[0], test_patterns[1], test_patterns[2]
+            )
         );
         assert!(std::fs::metadata(file2.as_path()).is_err());
         assert!(std::fs::metadata(file3.as_path()).is_err());
@@ -415,9 +430,15 @@ mod tests {
         let _ = rotating_file.write(test_patterns[3].as_bytes());
         assert_eq!(
             fs::read_to_string(file1.as_path()).unwrap(),
-            format!("{}{}{}", test_patterns[0], test_patterns[1], test_patterns[2])
+            format!(
+                "{}{}{}",
+                test_patterns[0], test_patterns[1], test_patterns[2]
+            )
         );
-        assert_eq!(fs::read_to_string(file2.as_path()).unwrap(), test_patterns[3]);
+        assert_eq!(
+            fs::read_to_string(file2.as_path()).unwrap(),
+            test_patterns[3]
+        );
         assert!(std::fs::metadata(file3.as_path()).is_err());
 
         // Write after rotation time expire, rotation expected even if the file size is below the max
@@ -425,10 +446,19 @@ mod tests {
         let _ = rotating_file.write(test_patterns[4].as_bytes());
         assert_eq!(
             fs::read_to_string(file1.as_path()).unwrap(),
-            format!("{}{}{}", test_patterns[0], test_patterns[1], test_patterns[2])
+            format!(
+                "{}{}{}",
+                test_patterns[0], test_patterns[1], test_patterns[2]
+            )
         );
-        assert_eq!(fs::read_to_string(file2.as_path()).unwrap(), test_patterns[3]);
-        assert_eq!(fs::read_to_string(file3.as_path()).unwrap(), test_patterns[4]);
+        assert_eq!(
+            fs::read_to_string(file2.as_path()).unwrap(),
+            test_patterns[3]
+        );
+        assert_eq!(
+            fs::read_to_string(file3.as_path()).unwrap(),
+            test_patterns[4]
+        );
 
         Ok(())
     }
@@ -459,7 +489,10 @@ mod tests {
             fs::read_to_string(file_rotated.as_path()).unwrap(),
             format!("{}{}", test_patterns[0], test_patterns[1])
         );
-        assert_eq!(fs::read_to_string(file_base.as_path()).unwrap(), test_patterns[2]);
+        assert_eq!(
+            fs::read_to_string(file_base.as_path()).unwrap(),
+            test_patterns[2]
+        );
 
         // Second rotation
         let _ = rotating_file.write(test_patterns[3].as_bytes());
@@ -472,7 +505,10 @@ mod tests {
             fs::read_to_string(file_rotated.as_path()).unwrap(),
             format!("{}{}", test_patterns[2], test_patterns[3])
         );
-        assert_eq!(fs::read_to_string(file_base.as_path()).unwrap(), test_patterns[4]);
+        assert_eq!(
+            fs::read_to_string(file_base.as_path()).unwrap(),
+            test_patterns[4]
+        );
 
         // Oldest log overwritten
         let _ = rotating_file.write(test_patterns[5].as_bytes());
