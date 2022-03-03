@@ -580,5 +580,4 @@ mod tests {
         test_object.setup_nowriter(cfg);
         Ok(())
     }
-
 }

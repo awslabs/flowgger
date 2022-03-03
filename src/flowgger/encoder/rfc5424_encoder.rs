@@ -186,16 +186,10 @@ fn test_rfc5424_full_encode_multiple_sd() {
             StructuredData {
                 sd_id: Some("master@456".to_string()),
                 pairs: vec![
-                    (
-                        "key1".to_string(),
-                        SDValue::String(r#"value1"#.to_string()),
-                    ),
-                    (
-                        "key2".to_string(),
-                        SDValue::String("value2".to_string()),
-                    ),
+                    ("key1".to_string(), SDValue::String(r#"value1"#.to_string())),
+                    ("key2".to_string(), SDValue::String("value2".to_string())),
                 ],
-            }
+            },
         ]),
     };
 

@@ -132,7 +132,7 @@ use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_tim
 #[test]
 fn test_ltsv_full_encode_no_sd() {
     let full_msg = "<23>Aug  6 11:15:24 testhostname appname[69]: 42 - some test message";
-    let expected_msg = "host:testhostname\ttime:1628248524\tmessage:some test message\tfull_message:<23>Aug  6 11:15:24 testhostname appname[69]: 42 - some test message\tlevel:7\tfacility:2\tappname:appname\tprocid:69\tmsgid:42";
+    let expected_msg = "host:testhostname\ttime:1659784524\tmessage:some test message\tfull_message:<23>Aug  6 11:15:24 testhostname appname[69]: 42 - some test message\tlevel:7\tfacility:2\tappname:appname\tprocid:69\tmsgid:42";
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"ltsv\"\n").unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 
@@ -154,11 +154,10 @@ fn test_ltsv_full_encode_no_sd() {
     assert_eq!(String::from_utf8_lossy(&res), expected_msg);
 }
 
-
 #[test]
 fn test_ltsv_full_encode_multiple_sd() {
     let full_msg = "<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a=\"b\" c=\"123456\"][someid2 a2=\"b2\" c2=\"123456\"] some test message";
-    let expected_msg = "a:b\tc:123456\ta2:b2\tc2:123456\thost:testhostname\ttime:1628248524\tmessage:some test message\tfull_message:<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a=\"b\" c=\"123456\"][someid2 a2=\"b2\" c2=\"123456\"] some test message\tlevel:7\tfacility:2\tappname:appname\tprocid:69\tmsgid:42";
+    let expected_msg = "a:b\tc:123456\ta2:b2\tc2:123456\thost:testhostname\ttime:1659784524\tmessage:some test message\tfull_message:<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a=\"b\" c=\"123456\"][someid2 a2=\"b2\" c2=\"123456\"] some test message\tlevel:7\tfacility:2\tappname:appname\tprocid:69\tmsgid:42";
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"ltsv\"\n").unwrap();
     let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
 

@@ -40,10 +40,7 @@ impl LTSVDecoder {
                         "f64" => SDValueType::F64,
                         "i64" => SDValueType::I64,
                         "u64" => SDValueType::U64,
-                        _ => panic!(
-                            "Unsupported type in input.ltsv_schema for name [{}]",
-                            name
-                        ),
+                        _ => panic!("Unsupported type in input.ltsv_schema for name [{}]", name),
                     };
                     schema.insert(name.to_owned(), sdtype);
                 }
@@ -211,7 +208,11 @@ impl Decoder for LTSVDecoder {
             appname: None,
             procid: None,
             msgid: None,
-            sd: if sd.pairs.is_empty() { None } else { Some(vec![sd]) },
+            sd: if sd.pairs.is_empty() {
+                None
+            } else {
+                Some(vec![sd])
+            },
             msg,
             full_msg: Some(line.to_owned()),
         };
