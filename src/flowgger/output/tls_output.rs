@@ -5,6 +5,7 @@ use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;
 use rand;
+use rand::prelude::SliceRandom;
 use rand::Rng;
 
 use super::Output;
@@ -132,7 +133,7 @@ impl TlsWorker {
                 let mut cluster = tls_config.mx_cluster.lock().unwrap();
                 cluster.idx += 1;
                 if cluster.idx >= cluster.connect.len() {
-                    rng.shuffle(&mut cluster.connect);
+                    cluster.connect.shuffle(&mut rng);
                     cluster.idx = 0;
                 }
                 cluster.connect[cluster.idx].clone()
@@ -166,7 +167,7 @@ impl TlsWorker {
                 recovery_delay = f64::from(tls_config.recovery_delay_init);
             } else if recovery_delay < f64::from(tls_config.recovery_delay_max) {
                 let mut rng = rand::thread_rng();
-                recovery_delay += rng.gen_range(0.0, recovery_delay);
+                recovery_delay += rng.gen_range(0.0..recovery_delay);
             }
             thread::sleep(Duration::from_millis(recovery_delay.round() as u64));
             let _ = writeln!(stderr(), "Attempting to reconnect");
@@ -344,7 +345,7 @@ fn config_parse(config: &Config) -> (TlsConfig, u32) {
             .expect("Unsupported cipher suite");
     }
     let connector = connector_builder.build();
-    rand::thread_rng().shuffle(&mut connect);
+    connect.shuffle(&mut rand::thread_rng());
     let cluster = Cluster { connect, idx: 0 };
     let mx_cluster = Arc::new(Mutex::new(cluster));
     let tls_config = TlsConfig {
