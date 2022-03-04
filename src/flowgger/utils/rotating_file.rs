@@ -1,5 +1,5 @@
 extern crate time;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use std::ffi::OsStr;
 use std::fs::OpenOptions;
 use std::io::stderr;
@@ -8,7 +8,6 @@ use std::{
     fs::{self, File},
     io::{self, Write},
 };
-use time::Duration;
 
 /// Writer providing a file rotating feature when a file reaches the configured size
 pub struct RotatingFile {

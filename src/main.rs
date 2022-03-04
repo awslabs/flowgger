@@ -1,17 +1,17 @@
 extern crate flowgger;
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use std::io::{stderr, Write};
 
 const DEFAULT_CONFIG_FILE: &str = "flowgger.toml";
 const FLOWGGER_VERSION_STRING: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
-    let matches = App::new("Flowgger")
+    let matches = Command::new("Flowgger")
         .version(FLOWGGER_VERSION_STRING)
         .about("A fast, simple and lightweight data collector")
         .arg(
-            Arg::with_name("config_file")
+            Arg::new("config_file")
                 .help("Configuration file")
                 .value_name("FILE")
                 .index(1),
