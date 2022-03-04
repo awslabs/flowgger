@@ -30,7 +30,7 @@ impl Encoder for PassthroughEncoder {
                     Ok(ts) => ts,
                     Err(_) => {
                         return Err(
-                            "Failed to format date when building prepend timestamp for header",
+                            "Failed to format date when building prepend timestamp for header while encoding Passthrough",
                         )
                     }
                 };

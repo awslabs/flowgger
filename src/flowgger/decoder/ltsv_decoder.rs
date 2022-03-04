@@ -224,7 +224,7 @@ impl Decoder for LTSVDecoder {
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match OffsetDateTime::parse(rfc3339, &Rfc3339) {
         Ok(date) => Ok(utils::PreciseTimestamp::from_offset_datetime(date).as_f64()),
-        Err(_) => Err("Unable to parse the date"),
+        Err(_) => Err("Unable to parse the date from RFC3339 to Unix in LTSV decoder"),
     }
 }
 
@@ -249,14 +249,14 @@ fn english_time_to_unix_with_subsecond(
     let format_item = format_description::parse(&format_str).unwrap();
     match OffsetDateTime::parse(&et, &format_item) {
         Ok(date) => Ok(utils::PreciseTimestamp::from_offset_datetime(date).as_f64()),
-        Err(_) => Err("Unable to parse the date"),
+        Err(_) => Err("Unable to parse the English to Unix timestamp in LTSV decoder"),
     }
 }
 
 fn unix_strtime_to_unix(et: &str) -> Result<f64, &'static str> {
     match et.parse::<f64>() {
         Ok(ts) => Ok(ts),
-        Err(_) => Err("Unable to parse the date"),
+        Err(_) => Err("Unable to parse the date from Unix strtime to Unix in LTSV decoder"),
     }
 }
 

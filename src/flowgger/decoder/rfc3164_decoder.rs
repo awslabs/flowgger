@@ -172,14 +172,14 @@ fn parse_date<'a>(
         idx = 4;
         ts_str = match ts_tokens.get(0..idx) {
             Some(str) => str.join(" "),
-            None => return Err("Unable to parse date"),
+            None => return Err("Unable to parse RFC3164 date with year"),
         };
     } else {
         idx = 3;
         let current_year = OffsetDateTime::now_utc().year();
         ts_str = match ts_tokens.get(0..idx) {
             Some(str) => format!("{} {}", current_year, str.join(" ")),
-            None => return Err("Unable to parse date"),
+            None => return Err("Unable to parse RFC3164 date without year"),
         };
     }
 
@@ -208,7 +208,7 @@ fn parse_date<'a>(
             }
             Ok((ts, ts_tokens[idx..].to_vec()))
         }
-        Err(_) => Err("Unable to parse date"),
+        Err(_) => Err("Unable to parse the date in RFC3164 decoder"),
     }
 }
 

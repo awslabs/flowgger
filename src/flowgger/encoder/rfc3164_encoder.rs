@@ -33,7 +33,7 @@ impl Encoder for RFC3164Encoder {
             let ts = match build_prepend_ts(self.header_time_format.as_ref().unwrap()) {
                 Ok(ts) => ts,
                 Err(_) => {
-                    return Err("Failed to format date when building prepend timestamp for header")
+                    return Err("Failed to format date when building prepend timestamp for header while encoding RFC3164")
                 }
             };
             res.push_str(&ts);
@@ -49,7 +49,7 @@ impl Encoder for RFC3164Encoder {
         // Add timestamp + space
         let dt = match OffsetDateTime::from_unix_timestamp(record.ts as i64) {
             Ok(date) => date,
-            Err(_) => return Err("Failed to parse unix timestamp"),
+            Err(_) => return Err("Failed to parse unix timestamp in RFC3164 encoder"),
         };
 
         let format_item = format_description::parse(
@@ -59,7 +59,7 @@ impl Encoder for RFC3164Encoder {
 
         let dt_str = match dt.format(&format_item) {
             Ok(date_str) => date_str,
-            Err(_) => return Err("Failed to format date"),
+            Err(_) => return Err("Failed to format date in RFC3164 encoder"),
         };
 
         res.push_str(&dt_str);

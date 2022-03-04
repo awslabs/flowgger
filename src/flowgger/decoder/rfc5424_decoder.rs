@@ -94,7 +94,7 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     match OffsetDateTime::parse(rfc3339, &Rfc3339) {
         Ok(date) => Ok(utils::PreciseTimestamp::from_offset_datetime(date).as_f64()),
-        Err(_) => Err("Unable to parse the date"),
+        Err(_) => Err("Unable to parse the date from RFC3339 to Unix time in RFC5424 decoder"),
     }
 }
 
