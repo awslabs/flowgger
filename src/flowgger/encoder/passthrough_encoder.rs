@@ -28,7 +28,11 @@ impl Encoder for PassthroughEncoder {
             if self.header_time_format.is_some() {
                 let ts = match build_prepend_ts(self.header_time_format.as_ref().unwrap()) {
                     Ok(ts) => ts,
-                    Err(_) => return Err("Cannot prepend str"),
+                    Err(_) => {
+                        return Err(
+                            "Failed to format date when building prepend timestamp for header",
+                        )
+                    }
                 };
                 res.push_str(&ts);
             }

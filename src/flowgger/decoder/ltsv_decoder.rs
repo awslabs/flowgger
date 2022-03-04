@@ -228,16 +228,23 @@ fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
     }
 }
 
-fn english_time_to_unix(et: &str, with_sub: bool) -> Result<f64, &'static str> {
-    let format_str = if with_sub {
+fn english_time_to_unix(et: &str) -> Result<f64, &'static str> {
+    english_time_to_unix_with_subsecond(et, false)
+        .or_else(|_| english_time_to_unix_with_subsecond(et, true))
+}
+
+fn english_time_to_unix_with_subsecond(
+    et: &str,
+    with_subsecond: bool,
+) -> Result<f64, &'static str> {
+    let mut format_str =
         "[day padding:none]/[month repr:short]/[year]:[hour]:[minute]:[second].[subsecond] \
         [offset_hour sign:mandatory][offset_minute]"
-            .to_string()
-    } else {
-        "[day padding:none]/[month repr:short]/[year]:[hour]:[minute]:[second] \
-        [offset_hour sign:mandatory][offset_minute]"
-            .to_string()
-    };
+            .to_string();
+
+    if !with_subsecond {
+        format_str = format_str.replace(".[subsecond]", "");
+    }
 
     let format_item = format_description::parse(&format_str).unwrap();
     match OffsetDateTime::parse(&et, &format_item) {
@@ -256,8 +263,7 @@ fn unix_strtime_to_unix(et: &str) -> Result<f64, &'static str> {
 fn parse_ts(line: &str) -> Result<f64, &'static str> {
     unix_strtime_to_unix(line)
         .or_else(|_| rfc3339_to_unix(line))
-        .or_else(|_| english_time_to_unix(line, true))
-        .or_else(|_| english_time_to_unix(line, false))
+        .or_else(|_| english_time_to_unix(line))
 }
 
 #[test]

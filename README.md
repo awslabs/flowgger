@@ -4,6 +4,16 @@
 
 [![Build Status](https://app.travis-ci.com/awslabs/flowgger.svg?branch=master)](https://app.travis-ci.com/awslabs/flowgger) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
 
+<a name="0.3.0"></a>
+### New major version: 0.3.0 (2022-03-14)
+
+#### Breaking Changes
+
+*   Migrate from chrono to [time](https://docs.rs/time/latest/time/) as per https://rustsec.org/advisories/RUSTSEC-2020-0071
+    * String formatting changed from strftime to [time](https://docs.rs/time/latest/time/format_description/index.html) custom formatting - see ```flowgger.toml``` for examples on change
+
+---
+
 Flowgger is a fast, simple and lightweight data collector written in Rust.
 
 It reads log entries over a given protocol, extracts them, decodes them using a
