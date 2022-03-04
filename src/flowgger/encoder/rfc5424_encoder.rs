@@ -1,7 +1,8 @@
 use super::Encoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
-use chrono::{DateTime, NaiveDateTime, SecondsFormat, Utc};
+use time::format_description::well_known::Rfc3339;
+use time::OffsetDateTime;
 
 const DEFAULT_PRIORITY: &str = "<13>";
 const DEFAULT_SYSLOG_VERSION: char = '1';
@@ -39,14 +40,18 @@ impl Encoder for RFC5424Encoder {
         res.push(' ');
 
         // Convert the float timestamp in seconds into a number of secs and nanosecs (rounded to ms) to create a date object
-        let ts_s = record.ts as i64;
-        let ts_ns = ((record.ts * 1000.0) as i64) * 1_000_000;
-        let ts_ns_remainer = (ts_ns - (ts_s * 1_000_000_000)) as u32;
-        let dt =
-            DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(ts_s, ts_ns_remainer), Utc);
+        let ts_ns = ((record.ts * 1000.0) as i128) * 1_000_000;
+        let dt = match OffsetDateTime::from_unix_timestamp_nanos(ts_ns) {
+            Ok(date) => date,
+            Err(_) => return Err("Failed to parse date"),
+        };
 
         // Add timestamp + space
-        res.push_str(&dt.to_rfc3339_opts(SecondsFormat::Millis, true));
+        let date = match dt.format(&Rfc3339) {
+            Ok(date_str) => date_str,
+            Err(_) => return Err("Failed to parse date as Rfc3339 format"),
+        };
+        res.push_str(&date);
         res.push(' ');
 
         // Add hostname + space
@@ -92,12 +97,14 @@ impl Encoder for RFC5424Encoder {
 use crate::flowgger::record::{SDValue, StructuredData};
 #[cfg(test)]
 use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_date_time;
+#[cfg(test)]
+use time::Month;
 
 #[test]
 fn test_rfc5424_encode() {
-    let expected_msg = r#"<13>1 2015-08-06T11:15:24.637Z testhostname - - - some test message"#;
+    let expected_msg = r#"<13>1 2015-08-06T11:15:24.638Z testhostname - - - some test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n").unwrap();
-    let ts = ts_from_date_time(2015, 8, 6, 11, 15, 24, 637);
+    let ts = ts_from_date_time(2015, Month::August, 6, 11, 15, 24, 638);
 
     let record = Record {
         ts,
@@ -121,7 +128,7 @@ fn test_rfc5424_encode() {
 fn test_rfc5424_full_encode() {
     let expected_msg = r#"<25>1 2015-08-05T15:53:45.382Z testhostname appname 69 42 [origin@123 software="test sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n").unwrap();
-    let ts = ts_from_date_time(2015, 8, 5, 15, 53, 45, 382);
+    let ts = ts_from_date_time(2015, Month::August, 5, 15, 53, 45, 382);
 
     let record = Record {
         ts,
@@ -157,7 +164,7 @@ fn test_rfc5424_full_encode() {
 fn test_rfc5424_full_encode_multiple_sd() {
     let expected_msg = r#"<25>1 2015-08-05T15:53:45.382Z testhostname appname 69 42 [origin@123 software="test sc\"ript" swVersion="0.0.1"][master@456 key1="value1" key2="value2"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc5424\"\n").unwrap();
-    let ts = ts_from_date_time(2015, 8, 5, 15, 53, 45, 382);
+    let ts = ts_from_date_time(2015, Month::August, 5, 15, 53, 45, 382);
 
     let record = Record {
         ts,

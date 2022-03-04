@@ -26,7 +26,7 @@ pub use self::rfc5424_encoder::RFC5424Encoder;
 
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
-use chrono::Utc;
+use time::{format_description, OffsetDateTime};
 
 pub trait CloneBoxedEncoder {
     fn clone_boxed<'a>(&self) -> Box<dyn Encoder + Send + 'a>
@@ -65,8 +65,15 @@ pub fn config_get_prepend_ts(config: &Config) -> Option<String> {
         })
 }
 
-pub fn build_prepend_ts(format_str: &str) -> String {
-    let current_time = Utc::now();
-    // let format_str: &str = format.as_ref().unwrap();
-    current_time.format(format_str).to_string()
+pub fn build_prepend_ts(format_str: &str) -> Result<String, &'static str> {
+    let current_time = OffsetDateTime::now_utc();
+    let format_item = match format_description::parse(format_str) {
+        Ok(item) => item,
+        Err(_) => return Err("Failed to format date"),
+    };
+
+    match current_time.format(&format_item) {
+        Ok(date_str) => Ok(date_str),
+        Err(_) => Err("Failed to format date"),
+    }
 }

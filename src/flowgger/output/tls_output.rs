@@ -1,12 +1,12 @@
 use crate::flowgger::config::Config;
 use crate::flowgger::merger::Merger;
-use chrono;
 use openssl::bn::BigNum;
 use openssl::dh::Dh;
 use openssl::ssl::*;
 use rand;
 use rand::prelude::SliceRandom;
 use rand::Rng;
+use time;
 
 use super::Output;
 use std::io;
@@ -128,7 +128,7 @@ impl TlsWorker {
         let mut recovery_delay = f64::from(tls_config.recovery_delay_init);
         let mut last_recovery;
         loop {
-            last_recovery = chrono::offset::Utc::now();
+            last_recovery = time::OffsetDateTime::now_utc();
             let connect_chosen = {
                 let mut cluster = tls_config.mx_cluster.lock().unwrap();
                 cluster.idx += 1;
@@ -160,9 +160,9 @@ impl TlsWorker {
                     }
                 }
             }
-            let now = chrono::offset::Utc::now();
-            if now.signed_duration_since(last_recovery)
-                > chrono::Duration::milliseconds(i64::from(tls_config.recovery_probe_time))
+            let now = time::OffsetDateTime::now_utc();
+            if now - last_recovery
+                > time::Duration::milliseconds(i64::from(tls_config.recovery_probe_time))
             {
                 recovery_delay = f64::from(tls_config.recovery_delay_init);
             } else if recovery_delay < f64::from(tls_config.recovery_delay_max) {

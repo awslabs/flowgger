@@ -2,10 +2,9 @@ pub mod rotating_file;
 #[cfg(test)]
 pub mod test_utils;
 
-use chrono::{DateTime, FixedOffset, NaiveDateTime, Timelike};
-use chrono_tz::Tz;
 #[cfg(feature = "gelf")]
 use std::time::{SystemTime, UNIX_EPOCH};
+use time::{OffsetDateTime, PrimitiveDateTime};
 
 pub struct PreciseTimestamp {
     ts: f64,
@@ -22,23 +21,16 @@ impl PreciseTimestamp {
     }
 
     #[inline]
-    pub fn from_naive_datetime(tsd: NaiveDateTime) -> Self {
+    pub fn from_offset_datetime(tsd: OffsetDateTime) -> Self {
         PreciseTimestamp {
-            ts: tsd.timestamp() as f64 + f64::from(tsd.nanosecond()) / 1e9,
+            ts: tsd.unix_timestamp_nanos() as f64 / 1e9,
         }
     }
 
     #[inline]
-    pub fn from_datetime(tsd: DateTime<FixedOffset>) -> Self {
+    pub fn from_primitive_datetime(tsd: PrimitiveDateTime) -> Self {
         PreciseTimestamp {
-            ts: tsd.timestamp() as f64 + f64::from(tsd.naive_utc().nanosecond()) / 1e9,
-        }
-    }
-
-    #[inline]
-    pub fn from_datetime_tz(tsd: DateTime<Tz>) -> Self {
-        PreciseTimestamp {
-            ts: tsd.timestamp() as f64 + f64::from(tsd.naive_utc().nanosecond()) / 1e9,
+            ts: tsd.assume_utc().unix_timestamp_nanos() as f64 / 1e9,
         }
     }
 

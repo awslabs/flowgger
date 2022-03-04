@@ -1,56 +1,51 @@
 #[cfg(test)]
 pub mod rfc_test_utils {
     use crate::flowgger::utils;
-    use chrono::{DateTime, Datelike, NaiveDateTime, Utc};
+    use time::{Date, Month, OffsetDateTime, PrimitiveDateTime, Time};
 
     /// Converts a partial date to a timestamp in ms assuming the year is the current one
     #[inline]
-    pub fn ts_from_partial_date_time(month: u32, day: u32, hour: u32, min: u32, sec: u32) -> f64 {
-        ts_from_date_time(Utc::now().year(), month, day, hour, min, sec, 0)
+    pub fn ts_from_partial_date_time(month: Month, day: u8, hour: u8, min: u8, sec: u8) -> f64 {
+        ts_from_date_time(
+            OffsetDateTime::now_utc().year(),
+            month,
+            day,
+            hour,
+            min,
+            sec,
+            0,
+        )
     }
 
     /// Converts a full date to a timestamp in ms
-    fn new_date_time(
+    pub fn new_date_time(
         year: i32,
-        month: u32,
-        day: u32,
-        hour: u32,
-        min: u32,
-        sec: u32,
-        msec: u32,
-    ) -> NaiveDateTime {
+        month: Month,
+        day: u8,
+        hour: u8,
+        min: u8,
+        sec: u8,
+        msec: u16,
+    ) -> OffsetDateTime {
         // Compute the timestamp we expect
-        let d = chrono::NaiveDate::from_ymd(year, month, day);
-        let t = chrono::NaiveTime::from_hms_milli(hour, min, sec, msec);
-        NaiveDateTime::new(d, t)
+        let d = Date::from_calendar_date(year, month, day).unwrap();
+        let t = Time::from_hms_milli(hour, min, sec, msec).unwrap();
+        let pd = PrimitiveDateTime::new(d, t);
+        let now = OffsetDateTime::now_utc();
+        now.replace_date_time(pd)
     }
 
     /// Converts a full date to a timestamp in ms
     pub fn ts_from_date_time(
         year: i32,
-        month: u32,
-        day: u32,
-        hour: u32,
-        min: u32,
-        sec: u32,
-        msec: u32,
+        month: Month,
+        day: u8,
+        hour: u8,
+        min: u8,
+        sec: u8,
+        msec: u16,
     ) -> f64 {
         let dt = new_date_time(year, month, day, hour, min, sec, msec);
-        utils::PreciseTimestamp::from_naive_datetime(dt).as_f64()
+        utils::PreciseTimestamp::from_offset_datetime(dt).as_f64()
     }
-
-    /// Converts a full date to a timestamp in ms
-    pub fn utc_from_date_time(
-        year: i32,
-        month: u32,
-        day: u32,
-        hour: u32,
-        min: u32,
-        sec: u32,
-        msec: u32,
-    ) -> DateTime<Utc> {
-        let dt = new_date_time(year, month, day, hour, min, sec, msec);
-        DateTime::from_utc(dt, Utc)
-    }
-    //
 }

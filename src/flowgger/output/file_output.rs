@@ -40,9 +40,9 @@ impl FileOutput {
     ///                                     Unused if rotation is not enabled.
     /// - 'output.file_rotation_maxfiles':  Must be an integer. Default is 2. Specifies count rotated files.
     ///                                     Unused if rotation is not enabled.
-    /// - 'output.file_rotation_timeformat':Must be a String. Default is set to "%Y%m%dT%H%M%SZ".
+    /// - 'output.file_rotation_timeformat':Must be a String. Default is set to "[year][month][day]T[hour][minute][second]Z".
     ///                                     When time rotation is enabled, format of the timestamp added to the
-    ///                                     output files as per https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
+    ///                                     https://docs.rs/time/0.3.7/time/format_description/index.html
     /// # Parameters
     /// - 'Config':  Configuration parameters
     ///

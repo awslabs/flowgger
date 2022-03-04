@@ -1,7 +1,7 @@
 use super::{build_prepend_ts, config_get_prepend_ts, Encoder};
 use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
-use chrono::NaiveDateTime;
+use time::{format_description, OffsetDateTime};
 
 #[derive(Clone)]
 pub struct RFC3164Encoder {
@@ -30,7 +30,11 @@ impl Encoder for RFC3164Encoder {
 
         // First, if specified, prepend a header
         if self.header_time_format.is_some() {
-            res.push_str(&build_prepend_ts(self.header_time_format.as_ref().unwrap()));
+            let ts = match build_prepend_ts(self.header_time_format.as_ref().unwrap()) {
+                Ok(ts) => ts,
+                Err(_) => return Err("Cannot prepend str"),
+            };
+            res.push_str(&ts);
         }
 
         // If a priority is specified, add it
@@ -41,8 +45,21 @@ impl Encoder for RFC3164Encoder {
         }
 
         // Add timestamp + space
-        let dt = NaiveDateTime::from_timestamp(record.ts as i64, 0);
-        let dt_str = dt.format("%b %e %H:%M:%S ").to_string();
+        let dt = match OffsetDateTime::from_unix_timestamp(record.ts as i64) {
+            Ok(date) => date,
+            Err(_) => return Err("Failed to parse unix timestamp"),
+        };
+
+        let format_item = format_description::parse(
+            "[month repr:short]  [day padding:none] [hour]:[minute]:[second] ",
+        )
+        .unwrap();
+
+        let dt_str = match dt.format(&format_item) {
+            Ok(date_str) => date_str,
+            Err(_) => return Err("Failed to format date"),
+        };
+
         res.push_str(&dt_str);
 
         // Add hostname + space
@@ -83,13 +100,13 @@ use crate::flowgger::record::{SDValue, StructuredData};
 #[cfg(test)]
 use crate::flowgger::utils::test_utils::rfc_test_utils::ts_from_partial_date_time;
 #[cfg(test)]
-use chrono::Utc;
+use time::Month;
 
 #[test]
 fn test_rfc3164_encode() {
     let expected_msg = r#"Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
-    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+    let ts = ts_from_partial_date_time(Month::August, 6, 11, 15, 24);
 
     let record = Record {
         ts,
@@ -113,7 +130,7 @@ fn test_rfc3164_encode() {
 fn test_rfc3164_withpri_encode() {
     let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
-    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+    let ts = ts_from_partial_date_time(Month::August, 6, 11, 15, 24);
 
     let record = Record {
         ts,
@@ -135,13 +152,16 @@ fn test_rfc3164_withpri_encode() {
 
 #[test]
 fn test_rfc3164_encode_with_prepend() {
-    let cfg = Config::from_string(
-        "[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"",
-    )
-    .unwrap();
-    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
-    let dt = Utc::now();
-    let dt_str = dt.format("[%Y-%m-%dT%H:%MZ]").to_string();
+    const TIME_FORMAT: &str = "[year]-[month]-[day]T[hour]:[minute]Z";
+    let config_str = &format!(
+        "[output]\nformat = \"rfc3164\"\nsyslog_prepend_timestamp=\"{}\"",
+        TIME_FORMAT
+    );
+    let cfg = Config::from_string(config_str).unwrap();
+    let ts = ts_from_partial_date_time(Month::August, 6, 11, 15, 24);
+    let now = OffsetDateTime::now_utc();
+    let format_item = format_description::parse(TIME_FORMAT).unwrap();
+    let dt_str = now.format(&format_item).unwrap().to_string();
     let expected_msg = format!(
         r#"{}Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#,
         dt_str
@@ -177,7 +197,7 @@ fn test_rfc3164_invalid_prepend() {
 fn test_rfc3164_full_encode() {
     let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a="b" c="123456"] some test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
-    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+    let ts = ts_from_partial_date_time(Month::August, 6, 11, 15, 24);
 
     let record = Record {
         ts,
@@ -207,7 +227,7 @@ fn test_rfc3164_full_encode() {
 fn test_rfc3164_full_encode_multiple_sd() {
     let expected_msg = r#"<23>Aug  6 11:15:24 testhostname appname[69]: 42 [someid a="b" c="123456"][someid2 a2="b2" c2="123456"] some test message"#;
     let cfg = Config::from_string("[input]\n[input.ltsv_schema]\nformat = \"rfc3164\"\n").unwrap();
-    let ts = ts_from_partial_date_time(8, 6, 11, 15, 24);
+    let ts = ts_from_partial_date_time(Month::August, 6, 11, 15, 24);
 
     let record = Record {
         ts,
