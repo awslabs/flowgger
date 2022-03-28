@@ -93,8 +93,9 @@ file_rotation_size = 2048
 file_rotation_time = 2
 
 # Optional: When time rotation is enabled, the timestamp format is appended to the filenames.
-# Default is set to "%Y%m%dT%H%M%SZ". Format must conform to https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
-file_rotation_timeformat = "%Y%m%dT%H%M%SZ"
+# Default is set to "[year][month][day]T[hour][minute][second]Z". 
+# Format must conform to https://docs.rs/time/0.3.7/time/format_description/index.html
+file_rotation_timeformat = "[year][month][day]T[hour][minute][second]Z"
 
 # Optional, only used if either file_rotation_size or file_rotation_time is set:
 # Specifies number of rotation files to use. The default value is 50.
@@ -158,4 +159,4 @@ framing = "line"
 # "rfc3164" or "rfc5424" or "passthrough"
 format = "rfc3164"
 # Format of the optional timestamp to be prepended to each event
-syslog_prepend_timestamp="[%Y-%m-%dT%H:%M:%S%.6fZ]"
+syslog_prepend_timestamp="[[[year]-[month]-[day]T[hour]:[minute]:[second].[subsecond digits:6]Z]"

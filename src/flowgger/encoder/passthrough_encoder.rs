@@ -26,7 +26,15 @@ impl Encoder for PassthroughEncoder {
         if let Some(msg) = record.full_msg {
             // First, if specified, prepend a header
             if self.header_time_format.is_some() {
-                res.push_str(&build_prepend_ts(self.header_time_format.as_ref().unwrap()));
+                let ts = match build_prepend_ts(self.header_time_format.as_ref().unwrap()) {
+                    Ok(ts) => ts,
+                    Err(_) => {
+                        return Err(
+                            "Failed to format date when building prepend timestamp for header while encoding Passthrough",
+                        )
+                    }
+                };
+                res.push_str(&ts);
             }
 
             // Pysh the message
@@ -39,7 +47,7 @@ impl Encoder for PassthroughEncoder {
 }
 
 #[cfg(test)]
-use chrono::Utc;
+use time::{format_description, OffsetDateTime};
 
 #[test]
 fn test_passthrough_encode() {
@@ -67,12 +75,15 @@ fn test_passthrough_encode() {
 
 #[test]
 fn test_passthrough_encode_with_prepend() {
-    let cfg = Config::from_string(
-        "[output]\nformat = \"passthrough\"\nsyslog_prepend_timestamp=\"[%Y-%m-%dT%H:%MZ]\"",
-    )
+    const TIME_FORMAT: &str = "[[[year]-[month]-[day]T[hour]:[minute]Z]";
+    let cfg = Config::from_string(&format!(
+        "[output]\nformat = \"passthrough\"\nsyslog_prepend_timestamp=\"{}\"",
+        TIME_FORMAT
+    ))
     .unwrap();
-    let dt = Utc::now();
-    let dt_str = dt.format("[%Y-%m-%dT%H:%MZ]").to_string();
+    let now = OffsetDateTime::now_utc();
+    let format_item = format_description::parse(TIME_FORMAT).unwrap();
+    let dt_str = now.format(&format_item).unwrap().to_string();
     let input_msg = format!(
         r#"{}Aug  6 11:15:24 testhostname appname 69 42 [origin@123 software="te\st sc\"ript" swVersion="0.0.1"] test message"#,
         dt_str

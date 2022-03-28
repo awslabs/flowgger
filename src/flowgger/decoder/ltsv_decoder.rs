@@ -2,8 +2,9 @@ use super::Decoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue, SDValueType, StructuredData};
 use crate::flowgger::utils;
-use chrono::DateTime;
 use std::collections::HashMap;
+use time::format_description::well_known::Rfc3339;
+use time::{format_description, OffsetDateTime};
 
 #[derive(Clone)]
 struct Suffixes {
@@ -221,23 +222,41 @@ impl Decoder for LTSVDecoder {
 }
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
-    match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(utils::PreciseTimestamp::from_datetime(date).as_f64()),
-        Err(_) => Err("Unable to parse the date"),
+    match OffsetDateTime::parse(rfc3339, &Rfc3339) {
+        Ok(date) => Ok(utils::PreciseTimestamp::from_offset_datetime(date).as_f64()),
+        Err(_) => Err("Unable to parse the date from RFC3339 to Unix in LTSV decoder"),
     }
 }
 
 fn english_time_to_unix(et: &str) -> Result<f64, &'static str> {
-    match DateTime::parse_from_str(et, "%e/%b/%Y:%H:%M:%S%.f %z") {
-        Ok(date) => Ok(utils::PreciseTimestamp::from_datetime(date).as_f64()),
-        Err(_) => Err("Unable to parse the date"),
+    english_time_to_unix_with_subsecond(et, false)
+        .or_else(|_| english_time_to_unix_with_subsecond(et, true))
+}
+
+fn english_time_to_unix_with_subsecond(
+    et: &str,
+    with_subsecond: bool,
+) -> Result<f64, &'static str> {
+    let mut format_str =
+        "[day padding:none]/[month repr:short]/[year]:[hour]:[minute]:[second].[subsecond] \
+        [offset_hour sign:mandatory][offset_minute]"
+            .to_string();
+
+    if !with_subsecond {
+        format_str = format_str.replace(".[subsecond]", "");
+    }
+
+    let format_item = format_description::parse(&format_str).unwrap();
+    match OffsetDateTime::parse(&et, &format_item) {
+        Ok(date) => Ok(utils::PreciseTimestamp::from_offset_datetime(date).as_f64()),
+        Err(_) => Err("Unable to parse the English to Unix timestamp in LTSV decoder"),
     }
 }
 
 fn unix_strtime_to_unix(et: &str) -> Result<f64, &'static str> {
     match et.parse::<f64>() {
         Ok(ts) => Ok(ts),
-        Err(_) => Err("Unable to parse the date"),
+        Err(_) => Err("Unable to parse the date from Unix strtime to Unix in LTSV decoder"),
     }
 }
 
@@ -450,4 +469,19 @@ fn test_ltsv_3() {
         } else {
             false
         }));
+}
+
+#[test]
+fn test_ltsv4() {
+    let config = Config::from_string(
+        "[input]\n[input.ltsv_schema]\ncounter = \"u64\"\nscore = \
+         \"i64\"\nmean = \"f64\"\ndone = \"bool\"\n",
+    );
+    let ltsv_decoder = LTSVDecoder::new(&config.unwrap());
+    let msg =
+        "time:[5/Aug/2015:15:53:45.637824 -0000]\thost:testhostname\tname1:value1\tname 2: value \
+               2\tn3:v3";
+    let res = ltsv_decoder.decode(msg).unwrap();
+    println!("{}", res.ts);
+    assert!(res.ts == 1_438_790_025.637_824);
 }

@@ -1,5 +1,4 @@
 extern crate time;
-use chrono::{DateTime, Duration, Utc};
 use std::ffi::OsStr;
 use std::fs::OpenOptions;
 use std::io::stderr;
@@ -8,6 +7,7 @@ use std::{
     fs::{self, File},
     io::{self, Write},
 };
+use time::{format_description, Duration, OffsetDateTime};
 
 /// Writer providing a file rotating feature when a file reaches the configured size
 pub struct RotatingFile {
@@ -19,10 +19,10 @@ pub struct RotatingFile {
 
     current_file: Option<File>,
     current_size: usize,
-    next_rotation_time: Option<DateTime<Utc>>,
+    next_rotation_time: Option<OffsetDateTime>,
 
     #[cfg(test)]
-    now_time_mock: DateTime<Utc>,
+    now_time_mock: OffsetDateTime,
 }
 
 impl RotatingFile {
@@ -66,7 +66,7 @@ impl RotatingFile {
     ///             - 'basename.0' is always the most recent file that has been rotated
     ///             - 'basename.N' is always the oldest file
     /// - time_format: Format of the timestamp to use when time rotation is enabled. Must conform to
-    ///             https://docs.rs/chrono/0.3.1/chrono/format/strftime/index.html
+    ///             https://docs.rs/time/0.3.7/time/format_description/index.html
     ///
     /// # Example
     /// From parameters:
@@ -109,24 +109,28 @@ impl RotatingFile {
             next_rotation_time: None,
 
             #[cfg(test)]
-            now_time_mock: Utc::now(),
+            now_time_mock: OffsetDateTime::now_utc(),
         }
     }
 
-    fn get_current_date_time(&self) -> DateTime<Utc> {
+    fn get_current_date_time(&self) -> OffsetDateTime {
         #[cfg(test)]
         return self.now_time_mock;
 
         #[cfg(not(test))]
-        Utc::now()
+        OffsetDateTime::now_utc()
     }
 
     /// Build an output file name appending the current timestamp, and compute the file expiration time
-    fn build_timestamped_filename(&mut self) -> PathBuf {
+    fn build_timestamped_filename(&mut self) -> Result<PathBuf, &'static str> {
         let current_time = self.get_current_date_time();
         self.next_rotation_time = Some(current_time + Duration::minutes(i64::from(self.max_time)));
 
-        let dt_str = current_time.format(&self.time_format).to_string();
+        let format_item = format_description::parse(&self.time_format).unwrap();
+        let dt_str = match current_time.format(&format_item) {
+            Ok(date) => date,
+            Err(_) => return Err("Failed to parse date"),
+        };
         let mut new_file = self.basename.clone();
         new_file.set_file_name(&format!(
             "{}-{}.{}",
@@ -140,7 +144,7 @@ impl RotatingFile {
                 .unwrap_or_else(|| OsStr::new(""))
                 .to_string_lossy()
         ));
-        new_file
+        Ok(new_file)
     }
 
     /// Open the base file and ready for logging and set it as current file
@@ -159,7 +163,7 @@ impl RotatingFile {
     pub fn open(&mut self) -> io::Result<()> {
         // Either use a timstamped filename or the one provided
         let filepath = if self.is_time_triggered() {
-            self.build_timestamped_filename().clone()
+            self.build_timestamped_filename().clone().unwrap()
         } else {
             self.basename.clone()
         };
@@ -309,7 +313,8 @@ impl RotatingFile {
     /// - false:    The current file does not need to be rotated
     ///
     fn is_rotation_time_reached(&self) -> bool {
-        (self.next_rotation_time.is_some()) && (self.next_rotation_time.unwrap() <= Utc::now())
+        (self.next_rotation_time.is_some())
+            && (self.next_rotation_time.unwrap() <= OffsetDateTime::now_utc())
     }
 
     /// Indicates if the file rotation condition for size trigger are reached:
@@ -370,8 +375,9 @@ impl Write for RotatingFile {
 mod tests {
     use super::*;
     extern crate tempdir;
-    use crate::flowgger::utils::test_utils::rfc_test_utils::utc_from_date_time;
+    use crate::flowgger::utils::test_utils::rfc_test_utils::new_date_time;
     use tempdir::TempDir;
+    use time::Month;
 
     fn build_pattern_list(count: u32, length: usize) -> Vec<String> {
         let mut pattern_list = Vec::new();
@@ -388,10 +394,10 @@ mod tests {
     #[test]
     fn test_rotation_time_files_time() -> Result<(), io::Error> {
         // Create static time for the different writes to test to mock the current time during the test
-        let ts1 = utc_from_date_time(2015, 8, 6, 11, 15, 24, 637);
-        let ts2 = utc_from_date_time(2015, 8, 6, 11, 15, 34, 637);
-        let ts3 = utc_from_date_time(2015, 8, 6, 11, 16, 26, 637);
-        let ts4 = utc_from_date_time(2015, 8, 6, 11, 21, 28, 637);
+        let ts1 = new_date_time(2015, Month::August, 6, 11, 15, 24, 637);
+        let ts2 = new_date_time(2015, Month::August, 6, 11, 15, 34, 637);
+        let ts3 = new_date_time(2015, Month::August, 6, 11, 16, 26, 637);
+        let ts4 = new_date_time(2015, Month::August, 6, 11, 21, 28, 637);
 
         // Build the expected filenames that should be created in the test
         let tmp_dir = TempDir::new("test_rotation_time_files_time")?;
@@ -404,7 +410,8 @@ mod tests {
         let test_patterns = build_pattern_list(7, 6);
 
         // Open the rotating file
-        let mut rotating_file = RotatingFile::new(&file_base, 16, 5, 10, "%Y%m%dT%H%MZ");
+        let mut rotating_file =
+            RotatingFile::new(&file_base, 16, 5, 10, "[year][month][day]T[hour][minute]Z");
         rotating_file.now_time_mock = ts1;
         assert!(rotating_file.open().is_ok());
 

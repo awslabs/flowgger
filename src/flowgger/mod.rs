@@ -10,8 +10,6 @@ mod utils;
 
 #[cfg(feature = "capnp-recompile")]
 extern crate capnp;
-extern crate chrono;
-extern crate chrono_tz;
 extern crate clap;
 extern crate flate2;
 #[cfg(feature = "file")]
@@ -27,6 +25,7 @@ extern crate rand;
 extern crate redis;
 #[cfg(feature = "gelf")]
 extern crate serde_json;
+extern crate time;
 extern crate toml;
 
 use self::config::Config;

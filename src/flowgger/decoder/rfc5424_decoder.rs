@@ -2,7 +2,8 @@ use super::Decoder;
 use crate::flowgger::config::Config;
 use crate::flowgger::record::{Record, SDValue, StructuredData};
 use crate::flowgger::utils;
-use chrono::DateTime;
+use time::format_description::well_known::Rfc3339;
+use time::OffsetDateTime;
 
 #[derive(Clone)]
 pub struct RFC5424Decoder;
@@ -91,9 +92,9 @@ fn parse_pri_version(line: &str) -> Result<Pri, &'static str> {
 }
 
 fn rfc3339_to_unix(rfc3339: &str) -> Result<f64, &'static str> {
-    match DateTime::parse_from_rfc3339(rfc3339) {
-        Ok(date) => Ok(utils::PreciseTimestamp::from_datetime(date).as_f64()),
-        Err(_) => Err("Unable to parse the date"),
+    match OffsetDateTime::parse(rfc3339, &Rfc3339) {
+        Ok(date) => Ok(utils::PreciseTimestamp::from_offset_datetime(date).as_f64()),
+        Err(_) => Err("Unable to parse the date from RFC3339 to Unix time in RFC5424 decoder"),
     }
 }
 
