@@ -32,7 +32,7 @@ impl RotatingFile {
     ///
     /// If the time trigger is specified (max_time >0):
     /// All file names are appended with their creation timestamp. i.e. configured file "abcd.log" might become
-    /// "abcd-20180108T0143Z.log" if the time format is configured to be "%Y%m%dT%H%MZ"
+    /// "abcd-20180108T0143Z.log" if the time format is configured to be "[year][month][day]T[hour][minute]Z"
     /// A file "expires" when its creation time + configured max_time is reached (based on current UTC time).
     /// Rotation occurs when a write is requested to an expired file. The file is then closed and a new one is created.
     /// # Notes:
@@ -83,7 +83,7 @@ impl RotatingFile {
     ///     - basename = 'logs/syslog.log'
     ///     - max_time = 2
     ///     - app started on 2018-01-08 at 01:43 UTC
-    ///     - time format is "%Y%m%dT%H%M%SZ"
+    ///     - time format is "[year][month][day]T[hour][minute][second]Z"
     ///
     /// The following files will be generated:
     ///     - Current file = 'logs/syslog-20180108T014343Z.log'

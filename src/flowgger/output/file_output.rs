@@ -2,6 +2,7 @@ use super::Output;
 use crate::flowgger::config::Config;
 use crate::flowgger::merger::Merger;
 use crate::flowgger::utils::rotating_file::RotatingFile;
+use crate::flowgger::validate_time_format_input;
 use std::io::{BufWriter, Write};
 use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
@@ -9,7 +10,7 @@ use std::thread;
 
 use std::io::stderr;
 const FILE_DEFAULT_BUFFER_SIZE: usize = 0;
-const FILE_DEFAULT_TIME_FORMAT: &str = "%Y%m%dT%H%M%SZ";
+const FILE_DEFAULT_TIME_FORMAT: &str = "[year][month][day]T[hour][minute][second]Z";
 const FILE_DEFAULT_ROTATION_SIZE: usize = 0;
 const FILE_DEFAULT_ROTATION_TIME: u32 = 0;
 const FILE_DEFAULT_ROTATION_MAXFILES: i32 = 50;
@@ -97,6 +98,12 @@ impl FileOutput {
                     .expect("output.file_rotation_timeformat should be a string")
                     .to_string()
             },
+        );
+
+        let time_format = validate_time_format_input(
+            "file_rotation_timeformat",
+            &time_format,
+            FILE_DEFAULT_TIME_FORMAT.to_string(),
         );
 
         FileOutput {

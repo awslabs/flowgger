@@ -8,6 +8,8 @@ mod record;
 mod splitter;
 mod utils;
 
+use std::io::{stderr, Write};
+
 #[cfg(feature = "capnp-recompile")]
 extern crate capnp;
 extern crate clap;
@@ -307,6 +309,48 @@ fn get_encoder_passthrough(_config: &Config) -> ! {
     panic!("Support for passthrough hasn't been compiled in")
 }
 
+/// Validate that the time format used are in
+/// conform to https://docs.rs/time/0.3.7/time/format_description/index.html
+///
+/// This is to raise a warning to users that are still using the old format from
+/// `chrono` library.
+///
+/// If '%' is still desirable to be part of the time format string, it needs to be escaped, like:
+///     file_rotation_timeformat = "[year][month][day]\\%T[hour][minute]Z"
+///     This will result in a file with name: "20220425%T1043Z"
+///
+/// # Paramters
+/// - `name`: the name of the param. Like `file_rotation_timeformat`
+/// - `time_format`: the format to be validated
+/// - `time_format_default`: the default value to use if `time_format` is invalid
+///
+/// # Returns
+/// Return an `String` which is the same value as `time_format` if valid
+///     or `time_format_default`
+///
+pub fn validate_time_format_input(
+    name: &str,
+    time_format: &str,
+    time_format_default: String,
+) -> String {
+    if time_format.matches("%").count() != time_format.matches("\\%").count() {
+        let _ = writeln!(
+            stderr(),
+            "WARNING: Wrong {} value received: {}.\n\
+            From version \"0.3.0\" forward the time format needs to be compliant with:\n\
+            https://docs.rs/time/0.3.7/time/format_description/index.html \n\
+            Will use the default one: {}. If you want to use %, you need to escape it (\\\\%)\n",
+            name,
+            time_format,
+            time_format_default
+        );
+        time_format_default
+    } else {
+        //replacing the escaped chars so the file has the correct name
+        time_format.replace("\\%", "%").to_string()
+    }
+}
+
 pub fn start(config_file: &str) {
     let config = match Config::from_path(config_file) {
         Ok(config) => config,
@@ -384,4 +428,46 @@ pub fn start(config_file: &str) {
 
     output.start(arx, merger);
     input.accept(tx, decoder, encoder);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_time_format_input;
+
+    #[test]
+    fn test_invalid_time_format() {
+        let default_value = "DEFAULT VALUE";
+        let time_format = validate_time_format_input(
+            "file_rotation_timeformat",
+            "%Y%M",
+            default_value.to_string(),
+        );
+
+        assert!(time_format.eq(default_value));
+    }
+
+    #[test]
+    fn test_valid_time_format() {
+        let input_time_format = "[year][month]]";
+        let time_format = validate_time_format_input(
+            "file_rotation_timeformat",
+            input_time_format,
+            "default_value".to_string(),
+        );
+
+        assert!(time_format.eq(input_time_format));
+    }
+
+    #[test]
+    fn test_valid_time_format_escaped() {
+        let input_time_format = "[year]\\%T[month]]";
+        let input_time_format_without_escaped_char = "[year]%T[month]]";
+        let time_format = validate_time_format_input(
+            "file_rotation_timeformat",
+            input_time_format,
+            "default_value".to_string(),
+        );
+
+        assert!(time_format.eq(input_time_format_without_escaped_char));
+    }
 }
