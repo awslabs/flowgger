@@ -24,9 +24,11 @@ pub use self::rfc3164_encoder::RFC3164Encoder;
 #[cfg(feature = "rfc5424")]
 pub use self::rfc5424_encoder::RFC5424Encoder;
 
-use crate::flowgger::config::Config;
 use crate::flowgger::record::Record;
+use crate::flowgger::{config::Config, validate_time_format_input};
 use time::{format_description, OffsetDateTime};
+
+const SYSLOG_PREPEND_DEFAULT_TIME_FORMAT: &str = "[year][month][day]T[hour][minute][second]Z";
 
 pub trait CloneBoxedEncoder {
     fn clone_boxed<'a>(&self) -> Box<dyn Encoder + Send + 'a>
@@ -54,7 +56,7 @@ pub trait Encoder: CloneBoxedEncoder {
 }
 
 pub fn config_get_prepend_ts(config: &Config) -> Option<String> {
-    config
+    let prepend_ts = config
         .lookup("output.syslog_prepend_timestamp")
         .map_or(None, |bs| {
             Some(
@@ -62,7 +64,20 @@ pub fn config_get_prepend_ts(config: &Config) -> Option<String> {
                     .expect("output.syslog_prepend_timestamp should be a string")
                     .to_string(),
             )
-        })
+        });
+
+    match prepend_ts {
+        Some(time_format) => {
+            let actual_time_format = validate_time_format_input(
+                "syslog_prepend_timestamp",
+                &time_format,
+                SYSLOG_PREPEND_DEFAULT_TIME_FORMAT.to_string(),
+            );
+            Some(actual_time_format)
+        }
+        // Not using syslog_prepend_timestamp - no need to validate
+        None => None,
+    }
 }
 
 pub fn build_prepend_ts(format_str: &str) -> Result<String, &'static str> {
