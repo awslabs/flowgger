@@ -2,7 +2,7 @@
 
 ![Flowgger](https://raw.github.com/awslabs/flowgger/master/flowgger.png)
 
-[![Build Status](https://app.travis-ci.com/awslabs/flowgger.svg?branch=master)](https://app.travis-ci.com/awslabs/flowgger) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
+[![CI Build](https://github.com/awslabs/flowgger/actions/workflows/ci.yml/badge.svg)](https://github.com/awslabs/flowgger/actions/workflows/ci.yml) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
 
 <a name="0.3.0"></a>
 ### New major version: 0.3.0 (2022-03-14)
