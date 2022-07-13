@@ -1,0 +1,77 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - /^\d+\.\d+\.\d+.*$/
+      - master
+      - /^bug\/.*/
+      - \^feature\/.*
+
+env:
+  FLOWGGER_FEATURES: "syslog kafka-output file redis tls gelf ltsv"
+
+jobs:
+  style:
+    name: Check Style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+
+      - name: cargo fmt -- --check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+  test:
+    name: Test flowgger
+    runs-on: ubuntu-latest
+    needs: [style]
+    strategy:
+      matrix:
+        target: [
+          x86_64-unknown-linux-gnu,
+          x86_64-unknown-linux-musl,
+          i686-unknown-linux-gnu,
+          aarch64-unknown-linux-gnu,
+          aarch64-unknown-linux-musl,
+          armv7-unknown-linux-gnueabihf,
+          mips-unknown-linux-gnu,
+          mips64-unknown-linux-gnuabi64,
+          mips64el-unknown-linux-gnuabi64,
+          mipsel-unknown-linux-gnu,
+          powerpc-unknown-linux-gnu,
+          powerpc64-unknown-linux-gnu,
+          powerpc64le-unknown-linux-gnu,
+          s390x-unknown-linux-gnu
+        ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Install cross
+        # Cross removed support of openssl, which breaks in musl. We're using an older version.
+        # Eventually we may want to create a specific docker file for cross as mentionned here
+        # https://github.com/rust-embedded/cross/issues/229
+        run: cargo install --version 0.1.16 cross --force
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: test
+          args: --target ${{ matrix.target }} --no-default-features --features "${{ env.FLOWGGER_FEATURES }}"
