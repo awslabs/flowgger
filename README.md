@@ -1,6 +1,7 @@
 
-
-![Flowgger](https://raw.github.com/awslabs/flowgger/master/flowgger.png)
+<p align="center">
+   <img src="https://raw.github.com/awslabs/flowgger/master/flowgger.png" alt="Flowgger" title="Flowgger"/>
+</p>
 
 [![CI Build](https://github.com/awslabs/flowgger/actions/workflows/ci.yml/badge.svg)](https://github.com/awslabs/flowgger/actions/workflows/ci.yml) [![License: BSD2](https://img.shields.io/badge/License-BSD2-brightgreen.svg)](https://github.com/awslabs/flowgger/blob/master/LICENSE)
 
