@@ -1,9 +1,9 @@
-mod config;
-mod decoder;
-mod encoder;
-mod input;
-mod merger;
-mod output;
+pub mod config;
+pub mod decoder;
+pub mod encoder;
+pub mod input;
+pub mod merger;
+pub mod output;
 mod record;
 mod splitter;
 mod utils;
@@ -275,12 +275,12 @@ fn get_encoder_passthrough(config: &Config) -> Box<dyn Encoder + Send> {
 }
 
 #[cfg(feature = "rfc3164")]
-fn get_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
+pub fn get_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
     Box::new(RFC3164Decoder::new(config)) as Box<dyn Decoder + Send>
 }
 
 #[cfg(feature = "rfc3164")]
-fn get_encoder_rfc3164(config: &Config) -> Box<dyn Encoder + Send> {
+pub fn get_encoder_rfc3164(config: &Config) -> Box<dyn Encoder + Send> {
     Box::new(RFC3164Encoder::new(config)) as Box<dyn Encoder + Send>
 }
 

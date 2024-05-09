@@ -11,7 +11,7 @@ use toml::Value;
 /// [`Configuration`]: https://github.com/jedisct1/flowgger/wiki/Configuration
 #[derive(Clone)]
 pub struct Config {
-    config: Value,
+    pub config: Value,
 }
 
 impl Config {

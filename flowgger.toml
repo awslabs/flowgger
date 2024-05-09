@@ -160,3 +160,11 @@ framing = "line"
 format = "rfc3164"
 # Format of the optional timestamp to be prepended to each event
 syslog_prepend_timestamp="[[[year]-[month]-[day]T[hour]:[minute]:[second].[subsecond digits:6]Z]"
+
+
+[test]
+
+###################
+#  Fuzzing Test   #
+###################
+fuzzed_message_count = 500

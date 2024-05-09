@@ -7,7 +7,7 @@ mod tcp;
 #[cfg(feature = "tls")]
 mod tls;
 #[cfg(feature = "syslog")]
-mod udp_input;
+pub mod udp_input;
 
 #[cfg(feature = "file")]
 pub use self::file::FileInput;

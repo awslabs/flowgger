@@ -97,7 +97,7 @@ impl Input for UdpInput {
 /// but could not be handled
 /// `Invalid UTF-8 input`: Bubble up from handle_record, the record is not in a valid utf-8 format, it could be a non
 /// supported compression format
-fn handle_record_maybe_compressed(
+pub fn handle_record_maybe_compressed(
     line: &[u8],
     tx: &SyncSender<Vec<u8>>,
     decoder: &Box<dyn Decoder>,
