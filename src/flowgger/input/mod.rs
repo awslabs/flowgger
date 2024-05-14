@@ -6,7 +6,9 @@ mod stdin_input;
 mod tcp;
 #[cfg(feature = "tls")]
 mod tls;
-#[cfg(feature = "syslog")]
+#[cfg(all(feature = "syslog", not(test)))]
+mod udp_input;
+#[cfg(test)]
 pub mod udp_input;
 
 #[cfg(feature = "file")]

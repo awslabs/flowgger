@@ -1,12 +1,35 @@
+#[cfg(not(test))]
+mod config;
+#[cfg(not(test))]
+mod decoder;
+#[cfg(not(test))]
+mod encoder;
+#[cfg(not(test))]
+mod input;
+#[cfg(not(test))]
+mod merger;
+#[cfg(not(test))]
+mod output;
+
+#[cfg(test)]
 pub mod config;
+#[cfg(test)]
 pub mod decoder;
+#[cfg(test)]
 pub mod encoder;
+#[cfg(test)]
 pub mod input;
+#[cfg(test)]
 pub mod merger;
+#[cfg(test)]
 pub mod output;
+
 mod record;
 mod splitter;
 mod utils;
+
+#[cfg(test)]
+mod fuzzer;
 
 use std::io::{stderr, Write};
 
@@ -274,13 +297,21 @@ fn get_encoder_passthrough(config: &Config) -> Box<dyn Encoder + Send> {
     Box::new(PassthroughEncoder::new(config)) as Box<dyn Encoder + Send>
 }
 
-#[cfg(feature = "rfc3164")]
+#[cfg(all(feature = "rfc3164", test))]
 pub fn get_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
     Box::new(RFC3164Decoder::new(config)) as Box<dyn Decoder + Send>
 }
-
-#[cfg(feature = "rfc3164")]
+#[cfg(all(feature = "rfc3164", test))]
 pub fn get_encoder_rfc3164(config: &Config) -> Box<dyn Encoder + Send> {
+    Box::new(RFC3164Encoder::new(config)) as Box<dyn Encoder + Send>
+}
+
+#[cfg(all(feature = "rfc3164", not(test)))]
+fn get_decoder_rfc3164(config: &Config) -> Box<dyn Decoder + Send> {
+    Box::new(RFC3164Decoder::new(config)) as Box<dyn Decoder + Send>
+}
+#[cfg(all(feature = "rfc3164", not(test)))]
+fn get_encoder_rfc3164(config: &Config) -> Box<dyn Encoder + Send> {
     Box::new(RFC3164Encoder::new(config)) as Box<dyn Encoder + Send>
 }
 

@@ -57,6 +57,7 @@ time-tz = "0.3"
 [dev-dependencies]
 tempdir = "0.3"
 quickcheck = "1"
+lazy_static = "1.4.0"
 
 [profile.release]
 opt-level = 3
