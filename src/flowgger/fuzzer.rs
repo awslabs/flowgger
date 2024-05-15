@@ -55,7 +55,7 @@ mod tests {
     const DEFAULT_OUTPUT_FRAMING: &str = "noop";
     const DEFAULT_OUTPUT_TYPE: &str = "file";
 
-    const DEFAULT_FUZZED_MESSAGE_COUNT: u64 = 100;
+    const DEFAULT_FUZZED_MESSAGE_COUNT: u64 = 500;
 
     lazy_static! {
         static ref STATIC_CONFIG: Config = get_config();
