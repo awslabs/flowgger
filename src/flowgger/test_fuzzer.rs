@@ -8,7 +8,7 @@
 /// # Dependencies
 /// It depend on the external crates [`QuickCheck`][https://docs.rs/quickcheck/latest/quickcheck/] and 
 /// 
-/// `QuickCheck`is used to generate random string input, while a global structure is used to intialize shared resources at runtime
+/// `QuickCheck`is used to generate random string input, while a global structure is used to initialize shared resources at runtime
 /// 
 /// # Errors
 ///
@@ -48,7 +48,7 @@ mod tests {
     const DEFAULT_OUTPUT_FRAMING: &str = "noop";
     const DEFAULT_OUTPUT_TYPE: &str = "file";
 
-    const DEFAULT_FUZZED_MESSAGE_COUNT: u64 = 40;
+    const DEFAULT_FUZZED_MESSAGE_COUNT: u64 = 500;
 
     static INIT_CONTEXT: Once = Once::new();
     static mut GLOBAL_CONTEXT: Mutex<Option<Context>> = Mutex::new(None);
