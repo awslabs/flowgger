@@ -29,7 +29,7 @@ mod splitter;
 mod utils;
 
 #[cfg(test)]
-mod fuzzer;
+mod test_fuzzer;
 
 use std::io::{stderr, Write};
 
@@ -202,13 +202,23 @@ fn get_output_kafka(_config: &Config) -> ! {
     panic!("Support for Kafka hasn't been compiled in")
 }
 
-#[cfg(feature = "file")]
+#[cfg(all(feature = "file", not(test)))]
 fn get_output_file(config: &Config) -> Box<dyn Output> {
     Box::new(FileOutput::new(config)) as Box<dyn Output>
 }
 
-#[cfg(not(feature = "file"))]
+#[cfg(all(not(feature = "file"), not(test)))]
 fn get_output_file(_config: &Config) -> ! {
+    panic!("Support for file hasn't been compiled in")
+}
+
+#[cfg(all(feature = "file", test))]
+pub fn get_output_file(config: &Config) -> Box<dyn Output> {
+    Box::new(FileOutput::new(config)) as Box<dyn Output>
+}
+
+#[cfg(all(not(feature = "file"), test))]
+pub fn get_output_file(_config: &Config) -> ! {
     panic!("Support for file hasn't been compiled in")
 }
 
