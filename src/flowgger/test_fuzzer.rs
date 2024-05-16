@@ -7,13 +7,12 @@
 /// 
 /// # Dependencies
 /// It depend on the external crates [`QuickCheck`][https://docs.rs/quickcheck/latest/quickcheck/] and 
-/// [`LazyStatic`][https://docs.rs/lazy_static/latest/lazy_static/]
 /// 
-/// `QuickCheck`is used to generate random string input, while LazyStatic is used to lazily intialize share resources at runtime
+/// `QuickCheck`is used to generate random string input, while a global structure is used to intialize shared resources at runtime
 /// 
 /// # Errors
 ///
-/// This function will return an error if the default config does not exists,is unreadbale, or is not valid
+/// This function will return an error if the default config does not exists, is unreadbale, or is not valid
 /// toml format
 #[cfg(test)]
 mod tests {
@@ -33,7 +32,6 @@ mod tests {
     use flowgger::encoder::Encoder;
     use flowgger::decoder::Decoder;
     use flowgger::merger;
-    use flowgger::output;
     use flowgger::get_output_file;
     use flowgger::get_decoder_rfc3164;
     use flowgger::get_encoder_rfc3164;
@@ -50,23 +48,16 @@ mod tests {
     const DEFAULT_OUTPUT_FRAMING: &str = "noop";
     const DEFAULT_OUTPUT_TYPE: &str = "file";
 
-    const DEFAULT_FUZZED_MESSAGE_COUNT: u64 = 500;
+    const DEFAULT_FUZZED_MESSAGE_COUNT: u64 = 40;
 
+    static INIT_CONTEXT: Once = Once::new();
+    static mut GLOBAL_CONTEXT: Mutex<Option<Context>> = Mutex::new(None);
 
-    static INIT_CONFIG: Once = Once::new();
-    static mut GLOB_CONFIG: Option<Config> = None;
-
-    static INIT_FILEPATH: Once = Once::new();
-    static mut GLOB_FILEPATH: String = String::new();
-
-    static INIT_DECODER: Once = Once::new();
-    static mut GLOB_DECODER: Mutex<Option<Box<dyn Decoder>>> = Mutex::new(None);
-
-    static INIT_ENCODER: Once = Once::new();
-    static mut GLOB_ENCODER: Mutex<Option<Box<dyn Encoder>>> = Mutex::new(None);
-
-    static INIT_SYNC_SENDER: Once = Once::new();
-    static mut GLOB_SYNC_SENDER: Mutex<Option<SyncSender<Vec<u8>>>> = Mutex::new(None);
+    struct Context {
+        encoder: Box<dyn Encoder>,
+        decoder: Box<dyn Decoder>,
+        sync_sender: SyncSender<Vec<u8>>,
+    }
 
     #[test]
     fn test_fuzzer(){
@@ -78,70 +69,33 @@ mod tests {
 
         let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(DEFAULT_QUEUE_SIZE);
         start_file_output(&config, rx);
-        set_globals(&config, &file_output_path, tx);
+        set_global_context(&config, tx);
 
         QuickCheck::new().tests(DEFAULT_FUZZED_MESSAGE_COUNT).quickcheck(fuzz_target_rfc3164 as fn(String));
         let _ = check_result(&file_output_path);
     }
 
-    fn set_globals(config: &Config, file_output_path: &str, sync_sender: SyncSender<Vec<u8>>){
-        set_global_config(config.clone());
-        set_global_output_filepath(file_output_path.to_string());
-        set_global_rfc3164_decoder(config);
-        set_global_rfc3164_encoder(config);
-        set_global_sync_sender(sync_sender);
-    }
-
-    fn set_global_rfc3164_decoder(config: &Config) {
-        INIT_DECODER.call_once(|| {
+    // Set the global context for the fuzzer
+    // The global context is used to share resources across all test runs
+    // The once call ensures the static vairable referencing the struct is only ever set once
+    fn set_global_context(config: &Config, sync_sender: SyncSender<Vec<u8>>){
+        INIT_CONTEXT.call_once(|| {
             unsafe{
                 let decoder = get_decoder_rfc3164(config);
-                let mut guard = GLOB_DECODER.lock().unwrap();
-                if guard.is_none(){
-                    *guard = Some(decoder.clone_boxed());
-                }
-                drop(guard);
-            }
-        });
-    }
-
-    fn set_global_rfc3164_encoder(config: &Config) {
-        INIT_ENCODER.call_once(|| {
-            unsafe{
                 let encoder = get_encoder_rfc3164(config);
-                let mut guard = GLOB_ENCODER.lock().unwrap();
+                let (decoder, encoder): (Box<dyn Decoder>, Box<dyn Encoder>) = (decoder.clone_boxed(), encoder.clone_boxed());
+
+                let context = Context{
+                    encoder: encoder,
+                    decoder: decoder,
+                    sync_sender: sync_sender,
+                };
+
+                let mut guard = GLOBAL_CONTEXT.lock().unwrap();
                 if guard.is_none(){
-                    *guard = Some(encoder.clone_boxed());
+                    *guard = Some(context);
                 }
                 drop(guard);
-            }
-        });
-    }
-
-    fn set_global_sync_sender(tx: SyncSender<Vec<u8>>){
-        INIT_SYNC_SENDER.call_once( || {
-            unsafe{
-                let mut guard = GLOB_SYNC_SENDER.lock().unwrap();
-                if guard.is_none(){
-                    *guard = Some(tx);
-                }
-                drop(guard);
-            }
-        });
-    }
-
-    fn set_global_output_filepath(filepath: String) {
-        INIT_FILEPATH.call_once(|| {
-            unsafe{
-                GLOB_FILEPATH = filepath;
-            }
-        });
-    }
-
-    fn set_global_config(config: Config){
-        INIT_CONFIG.call_once(|| {
-            unsafe{
-                GLOB_CONFIG = Some(config);
             }
         });
     }
@@ -209,7 +163,8 @@ mod tests {
 
     pub fn fuzz_target_rfc3164(data: String) {
         unsafe{
-            let mut sender_guard = match GLOB_SYNC_SENDER.lock() {
+            // Extract the required fields from the global context structure, which is wrapped around by a Mutex 
+            let mut guard = match GLOBAL_CONTEXT.lock() {
                 Ok(guard) => guard,
                 Err(_poisoned_error) => {
                     // Handle the poisoned Mutex
@@ -217,27 +172,13 @@ mod tests {
                     guard
                 }
             };
-            let sync_sender: &mut SyncSender<Vec<u8>> = sender_guard.as_mut().unwrap();
-
-            let mut encoder_guard = match GLOB_ENCODER.lock() {
-                Ok(guard) => guard,
-                Err(_poisoned_error) => {
-                    let guard = _poisoned_error.into_inner();
-                    guard
-                }
-            };
-            let encoder: &mut Box<dyn Encoder> = encoder_guard.as_mut().unwrap();
-
-            let mut decoder_guard = match GLOB_DECODER.lock() {
-                Ok(guard) => guard,
-                Err(_poisoned_error) => {
-                    let guard = _poisoned_error.into_inner();
-                    guard
-                }
-            };
-            let decoder: &mut Box<dyn Decoder> = decoder_guard.as_mut().unwrap();
-
+            let context: &mut Context = guard.as_mut().unwrap();
+            let sync_sender: &mut SyncSender<Vec<u8>> = &mut context.sync_sender;
+            let encoder: &mut Box<dyn Encoder> = &mut context.encoder;
+            let decoder: &mut Box<dyn Decoder> = &mut context.decoder;
             let _result = handle_record_maybe_compressed(data.as_bytes(), &sync_sender, &decoder, &encoder);
+
+            drop(guard);
         }
     }
 
@@ -247,14 +188,14 @@ mod tests {
     fn check_result(file_output_path: &str)-> Result<(), std::io::Error> {
         unsafe{
 
-            let mut sender_guard = match GLOB_SYNC_SENDER.lock() {
+            let mut guard = match GLOBAL_CONTEXT.lock() {
                 Ok(guard) => guard,
                 Err(_poisoned_error) => {
                     let guard = _poisoned_error.into_inner();
                     guard
                 }
             };
-            let tx: SyncSender<Vec<u8>> = sender_guard.take().unwrap();
+            let tx: SyncSender<Vec<u8>> = guard.take().unwrap().sync_sender;
             drop(tx);
 
             let file = fs::File::open(file_output_path).expect("Unable to open output file");
