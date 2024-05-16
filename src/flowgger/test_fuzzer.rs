@@ -77,7 +77,7 @@ mod tests {
 
     // Set the global context for the fuzzer
     // The global context is used to share resources across all test runs
-    // The once call ensures the static vairable referencing the struct is only ever set once
+    // Call Once ensures the static variable referencing the struct is only ever set once
     fn set_global_context(config: &Config, sync_sender: SyncSender<Vec<u8>>){
         INIT_CONTEXT.call_once(|| {
             unsafe{
