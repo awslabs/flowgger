@@ -38,7 +38,7 @@ optional = true
 
 [dependencies]
 capnp = { version = "0.14", optional = true }
-clap = "3"
+clap = "4"
 flate2 = "1"
 glob = { version = "0.3", optional = true }
 kafka = { version = "0.8", features = ["snappy", "gzip", "security"], optional = true }
