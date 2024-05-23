@@ -17,10 +17,12 @@
 #[cfg(test)]
 mod tests {
     extern crate quickcheck;
+    extern crate tempdir;
 
     use crate::flowgger;
 
     use quickcheck::QuickCheck;
+    use tempdir::TempDir;
 
     use std::fs;
     use std::io::{BufRead, BufReader};
@@ -42,7 +44,7 @@ mod tests {
     use toml::Value;
 
     const DEFAULT_CONFIG_FILE: &str = "flowgger.toml";
-    const DEFAULT_OUTPUT_FILEPATH: &str = "output.log";
+    const DEFAULT_OUTPUT_FILENAME: &str = "output.log";
     const DEFAULT_QUEUE_SIZE: usize = 10_000_000;
 
     const DEFAULT_OUTPUT_FORMAT: &str = "gelf";
@@ -62,15 +64,17 @@ mod tests {
 
     #[test]
     fn test_fuzzer() {
-        let config = get_config();
-        let file_output_path = config
+        let mut config = get_config();
+        let file_output_name = config
             .lookup("output.file_path")
-            .map_or(DEFAULT_OUTPUT_FILEPATH, |x| {
+            .map_or(DEFAULT_OUTPUT_FILENAME, |x| {
                 x.as_str().expect("File output path missing in config")
             });
-        remove_output_file(&file_output_path);
-
+        let output_dir = get_output_dir();
+        let file_output_path = get_output_file_path(&output_dir, &file_output_name);
         let (tx, rx): (SyncSender<Vec<u8>>, Receiver<Vec<u8>>) = sync_channel(DEFAULT_QUEUE_SIZE);
+
+        set_output_file_path_in_config(&mut config, &file_output_path);
         start_file_output(&config, rx);
         set_global_context(&config, tx);
 
@@ -78,6 +82,21 @@ mod tests {
             .tests(DEFAULT_FUZZED_MESSAGE_COUNT)
             .quickcheck(fuzz_target_rfc3164 as fn(String));
         let _ = check_result(&file_output_path);
+    }
+
+    fn get_output_dir() -> TempDir {
+        let temp_dir = TempDir::new("test_file_output").expect("Couldn't create output directory");
+        return temp_dir;
+    }
+
+    fn get_output_file_path(output_dir: &TempDir, file_output_name: &str) -> String {
+        let file_base = output_dir
+            .path()
+            .join(file_output_name)
+            .to_string_lossy()
+            .to_string();
+
+        return file_base;
     }
 
     fn get_global_context() -> *mut Mutex<Option<Context>> {
@@ -124,7 +143,7 @@ mod tests {
 
     /// Update the default file rotation size and time in the config file
     /// This ensures output is sent to a single non-rotated file
-    pub fn update_file_rotation_defaults_in_config(config: &mut Config) {
+    fn update_file_rotation_defaults_in_config(config: &mut Config) {
         if let Some(entry) = config
             .config
             .get_mut("output")
@@ -144,12 +163,19 @@ mod tests {
         }
     }
 
-    pub fn remove_output_file(file_output_path: &str) {
-        let _ = fs::remove_file(file_output_path);
+    fn set_output_file_path_in_config(config: &mut Config, file_output_path: &str) {
+        if let Some(entry) = config
+            .config
+            .get_mut("output")
+            .unwrap()
+            .get_mut("file_path")
+        {
+            *entry = Value::String(file_output_path.to_string());
+        }
     }
 
     /// Start an input listener which writes data to the output file once received.
-    pub fn start_file_output(config: &Config, rx: Receiver<Vec<u8>>) {
+    fn start_file_output(config: &Config, rx: Receiver<Vec<u8>>) {
         let output_format = config
             .lookup("output.format")
             .map_or(DEFAULT_OUTPUT_FORMAT, |x| {
@@ -179,7 +205,7 @@ mod tests {
         output.start(arx, merger);
     }
 
-    pub fn fuzz_target_rfc3164(data: String) {
+    fn fuzz_target_rfc3164(data: String) {
         unsafe {
             let global_context = get_global_context().as_ref().unwrap();
 
@@ -222,7 +248,6 @@ mod tests {
 
             let file = fs::File::open(file_output_path).expect("Unable to open output file");
             let reader = BufReader::new(file);
-
             for line in reader.lines() {
                 let line_item: String = line?;
                 if !line_item.trim().is_empty() {
