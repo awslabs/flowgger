@@ -5,7 +5,7 @@
 use {
     super::Output,
     crate::flowgger::{config::Config, merger::Merger},
-    async_nats::{jetstream, Client},
+    async_nats::{jetstream, Client, ConnectOptions},
     async_nats::jetstream::{context::PublishAckFuture, stream::StorageType},
     std::{
         path::PathBuf,
@@ -76,7 +76,6 @@ struct NatsWorker {
     merger: Option<Box<dyn Merger + Send>>,
 }
 
-use async_nats::{jetstream, Client, ConnectOptions, PublishAckFuture, stream::StorageType};
 
 #[cfg(feature = "nats-output")]
 impl NatsWorker {
@@ -86,12 +85,12 @@ impl NatsWorker {
 
         // Apply CA file if provided, to verify the server's certificate.
         if let Some(ca_file) = &self.cfg.tls_ca {
-            options = options.add_root_certificate(ca_file.clone());
+            options = options.add_root_certificates(ca_file.clone());
         }
 
         // Apply client certificate and key for mTLS client authentication.
         if let (Some(cert_file), Some(key_file)) = (&self.cfg.tls_cert, &self.cfg.tls_key) {
-            options = options.client_cert(cert_file.clone(), key_file.clone());
+            options = options.add_client_certificate(cert_file.clone(), key_file.clone());
         }
 
         // Connect to the server using the constructed options.
@@ -110,7 +109,7 @@ impl NatsWorker {
         Ok((client, js))
     }
 
-    async fn run(mut self) {
+    async fn run(self) {
         let (_, js) = self.connect().await.expect("NATS connection failed");
 
         loop {
