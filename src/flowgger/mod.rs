@@ -239,7 +239,7 @@ fn get_output(output_type: &str, config: &Config) -> Box<dyn Output> {
         "nats" => {
             #[cfg(feature = "nats-output")]
             {
-                Box::new(output::NatsOutput::new(config)) as Box<dyn Output>
+                Box::new(output::NATSOutput::new(config)) as Box<dyn Output>
             }
             #[cfg(not(feature = "nats-output"))]
             {

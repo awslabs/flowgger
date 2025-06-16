@@ -17,14 +17,14 @@ use {
 };
 
 #[cfg(feature = "nats-output")]
-pub struct NatsOutput {
-    cfg: NatsConfig,
+pub struct NATSOutput {
+    cfg: NATSConfig,
     workers: u32,
 }
 
 #[cfg(feature = "nats-output")]
 #[derive(Clone)]
-struct NatsConfig {
+struct NATSConfig {
     url:      String,
     subject:  String,
     stream:   String,
@@ -35,7 +35,7 @@ struct NatsConfig {
 }
 
 #[cfg(feature = "nats-output")]
-impl NatsOutput {
+impl NATSOutput {
     pub fn new(cfg: &Config) -> Self {
         // ---- mandatory ----
         let url     = cfg.lookup("output.nats_url")
@@ -63,22 +63,22 @@ impl NatsOutput {
             .map_or(1, |v| v.as_integer().unwrap() as u32);
 
         Self {
-            cfg: NatsConfig { url, subject, stream, timeout, tls_cert, tls_key, tls_ca },
+            cfg: NATSConfig { url, subject, stream, timeout, tls_cert, tls_key, tls_ca },
             workers,
         }
     }
 }
 
 #[cfg(feature = "nats-output")]
-struct NatsWorker {
+struct NATSWorker {
     arx: Arc<Mutex<Receiver<Vec<u8>>>>,
-    cfg: NatsConfig,
+    cfg: NATSConfig,
     merger: Option<Box<dyn Merger + Send>>,
 }
 
 
 #[cfg(feature = "nats-output")]
-impl NatsWorker {
+impl NATSWorker {
     async fn connect(&self) -> Result<(Client, jetstream::Context), async_nats::Error> {
         // Start with default connect options.
         let mut options = ConnectOptions::new();
@@ -134,7 +134,7 @@ impl NatsWorker {
 }
 
 #[cfg(feature = "nats-output")]
-impl Output for NatsOutput {
+impl Output for NATSOutput {
     fn start(&self,
              arx: Arc<Mutex<Receiver<Vec<u8>>>>,
              merger: Option<Box<dyn Merger>>) {
@@ -150,7 +150,7 @@ impl Output for NatsOutput {
                     .build()
                     .expect("tokio runtime");
 
-                rt.block_on(async { NatsWorker { arx, cfg, merger }.run().await });
+                rt.block_on(async { NATSWorker { arx, cfg, merger }.run().await });
             });
         }
     }

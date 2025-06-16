@@ -9,7 +9,7 @@ mod tls_output;
 mod nats_output;
 
 #[cfg(feature = "nats-output")]
-pub use self::nats_output::NatsOutput;
+pub use self::nats_output::NATSOutput;
 
 pub use self::debug_output::DebugOutput;
 #[cfg(feature = "file")]
