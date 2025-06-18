@@ -247,8 +247,8 @@ fn get_output(output_type: &str, config: &Config) -> Box<dyn Output> {
             }
         }
         "tls" | "syslog-tls" => get_output_tls(config),
-        "file"               => get_output_file(config),
-        _                    => panic!("Invalid output type: {}", output_type),
+        "file" => get_output_file(config),
+        _ => panic!("Invalid output type: {}", output_type),
     }
 }
 
