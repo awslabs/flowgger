@@ -112,6 +112,15 @@ file_rotation_timeformat = "[year][month][day]T[hour][minute][second]Z"
 # kafka_acks = 0
 # kafka_compression = "none"
 
+### NATS output
+# nats_url = "nats://127.0.0.1:4222"
+# nats_subject = "flowgger.logs"
+# nats_stream = "FLOWGGER" # Optional: defaults to "FLOWGGER"
+# nats_timeout = 30000 # Optional: ACK timeout in ms, defaults to 30000
+# nats_tls_ca_file = "./tls/ca.pem"
+# nats_tls_cert = "./tls/client-cert.pem"
+# nats_tls_key = "./tls/client-key.pem"
+
 ### TLS output
 # type = "tls"
 # connect = [ "172.16.205.128:6514", "172.16.205.129:6514" ]

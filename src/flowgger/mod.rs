@@ -236,6 +236,16 @@ fn get_output(output_type: &str, config: &Config) -> Box<dyn Output> {
     match output_type {
         "stdout" | "debug" => Box::new(DebugOutput::new(config)) as Box<dyn Output>,
         "kafka" => get_output_kafka(config),
+        "nats" => {
+            #[cfg(feature = "nats-output")]
+            {
+                Box::new(output::NATSOutput::new(config)) as Box<dyn Output>
+            }
+            #[cfg(not(feature = "nats-output"))]
+            {
+                panic!("Support for NATS output hasn't been compiled in")
+            }
+        }
         "tls" | "syslog-tls" => get_output_tls(config),
         "file" => get_output_file(config),
         _ => panic!("Invalid output type: {}", output_type),
@@ -444,7 +454,7 @@ pub fn start(config_file: &str) {
     let output_framing = match config.lookup("output.framing") {
         Some(framing) => framing.as_str().expect("output.framing must be a string"),
         None => match (output_format, output_type) {
-            ("capnp", _) | (_, "kafka") => "noop",
+            ("capnp", _) | (_, "kafka") | (_, "nats") => "noop",
             (_, "debug") | ("ltsv", _) => "line",
             ("gelf", _) => "nul",
             _ => DEFAULT_OUTPUT_FRAMING,
