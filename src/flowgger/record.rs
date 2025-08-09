@@ -45,7 +45,7 @@ impl fmt::Display for StructuredData {
         if let Some(sd_id) = &self.sd_id {
             f.write_str(&sd_id)?;
         }
-        for &(ref name, ref value) in &self.pairs {
+        for (name, value) in &self.pairs {
             // Remove trailing '_' if exists
             let name = if (*name).starts_with('_') {
                 &name[1..] as &str
